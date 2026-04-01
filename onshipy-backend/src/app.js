@@ -18,6 +18,7 @@ fastify.register(require('./routes/listings'), { prefix: '/api/listings' });
 fastify.register(require('./routes/sellers'),  { prefix: '/api/sellers' });
 fastify.register(require('./routes/orders'),   { prefix: '/api/orders' });
 fastify.register(require('./routes/webhook'),  { prefix: '/api/webhook' });
+fastify.register(require('./routes/stores'), { prefix: '/api/stores' });
 
 fastify.get('/health', async () => ({
   status: 'ok', app: 'Onshipy', version: '1.0.0'
