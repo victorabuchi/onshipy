@@ -1,0 +1,321 @@
+const { chromium } = require('playwright');
+const cheerio = require('cheerio');
+
+const parsePrice = (text) => {
+  if (!text) return null;
+
+  let clean = text.replace(/[€$£¥\s\u00a0]/g, '').trim();
+
+  if (!clean) return null;
+
+  const getHighQualityImageUrl = (url) => {
+  if (!url) return url;
+  // Nike: replace small sizes with large
+  url = url.replace(/_B\./g, '_B_4.').replace(/\?.*$/, '');
+  // General: remove size restrictions
+  url = url.replace(/[_-](small|medium|thumb|thumbnail|sm|md|xs|100x100|200x200|300x300|400x400)/gi, '');
+  // Shopify CDN: request master quality
+  url = url.replace(/_(pico|icon|thumb|small|compact|medium|large|grande|original)\./, '_2048x2048.');
+  return url;
+};
+
+  // European format with dot thousands and comma decimal: 329.000,00
+  if (clean.match(/^\d{1,3}(\.\d{3})+,\d{2}$/)) {
+    clean = clean.replace(/\./g, '').replace(',', '.');
+  }
+  // European thousands only: 329.000
+  else if (clean.match(/^\d{1,3}(\.\d{3})+$/)) {
+    clean = clean.replace(/\./g, '');
+  }
+  // European comma decimal: 3290,00
+  else if (clean.match(/^\d+,\d{2}$/)) {
+    clean = clean.replace(',', '.');
+  }
+  // US/UK comma thousands: 3,290.00 or 3,290
+  else if (clean.match(/^\d{1,3}(,\d{3})+(\.\d+)?$/)) {
+    clean = clean.replace(/,/g, '');
+  }
+  // Nike style: 8999 meaning 89.99
+  else if (clean.match(/^\d{4,5}$/) && parseInt(clean) > 1000) {
+    const val = parseFloat(clean) / 100;
+    if (val > 0 && val < 100000) return val;
+  }
+
+  const price = parseFloat(clean);
+  if (isNaN(price) || price <= 0 || price > 10000000) return null;
+  return price;
+};
+
+const detectCurrency = (url, $) => {
+  // Try meta tags first
+  const metaCurrency =
+    $('meta[itemprop="priceCurrency"]').attr('content') ||
+    $('[itemprop="priceCurrency"]').attr('content') ||
+    $('meta[property="product:price:currency"]').attr('content');
+
+  if (metaCurrency) return metaCurrency.toUpperCase();
+
+  // Try JSON-LD
+  let jsonCurrency = null;
+  $('script[type="application/ld+json"]').each((i, el) => {
+    try {
+      const json = JSON.parse($(el).html());
+      const data = Array.isArray(json) ? json[0] : json;
+      if (data.offers) {
+        const offers = Array.isArray(data.offers) ? data.offers[0] : data.offers;
+        if (offers.priceCurrency) {
+          jsonCurrency = offers.priceCurrency.toUpperCase();
+        }
+      }
+    } catch (e) {}
+  });
+
+  if (jsonCurrency) return jsonCurrency;
+
+  // Detect from domain
+  try {
+    const domain = new URL(url).hostname.toLowerCase();
+    if (domain.endsWith('.co.uk') || domain.endsWith('.uk')) return 'GBP';
+    if (domain.endsWith('.fr')) return 'EUR';
+    if (domain.endsWith('.de')) return 'EUR';
+    if (domain.endsWith('.it')) return 'EUR';
+    if (domain.endsWith('.es')) return 'EUR';
+    if (domain.endsWith('.nl')) return 'EUR';
+    if (domain.endsWith('.be')) return 'EUR';
+    if (domain.endsWith('.fi')) return 'EUR';
+    if (domain.endsWith('.pt')) return 'EUR';
+    if (domain.endsWith('.com')) return 'USD';
+    if (domain.endsWith('.ca')) return 'CAD';
+    if (domain.endsWith('.com.au') || domain.endsWith('.au')) return 'AUD';
+    if (domain.endsWith('.jp')) return 'JPY';
+  } catch (e) {}
+
+  return 'USD';
+};
+
+async function scrapeProduct(url) {
+  let browser;
+  try {
+    browser = await chromium.launch({
+      headless: true,
+      args: ['--no-sandbox', '--disable-setuid-sandbox']
+    });
+
+    const context = await browser.newContext({
+      userAgent: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+      viewport: { width: 1280, height: 720 },
+      locale: 'en-GB',
+    });
+
+    const page = await context.newPage();
+
+    await page.goto(url, { waitUntil: 'domcontentloaded', timeout: 30000 });
+    await page.waitForTimeout(3000);
+
+    const html = await page.content();
+    const $ = cheerio.load(html);
+    const domain = new URL(url).hostname.replace('www.', '');
+
+    let product = {
+      source_url: url,
+      source_domain: domain,
+      title: null,
+      description: null,
+      source_price: null,
+      currency: detectCurrency(url, $),
+      images: [],
+      variants: []
+    };
+
+    // --- TITLE ---
+    // Try JSON-LD first (most reliable)
+    $('script[type="application/ld+json"]').each((i, el) => {
+      try {
+        const json = JSON.parse($(el).html());
+        const data = Array.isArray(json) ? json[0] : json;
+        if ((data['@type'] === 'Product' || data.name) && !product.title) {
+          product.title = data.name;
+        }
+      } catch (e) {}
+    });
+
+    // Fallback to meta and h1
+    if (!product.title) {
+      product.title =
+        $('meta[property="og:title"]').attr('content') ||
+        $('h1').first().text().trim() ||
+        $('title').text().trim() ||
+        'Unknown Product';
+    }
+
+    if (product.title) {
+      product.title = product.title.replace(/\s+/g, ' ').trim();
+    }
+
+    // Try JSON-LD first for full description
+$('script[type="application/ld+json"]').each((i, el) => {
+  try {
+    const json = JSON.parse($(el).html());
+    const data = Array.isArray(json) ? json[0] : json;
+    if (data.description && !product.description) {
+      product.description = data.description;
+    }
+  } catch (e) {}
+});
+
+// Try common description selectors
+if (!product.description) {
+  const descSelectors = [
+    '[class*="product-description"]',
+    '[class*="productDescription"]',
+    '[id*="product-description"]',
+    '[class*="description"]',
+    '[itemprop="description"]',
+    '.product__description',
+    '#description',
+    '[data-testid*="description"]'
+  ];
+  for (const sel of descSelectors) {
+    const text = $(sel).first().text().trim();
+    if (text && text.length > 30) {
+      product.description = text;
+      break;
+    }
+  }
+}
+
+// Fallback to meta
+if (!product.description) {
+  product.description =
+    $('meta[property="og:description"]').attr('content') ||
+    $('meta[name="description"]').attr('content') ||
+    '';
+}
+
+    // --- PRICE ---
+    // Try JSON-LD first
+    $('script[type="application/ld+json"]').each((i, el) => {
+      if (product.source_price) return;
+      try {
+        const json = JSON.parse($(el).html());
+        const data = Array.isArray(json) ? json[0] : json;
+        if (data.offers) {
+          const offers = Array.isArray(data.offers) ? data.offers[0] : data.offers;
+          const price = parsePrice(String(offers.price || ''));
+          if (price) product.source_price = price;
+        }
+      } catch (e) {}
+    });
+
+    // Try meta price tag
+    if (!product.source_price) {
+      const metaPrice =
+        $('meta[property="product:price:amount"]').attr('content') ||
+        $('meta[property="og:price:amount"]').attr('content') ||
+        $('meta[itemprop="price"]').attr('content');
+
+      if (metaPrice) {
+        product.source_price = parsePrice(metaPrice);
+      }
+    }
+
+    // Try data-price attributes
+    if (!product.source_price) {
+      $('[data-price]').each((i, el) => {
+        if (product.source_price) return false;
+        const val = $(el).attr('data-price');
+        const price = parsePrice(val);
+        if (price) product.source_price = price;
+      });
+    }
+
+    // Try CSS selectors
+    if (!product.source_price) {
+      const priceSelectors = [
+        '[class*="price"]:not([class*="was"]):not([class*="old"]):not([class*="compare"]):not([class*="original"])',
+        '[id*="price"]:not([id*="was"]):not([id*="old"])',
+        '[itemprop="price"]',
+        '.price', '#price',
+        '[class*="Price"]',
+        'span[class*="money"]',
+        '[class*="product-price"]',
+        '[class*="sale-price"]',
+        '[class*="current-price"]'
+      ];
+
+      for (const selector of priceSelectors) {
+        if (product.source_price) break;
+        try {
+          $(selector).each((i, el) => {
+            if (product.source_price) return false;
+            const text =
+              $(el).attr('data-price') ||
+              $(el).attr('content') ||
+              $(el).text();
+            const price = parsePrice(text);
+            if (price) product.source_price = price;
+          });
+        } catch (e) {}
+      }
+    }
+
+    // --- IMAGES ---
+    const ogImage = $('meta[property="og:image"]').attr('content');
+    if (ogImage && ogImage.startsWith('http')) {
+      product.images.push(ogImage);
+    }
+
+    // JSON-LD images
+    $('script[type="application/ld+json"]').each((i, el) => {
+      try {
+        const json = JSON.parse($(el).html());
+        const data = Array.isArray(json) ? json[0] : json;
+        if (data.image) {
+          const imgs = Array.isArray(data.image) ? data.image : [data.image];
+          imgs.forEach(img => {
+            const src = typeof img === 'string' ? img : img.url;
+            if (src && src.startsWith('http') && !product.images.includes(src)) {
+              product.images.push(src);
+            }
+          });
+        }
+      } catch (e) {}
+    });
+
+    // Fallback img tags
+    $('img').each((i, el) => {
+      if (product.images.length >= 8) return false;
+      const src = $(el).attr('src') || $(el).attr('data-src') || $(el).attr('data-lazy-src');
+      if (
+        src &&
+        src.startsWith('http') &&
+        !src.includes('logo') &&
+        !src.includes('icon') &&
+        !src.includes('svg') &&
+        !src.includes('pixel') &&
+        !src.includes('tracking') &&
+        !product.images.includes(src)
+      ) {
+        product.images.push(src);
+      }
+    });
+
+    // Validate
+    if (!product.title || product.title === 'Unknown Product') {
+      return { success: false, error: 'Could not extract product title' };
+    }
+
+    if (!product.source_price) {
+      return { success: false, error: 'Could not extract product price' };
+    }
+
+    return { success: true, product };
+
+  } catch (error) {
+    return { success: false, error: error.message };
+  } finally {
+    if (browser) await browser.close();
+  }
+}
+
+module.exports = { scrapeProduct };
