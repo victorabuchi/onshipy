@@ -1,4 +1,5 @@
 const db = require('../db/knex');
+const https = require('https');
 
 module.exports = async function(fastify) {
 
@@ -10,25 +11,72 @@ module.exports = async function(fastify) {
     }
   };
 
-  // POST /api/stores/shopify/connect — verify Shopify credentials
+  // Helper — make HTTPS request without fetch
+  const httpsRequest = (options, body = null) => {
+    return new Promise((resolve, reject) => {
+      const req = https.request(options, (res) => {
+        let data = '';
+        res.on('data', chunk => data += chunk);
+        res.on('end', () => {
+          try {
+            resolve({ status: res.statusCode, body: JSON.parse(data) });
+          } catch {
+            resolve({ status: res.statusCode, body: data });
+          }
+        });
+      });
+      req.on('error', reject);
+      if (body) req.write(JSON.stringify(body));
+      req.end();
+    });
+  };
+
+  // POST /api/stores/shopify/connect
   fastify.post('/shopify/connect', { preHandler: authenticate }, async (req, reply) => {
     const { shop_url, access_token } = req.body;
-    if (!shop_url || !access_token) return reply.status(400).send({ error: 'shop_url and access_token required' });
+    if (!shop_url || !access_token) {
+      return reply.status(400).send({ error: 'shop_url and access_token required' });
+    }
 
     try {
-      const cleanUrl = shop_url.replace('https://', '').replace('http://', '').replace('/', '');
-      const res = await fetch(`https://${cleanUrl}/admin/api/2024-01/shop.json`, {
-        headers: { 'X-Shopify-Access-Token': access_token }
+      const cleanUrl = shop_url
+        .replace('https://', '')
+        .replace('http://', '')
+        .replace(/\/$/, '')
+        .trim();
+
+      const result = await httpsRequest({
+        hostname: cleanUrl,
+        path: '/admin/api/2024-01/shop.json',
+        method: 'GET',
+        headers: {
+          'X-Shopify-Access-Token': access_token,
+          'Content-Type': 'application/json'
+        }
       });
-      if (!res.ok) return reply.status(401).send({ error: 'Invalid Shopify credentials. Check your store URL and access token.' });
-      const data = await res.json();
-      return reply.send({ success: true, shop_name: data.shop?.name, shop_url: cleanUrl, access_token, connected_at: new Date().toISOString() });
+
+      if (result.status !== 200) {
+        return reply.status(401).send({
+          error: `Shopify returned ${result.status}. Check your store URL and access token. Make sure your Shopify app has read/write Products scope.`
+        });
+      }
+
+      return reply.send({
+        success: true,
+        shop_name: result.body.shop?.name,
+        shop_url: cleanUrl,
+        access_token,
+        connected_at: new Date().toISOString()
+      });
+
     } catch (err) {
-      return reply.status(500).send({ error: 'Could not reach Shopify: ' + err.message });
+      return reply.status(500).send({
+        error: 'Could not reach Shopify: ' + err.message + '. Make sure your store URL is correct (e.g. your-store.myshopify.com)'
+      });
     }
   });
 
-  // POST /api/stores/shopify/push — push a listing to Shopify
+  // POST /api/stores/shopify/push
   fastify.post('/shopify/push', { preHandler: authenticate }, async (req, reply) => {
     const seller_id = req.user.id;
     const { listing_id, shop_url, access_token } = req.body;
@@ -38,7 +86,6 @@ module.exports = async function(fastify) {
     }
 
     try {
-      // Get the listing with product data
       const listing = await db('product_listings')
         .join('imported_products', 'product_listings.imported_product_id', 'imported_products.id')
         .where({ 'product_listings.id': listing_id, 'product_listings.seller_id': seller_id })
@@ -48,8 +95,8 @@ module.exports = async function(fastify) {
           'imported_products.description',
           'imported_products.images',
           'imported_products.source_url',
-          'imported_products.currency',
-          'imported_products.variants'
+          'imported_products.source_domain',
+          'imported_products.currency'
         )
         .first();
 
@@ -58,53 +105,64 @@ module.exports = async function(fastify) {
       const images = (() => {
         try {
           const imgs = typeof listing.images === 'string' ? JSON.parse(listing.images) : listing.images;
-          return (imgs || []).slice(0, 10).map(src => ({ src }));
+          return (imgs || []).slice(0, 5).map(src => ({ src }));
         } catch { return []; }
       })();
 
-      const cleanUrl = shop_url.replace('https://', '').replace('http://', '').replace('/', '');
+      const cleanUrl = shop_url
+        .replace('https://', '')
+        .replace('http://', '')
+        .replace(/\/$/, '')
+        .trim();
 
-      const shopifyProduct = {
+      const productBody = {
         product: {
           title: listing.custom_title || listing.title,
-          body_html: listing.description || '',
+          body_html: `<p>${listing.description || ''}</p><p><small>Source: ${listing.source_url}</small></p>`,
           vendor: 'Onshipy',
-          product_type: 'Imported',
-          tags: `onshipy,imported,${listing.source_domain || ''}`,
+          product_type: 'Dropship',
+          tags: `onshipy,dropship,${listing.source_domain || ''}`,
           images,
           variants: [{
             price: parseFloat(listing.selling_price).toFixed(2),
-            compare_at_price: null,
             inventory_management: null,
             fulfillment_service: 'manual',
             requires_shipping: true,
-          }],
-          metafields: [{
-            namespace: 'onshipy',
-            key: 'source_url',
-            value: listing.source_url || '',
-            type: 'single_line_text_field'
+            taxable: true
           }]
         }
       };
 
-      const res = await fetch(`https://${cleanUrl}/admin/api/2024-01/products.json`, {
+      const bodyStr = JSON.stringify(productBody);
+
+      const result = await httpsRequest({
+        hostname: cleanUrl,
+        path: '/admin/api/2024-01/products.json',
         method: 'POST',
         headers: {
+          'X-Shopify-Access-Token': access_token,
           'Content-Type': 'application/json',
-          'X-Shopify-Access-Token': access_token
-        },
-        body: JSON.stringify(shopifyProduct)
-      });
+          'Content-Length': Buffer.byteLength(bodyStr)
+        }
+      }, productBody);
 
-      const data = await res.json();
-
-      if (!res.ok) {
-        return reply.status(res.status).send({ error: data.errors ? JSON.stringify(data.errors) : 'Shopify push failed' });
+      if (result.status !== 201 && result.status !== 200) {
+        return reply.status(result.status).send({
+          error: result.body?.errors
+            ? JSON.stringify(result.body.errors)
+            : `Shopify returned ${result.status}`
+        });
       }
 
-      const productUrl = `https://${cleanUrl}/products/${data.product?.handle}`;
-      return reply.send({ success: true, shopify_product_id: data.product?.id, product_url: productUrl });
+      const handle = result.body.product?.handle;
+      const productUrl = `https://${cleanUrl}/products/${handle}`;
+
+      return reply.send({
+        success: true,
+        shopify_product_id: result.body.product?.id,
+        product_url: productUrl,
+        handle
+      });
 
     } catch (err) {
       return reply.status(500).send({ error: err.message });
