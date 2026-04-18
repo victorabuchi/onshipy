@@ -43,16 +43,17 @@ export default function Analytics() {
           <p style={{ color: '#6d7175', fontSize: '13px', margin: '3px 0 0 0' }}>Your store performance overview</p>
         </div>
 
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '14px', marginBottom: '20px' }}>
+        {/* UPDATED: 2-column KPI grid */}
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '12px', marginBottom: '20px' }}>
           {[
-            { label: 'Products', value: products.length, color: '#1a1a1a' },
-            { label: 'Listings', value: listings.length, color: '#1c6ed4' },
-            { label: 'Orders', value: orders.length, color: '#6d28d9' },
-            { label: 'Revenue', value: `$${totalRevenue.toFixed(2)}`, color: '#008060' },
+            { label: 'Products', value: products.length, color: '#111' },
+            { label: 'Listings', value: listings.length, color: '#1e40af' },
+            { label: 'Orders', value: orders.length, color: '#7c3aed' },
+            { label: 'Revenue', value: `$${totalRevenue.toFixed(2)}`, color: '#00a47c' },
           ].map((s, i) => (
-            <div key={i} style={{ background: '#fff', borderRadius: '10px', padding: '18px 22px', border: '1px solid #e1e3e5' }}>
-              <div style={{ fontSize: '24px', fontWeight: '700', color: s.color }}>{s.value}</div>
-              <div style={{ fontSize: '13px', color: '#6d7175', marginTop: '3px' }}>{s.label}</div>
+            <div key={i} style={{ background: '#fff', borderRadius: '10px', padding: '16px 20px', border: '1px solid #e5e7eb' }}>
+              <div style={{ fontSize: '22px', fontWeight: '700', color: s.color }}>{s.value}</div>
+              <div style={{ fontSize: '13px', color: '#6b7280', marginTop: '3px' }}>{s.label}</div>
             </div>
           ))}
         </div>

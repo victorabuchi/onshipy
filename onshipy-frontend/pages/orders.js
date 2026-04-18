@@ -47,19 +47,22 @@ export default function Orders() {
               <h1 style={{ fontSize: '20px', fontWeight: '600', color: '#1a1a1a', margin: 0 }}>Orders</h1>
               <p style={{ color: '#6d7175', fontSize: '13px', margin: '3px 0 0 0' }}>{orders.length} total orders</p>
             </div>
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '14px', marginBottom: '20px' }}>
+
+            {/* UPDATED: 2-column stats grid */}
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '12px', marginBottom: '20px' }}>
               {[
-                { label: 'Total', value: orders.length, color: '#1a1a1a' },
-                { label: 'Pending', value: orders.filter(o => o.status === 'pending').length, color: '#856404' },
-                { label: 'Shipped', value: orders.filter(o => o.status === 'shipped').length, color: '#004085' },
-                { label: 'Delivered', value: orders.filter(o => o.status === 'delivered').length, color: '#008060' },
+                { label: 'Total', value: orders.length, color: '#111' },
+                { label: 'Pending', value: orders.filter(o => o.status === 'pending').length, color: '#92400e' },
+                { label: 'Shipped', value: orders.filter(o => o.status === 'shipped').length, color: '#1e40af' },
+                { label: 'Delivered', value: orders.filter(o => o.status === 'delivered').length, color: '#00a47c' },
               ].map((s, i) => (
-                <div key={i} style={{ background: '#fff', borderRadius: '10px', padding: '16px 20px', border: '1px solid #e1e3e5' }}>
-                  <div style={{ fontSize: '22px', fontWeight: '700', color: s.color }}>{s.value}</div>
-                  <div style={{ fontSize: '13px', color: '#6d7175', marginTop: '3px' }}>{s.label}</div>
+                <div key={i} style={{ background: '#fff', borderRadius: '10px', padding: '16px 20px', border: '1px solid #e5e7eb' }}>
+                  <div style={{ fontSize: '24px', fontWeight: '700', color: s.color }}>{s.value}</div>
+                  <div style={{ fontSize: '13px', color: '#6b7280', marginTop: '3px' }}>{s.label}</div>
                 </div>
               ))}
             </div>
+
             {loading ? (
               <div style={{ textAlign: 'center', padding: '60px', color: '#6d7175', background: '#fff', borderRadius: '10px', border: '1px solid #e1e3e5' }}>Loading...</div>
             ) : orders.length === 0 ? (
@@ -91,6 +94,7 @@ export default function Orders() {
             )}
           </div>
         </div>
+
         {selected && (
           <div style={{ width: '360px', flexShrink: 0, background: '#fff', borderLeft: '1px solid #e1e3e5', overflowY: 'auto' }}>
             <div style={{ padding: '16px 20px', borderBottom: '1px solid #e1e3e5', display: 'flex', justifyContent: 'space-between', alignItems: 'center', position: 'sticky', top: 0, background: '#fff' }}>

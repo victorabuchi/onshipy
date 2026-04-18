@@ -25,72 +25,261 @@ export default function Login() {
       localStorage.setItem('onshipy_token', data.token);
       localStorage.setItem('onshipy_seller', JSON.stringify(data.seller));
       router.push('/dashboard');
-    } catch { setError('Cannot connect to server'); }
+    } catch { setError('Cannot connect to server. Please try again.'); }
     finally { setLoading(false); }
   };
+
+  const features = [
+    { title: 'Import any product', desc: 'Paste a URL from Nike, Amazon, ASOS and more' },
+    { title: 'Auto-purchase', desc: 'We buy and ship directly to your customers' },
+    { title: 'Set your price', desc: 'Full control over your margins and profits' },
+    { title: 'Any platform', desc: 'Works with Shopify, WooCommerce and more' },
+  ];
 
   return (
     <>
       <style>{`
-        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
         html, body { width: 100%; min-height: 100vh; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; }
-        .login-wrap { display: flex; min-height: 100vh; min-height: 100dvh; width: 100%; }
-        .login-left { width: 100%; max-width: 480px; background: #fff; display: flex; flex-direction: column; justify-content: center; padding: 48px 40px; }
-        .login-right { flex: 1; background: #1a1a2e; display: flex; align-items: center; justify-content: center; padding: 48px 40px; }
-        .login-right-inner { max-width: 400px; width: 100%; text-align: center; }
-        .feature-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 32px; text-align: left; }
-        .feature-card { background: rgba(255,255,255,0.07); border-radius: 10px; padding: 14px; }
-        @media (max-width: 767px) {
-          .login-wrap { flex-direction: column; }
-          .login-left { max-width: 100%; padding: 40px 24px; justify-content: flex-start; padding-top: 60px; }
-          .login-right { display: none; }
+
+        .login-page {
+          min-height: 100vh;
+          min-height: 100dvh;
+          display: flex;
+          flex-direction: column;
+          background: #fff;
+        }
+
+        /* Hero section — dark background with text */
+        .login-hero {
+          background: #1a1a2e;
+          padding: 48px 24px 40px;
+          text-align: center;
+        }
+
+        .login-hero-logo {
+          font-size: 22px;
+          font-weight: 800;
+          color: #fff;
+          letter-spacing: -0.5px;
+          margin-bottom: 24px;
+        }
+
+        .login-hero-headline {
+          font-size: 32px;
+          font-weight: 800;
+          color: #fff;
+          line-height: 1.15;
+          letter-spacing: -0.5px;
+          margin-bottom: 14px;
+        }
+
+        .login-hero-sub {
+          font-size: 15px;
+          color: rgba(255,255,255,0.6);
+          line-height: 1.65;
+          max-width: 480px;
+          margin: 0 auto 28px;
+        }
+
+        .feature-grid {
+          display: grid;
+          grid-template-columns: 1fr 1fr;
+          gap: 10px;
+          max-width: 480px;
+          margin: 0 auto;
+          text-align: left;
+        }
+
+        .feature-card {
+          background: rgba(255,255,255,0.07);
+          border: 1px solid rgba(255,255,255,0.08);
+          border-radius: 10px;
+          padding: 14px;
+        }
+
+        .feature-card-title {
+          font-weight: 600;
+          font-size: 13px;
+          color: #fff;
+          margin-bottom: 4px;
+        }
+
+        .feature-card-desc {
+          font-size: 12px;
+          color: rgba(255,255,255,0.45);
+          line-height: 1.5;
+        }
+
+        /* Form section */
+        .login-form-wrap {
+          flex: 1;
+          padding: 36px 24px 40px;
+          max-width: 440px;
+          width: 100%;
+          margin: 0 auto;
+        }
+
+        .login-form-title {
+          font-size: 20px;
+          font-weight: 700;
+          color: #111;
+          margin-bottom: 4px;
+        }
+
+        .login-form-sub {
+          font-size: 14px;
+          color: #6b7280;
+          margin-bottom: 24px;
+        }
+
+        .form-label {
+          display: block;
+          font-size: 13px;
+          font-weight: 500;
+          color: #111;
+          margin-bottom: 6px;
+        }
+
+        .form-input {
+          width: 100%;
+          padding: 12px 14px;
+          border: 1px solid #d1d5db;
+          border-radius: 8px;
+          font-size: 15px;
+          outline: none;
+          color: #111;
+          background: #fff;
+          transition: border-color 0.15s;
+        }
+
+        .form-input:focus { border-color: #1a1a2e; }
+
+        .btn-primary {
+          width: 100%;
+          padding: 13px;
+          background: #1a1a1a;
+          color: #fff;
+          border: none;
+          border-radius: 8px;
+          font-size: 15px;
+          font-weight: 600;
+          cursor: pointer;
+          transition: opacity 0.15s;
+        }
+
+        .btn-primary:disabled { opacity: 0.5; cursor: not-allowed; }
+
+        /* Desktop: side by side */
+        @media (min-width: 768px) {
+          .login-page {
+            flex-direction: row;
+          }
+
+          .login-hero {
+            width: 50%;
+            flex-shrink: 0;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            padding: 60px 48px;
+            text-align: left;
+            min-height: 100vh;
+          }
+
+          .login-hero-logo { margin-bottom: 40px; }
+          .login-hero-headline { font-size: 42px; }
+          .login-hero-sub { margin-left: 0; }
+          .feature-grid { margin-left: 0; }
+
+          .login-form-wrap {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            padding: 60px 56px;
+            max-width: none;
+          }
+
+          .login-form-inner {
+            max-width: 400px;
+          }
+        }
+
+        @media (min-width: 1200px) {
+          .login-hero { width: 55%; }
+          .login-hero-headline { font-size: 52px; }
         }
       `}</style>
-      <div className="login-wrap">
-        <div className="login-left">
-          <div style={{ marginBottom: '36px' }}>
-            <div style={{ fontSize: '24px', fontWeight: '800', color: '#1a1a1a', letterSpacing: '-0.5px', marginBottom: '8px' }}>Onshipy</div>
-            <h1 style={{ fontSize: '22px', fontWeight: '600', color: '#1a1a1a', marginBottom: '6px' }}>Sign in to your account</h1>
-            <p style={{ color: '#6b7280', fontSize: '14px' }}>Welcome back</p>
-          </div>
-          <form onSubmit={handleSubmit}>
-            <div style={{ marginBottom: '16px' }}>
-              <label style={{ display: 'block', fontSize: '13px', fontWeight: '500', marginBottom: '6px', color: '#111' }}>Email address</label>
-              <input type="email" required value={form.email} onChange={e => setForm({ ...form, email: e.target.value })} placeholder="yourname@example.com" style={{ width: '100%', padding: '11px 14px', border: '1px solid #d1d5db', borderRadius: '8px', fontSize: '15px', outline: 'none', color: '#111' }} />
-            </div>
-            <div style={{ marginBottom: '24px' }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '6px' }}>
-                <label style={{ fontSize: '13px', fontWeight: '500', color: '#111' }}>Password</label>
-                <a href="#" style={{ fontSize: '13px', color: '#00a47c', textDecoration: 'none' }}>Forgot password?</a>
-              </div>
-              <input type="password" required value={form.password} onChange={e => setForm({ ...form, password: e.target.value })} placeholder="Your password" style={{ width: '100%', padding: '11px 14px', border: '1px solid #d1d5db', borderRadius: '8px', fontSize: '15px', outline: 'none' }} />
-            </div>
-            {error && <div style={{ padding: '10px 14px', background: '#fef2f2', border: '1px solid #fecaca', borderRadius: '8px', marginBottom: '16px', fontSize: '14px', color: '#dc2626' }}>{error}</div>}
-            <button type="submit" disabled={loading} style={{ width: '100%', padding: '12px', background: loading ? '#9ca3af' : '#1a1a1a', color: '#fff', border: 'none', borderRadius: '8px', fontSize: '15px', fontWeight: '600', cursor: loading ? 'not-allowed' : 'pointer' }}>
-              {loading ? 'Signing in...' : 'Sign in'}
-            </button>
-          </form>
-          <p style={{ textAlign: 'center', marginTop: '20px', fontSize: '14px', color: '#6b7280' }}>
-            Don't have an account?{' '}<Link href="/register" style={{ color: '#00a47c', fontWeight: '500', textDecoration: 'none' }}>Create one free</Link>
+
+      <div className="login-page">
+
+        {/* Hero */}
+        <div className="login-hero">
+          <div className="login-hero-logo">Onshipy</div>
+          <h1 className="login-hero-headline">Sell anything.<br />From anywhere.</h1>
+          <p className="login-hero-sub">
+            Import products from any website, set your price, and start selling. Onshipy handles purchasing, shipping, and tracking automatically.
           </p>
+          <div className="feature-grid">
+            {features.map((f, i) => (
+              <div key={i} className="feature-card">
+                <div className="feature-card-title">{f.title}</div>
+                <div className="feature-card-desc">{f.desc}</div>
+              </div>
+            ))}
+          </div>
         </div>
-        <div className="login-right">
-          <div className="login-right-inner">
-            <div style={{ fontSize: '40px', fontWeight: '800', color: '#fff', lineHeight: 1.1, letterSpacing: '-1px', marginBottom: '16px' }}>Sell anything.<br />From anywhere.</div>
-            <p style={{ fontSize: '15px', color: 'rgba(255,255,255,0.6)', lineHeight: 1.7 }}>Import products from any website, set your price, and start selling. Onshipy handles purchasing, shipping, and tracking automatically.</p>
-            <div className="feature-grid">
-              {[
-                { title: 'Import any product', desc: 'Paste a URL from Nike, Amazon, ASOS and more' },
-                { title: 'Auto-purchase', desc: 'We buy and ship directly to your customers' },
-                { title: 'Set your price', desc: 'Full control over your margins and profits' },
-                { title: 'Any platform', desc: 'Works with Shopify, WooCommerce and more' },
-              ].map((f, i) => (
-                <div key={i} className="feature-card">
-                  <div style={{ fontWeight: '600', fontSize: '13px', color: '#fff', marginBottom: '4px' }}>{f.title}</div>
-                  <div style={{ fontSize: '12px', color: 'rgba(255,255,255,0.5)', lineHeight: 1.5 }}>{f.desc}</div>
+
+        {/* Form */}
+        <div className="login-form-wrap">
+          <div className="login-form-inner">
+            <div className="login-form-title">Sign in to your account</div>
+            <div className="login-form-sub">Welcome back</div>
+
+            <form onSubmit={handleSubmit}>
+              <div style={{ marginBottom: '16px' }}>
+                <label className="form-label">Email address</label>
+                <input
+                  className="form-input"
+                  type="email"
+                  required
+                  value={form.email}
+                  onChange={e => setForm({ ...form, email: e.target.value })}
+                  placeholder="yourname@example.com"
+                />
+              </div>
+
+              <div style={{ marginBottom: '24px' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '6px' }}>
+                  <label className="form-label" style={{ marginBottom: 0 }}>Password</label>
+                  <a href="#" style={{ fontSize: '13px', color: '#00a47c', textDecoration: 'none', fontWeight: '500' }}>Forgot password?</a>
                 </div>
-              ))}
-            </div>
+                <input
+                  className="form-input"
+                  type="password"
+                  required
+                  value={form.password}
+                  onChange={e => setForm({ ...form, password: e.target.value })}
+                  placeholder="Your password"
+                />
+              </div>
+
+              {error && (
+                <div style={{ padding: '10px 14px', background: '#fef2f2', border: '1px solid #fecaca', borderRadius: '8px', marginBottom: '16px', fontSize: '14px', color: '#dc2626' }}>
+                  {error}
+                </div>
+              )}
+
+              <button className="btn-primary" type="submit" disabled={loading}>
+                {loading ? 'Signing in...' : 'Sign in'}
+              </button>
+            </form>
+
+            <p style={{ textAlign: 'center', marginTop: '20px', fontSize: '14px', color: '#6b7280' }}>
+              Don't have an account?{' '}
+              <Link href="/register" style={{ color: '#00a47c', fontWeight: '600', textDecoration: 'none' }}>Create one free</Link>
+            </p>
           </div>
         </div>
       </div>
