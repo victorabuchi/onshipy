@@ -7,14 +7,12 @@ fastify.register(require('@fastify/cors'), {
   allowedHeaders: ['Content-Type', 'Authorization'],
   credentials: true
 });
-
 fastify.register(require('@fastify/helmet'), { contentSecurityPolicy: false });
 fastify.register(require('@fastify/cookie'));
 fastify.register(require('@fastify/jwt'), {
   secret: process.env.JWT_SECRET || 'onshipy_dev_secret'
 });
 
-// Routes
 fastify.register(require('./routes/auth'),     { prefix: '/api/auth' });
 fastify.register(require('./routes/products'), { prefix: '/api/products' });
 fastify.register(require('./routes/listings'), { prefix: '/api/listings' });
@@ -24,12 +22,19 @@ fastify.register(require('./routes/webhook'),  { prefix: '/api/webhook' });
 fastify.register(require('./routes/stores'),   { prefix: '/api/stores' });
 
 fastify.get('/health', async () => ({
-  status: 'ok', app: 'Onshipy', version: '1.0.0'
+  status: 'ok',
+  app: 'Onshipy',
+  version: '1.0.0',
+  env_check: {
+    google_client_id: !!process.env.GOOGLE_CLIENT_ID,
+    backend_url: process.env.BACKEND_URL || 'NOT SET',
+    frontend_url: process.env.FRONTEND_URL || 'NOT SET'
+  }
 }));
 
 fastify.setErrorHandler((error, req, reply) => {
   console.error('Error:', error.message);
-  reply.status(500).send({ error: error.message });
+  reply.status(error.statusCode || 500).send({ error: error.message });
 });
 
 const start = async () => {
