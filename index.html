@@ -1,0 +1,547 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Onshipy — Automate Your Order Fulfillment</title>
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg: #080b12;
+      --surface: #0f1520;
+      --surface2: #161d2e;
+      --accent: #00e5a0;
+      --accent2: #0066ff;
+      --text: #e8edf5;
+      --muted: #6b7a95;
+      --border: rgba(255,255,255,0.07);
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'DM Sans', sans-serif;
+      font-size: 16px;
+      line-height: 1.6;
+      overflow-x: hidden;
+    }
+
+    /* NAV */
+    nav {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 1.2rem 5%;
+      background: rgba(8,11,18,0.85);
+      backdrop-filter: blur(16px);
+      border-bottom: 1px solid var(--border);
+    }
+    .logo {
+      font-family: 'Syne', sans-serif;
+      font-weight: 800;
+      font-size: 1.4rem;
+      letter-spacing: -0.02em;
+      color: var(--accent);
+    }
+    .logo span { color: var(--text); }
+    nav ul { list-style: none; display: flex; gap: 2rem; }
+    nav ul a { color: var(--muted); text-decoration: none; font-size: 0.9rem; font-weight: 500; transition: color 0.2s; }
+    nav ul a:hover { color: var(--text); }
+    .nav-cta {
+      background: var(--accent);
+      color: #080b12;
+      border: none;
+      padding: 0.55rem 1.3rem;
+      border-radius: 6px;
+      font-family: 'DM Sans', sans-serif;
+      font-weight: 600;
+      font-size: 0.88rem;
+      cursor: pointer;
+      transition: opacity 0.2s;
+    }
+    .nav-cta:hover { opacity: 0.85; }
+
+    /* HERO */
+    .hero {
+      min-height: 100vh;
+      display: flex; flex-direction: column; justify-content: center; align-items: center;
+      text-align: center;
+      padding: 8rem 5% 5rem;
+      position: relative;
+      overflow: hidden;
+    }
+    .hero::before {
+      content: '';
+      position: absolute; top: -20%; left: 50%; transform: translateX(-50%);
+      width: 800px; height: 800px;
+      background: radial-gradient(circle, rgba(0,229,160,0.08) 0%, transparent 65%);
+      pointer-events: none;
+    }
+    .hero::after {
+      content: '';
+      position: absolute; bottom: 0; left: 50%; transform: translateX(-50%);
+      width: 600px; height: 2px;
+      background: linear-gradient(90deg, transparent, var(--accent), transparent);
+    }
+    .hero-badge {
+      display: inline-flex; align-items: center; gap: 0.5rem;
+      background: rgba(0,229,160,0.08);
+      border: 1px solid rgba(0,229,160,0.2);
+      color: var(--accent);
+      padding: 0.35rem 1rem;
+      border-radius: 100px;
+      font-size: 0.82rem;
+      font-weight: 500;
+      margin-bottom: 2rem;
+      animation: fadeUp 0.6s ease both;
+    }
+    .hero-badge::before { content: '●'; font-size: 0.5rem; animation: pulse 2s infinite; }
+    @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.3} }
+    h1 {
+      font-family: 'Syne', sans-serif;
+      font-weight: 800;
+      font-size: clamp(2.8rem, 6vw, 5.5rem);
+      line-height: 1.05;
+      letter-spacing: -0.03em;
+      margin-bottom: 1.5rem;
+      animation: fadeUp 0.7s 0.1s ease both;
+    }
+    h1 em { font-style: normal; color: var(--accent); }
+    .hero-sub {
+      max-width: 560px;
+      color: var(--muted);
+      font-size: 1.1rem;
+      font-weight: 300;
+      line-height: 1.7;
+      margin-bottom: 2.5rem;
+      animation: fadeUp 0.7s 0.2s ease both;
+    }
+    .hero-actions {
+      display: flex; gap: 1rem; flex-wrap: wrap; justify-content: center;
+      animation: fadeUp 0.7s 0.3s ease both;
+    }
+    .btn-primary {
+      background: var(--accent);
+      color: #080b12;
+      padding: 0.85rem 2rem;
+      border-radius: 8px;
+      font-weight: 700;
+      font-size: 0.95rem;
+      text-decoration: none;
+      transition: transform 0.2s, opacity 0.2s;
+    }
+    .btn-primary:hover { transform: translateY(-2px); opacity: 0.9; }
+    .btn-ghost {
+      border: 1px solid var(--border);
+      color: var(--text);
+      padding: 0.85rem 2rem;
+      border-radius: 8px;
+      font-weight: 500;
+      font-size: 0.95rem;
+      text-decoration: none;
+      transition: border-color 0.2s, transform 0.2s;
+    }
+    .btn-ghost:hover { border-color: var(--accent); transform: translateY(-2px); }
+    @keyframes fadeUp { from { opacity:0; transform:translateY(24px); } to { opacity:1; transform:translateY(0); } }
+
+    /* FLOW SECTION */
+    section { padding: 5rem 5%; }
+    .section-label {
+      font-size: 0.75rem;
+      font-weight: 600;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: var(--accent);
+      margin-bottom: 0.75rem;
+    }
+    h2 {
+      font-family: 'Syne', sans-serif;
+      font-weight: 700;
+      font-size: clamp(1.8rem, 3.5vw, 2.8rem);
+      letter-spacing: -0.02em;
+      line-height: 1.15;
+      margin-bottom: 1rem;
+    }
+    .section-intro { color: var(--muted); font-size: 1.05rem; max-width: 520px; }
+
+    .flow-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 0;
+      margin-top: 3.5rem;
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      overflow: hidden;
+    }
+    .flow-step {
+      padding: 2rem;
+      border-right: 1px solid var(--border);
+      position: relative;
+      transition: background 0.3s;
+    }
+    .flow-step:last-child { border-right: none; }
+    .flow-step:hover { background: var(--surface2); }
+    .step-num {
+      font-family: 'Syne', sans-serif;
+      font-size: 2.5rem;
+      font-weight: 800;
+      color: rgba(0,229,160,0.12);
+      line-height: 1;
+      margin-bottom: 0.75rem;
+    }
+    .step-icon {
+      width: 40px; height: 40px;
+      background: rgba(0,229,160,0.1);
+      border-radius: 10px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.2rem;
+      margin-bottom: 1rem;
+    }
+    .flow-step h3 {
+      font-family: 'Syne', sans-serif;
+      font-weight: 700;
+      font-size: 1rem;
+      margin-bottom: 0.5rem;
+    }
+    .flow-step p { color: var(--muted); font-size: 0.88rem; line-height: 1.6; }
+    .arrow {
+      position: absolute; right: -14px; top: 50%;
+      transform: translateY(-50%);
+      width: 28px; height: 28px;
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 0.75rem;
+      color: var(--accent);
+      z-index: 2;
+    }
+    .flow-step:last-child .arrow { display: none; }
+
+    /* FEATURES */
+    .features-bg { background: var(--surface); }
+    .features-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 1.5rem;
+      margin-top: 3rem;
+    }
+    .feature-card {
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 2rem;
+      transition: border-color 0.3s, transform 0.3s;
+    }
+    .feature-card:hover { border-color: rgba(0,229,160,0.3); transform: translateY(-4px); }
+    .feat-icon {
+      font-size: 1.6rem;
+      margin-bottom: 1rem;
+      display: block;
+    }
+    .feature-card h3 {
+      font-family: 'Syne', sans-serif;
+      font-weight: 700;
+      font-size: 1.05rem;
+      margin-bottom: 0.5rem;
+    }
+    .feature-card p { color: var(--muted); font-size: 0.88rem; line-height: 1.65; }
+
+    /* STACK */
+    .stack-row {
+      display: flex; flex-wrap: wrap; gap: 0.75rem;
+      margin-top: 2.5rem;
+    }
+    .stack-pill {
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      padding: 0.5rem 1.1rem;
+      border-radius: 100px;
+      font-size: 0.85rem;
+      font-weight: 500;
+      color: var(--text);
+      transition: border-color 0.2s;
+    }
+    .stack-pill:hover { border-color: var(--accent); color: var(--accent); }
+    .stack-pill.highlight { border-color: rgba(0,229,160,0.3); color: var(--accent); background: rgba(0,229,160,0.07); }
+
+    /* TEAM */
+    .team-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 1.5rem;
+      margin-top: 3rem;
+    }
+    .team-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 2rem;
+      text-align: center;
+      transition: transform 0.3s;
+    }
+    .team-card:hover { transform: translateY(-4px); }
+    .avatar {
+      width: 72px; height: 72px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, var(--accent2), var(--accent));
+      display: flex; align-items: center; justify-content: center;
+      font-family: 'Syne', sans-serif;
+      font-weight: 800;
+      font-size: 1.3rem;
+      color: #080b12;
+      margin: 0 auto 1rem;
+    }
+    .team-card h3 { font-family: 'Syne', sans-serif; font-weight: 700; font-size: 1rem; margin-bottom: 0.3rem; }
+    .team-card p { color: var(--muted); font-size: 0.85rem; }
+    .team-role {
+      display: inline-block;
+      margin-top: 0.75rem;
+      background: rgba(0,229,160,0.08);
+      border: 1px solid rgba(0,229,160,0.15);
+      color: var(--accent);
+      padding: 0.25rem 0.75rem;
+      border-radius: 100px;
+      font-size: 0.78rem;
+      font-weight: 500;
+    }
+
+    /* STATUS */
+    .status-bar {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 1.5rem 2rem;
+      display: flex; align-items: center; justify-content: space-between;
+      flex-wrap: wrap; gap: 1rem;
+      margin-top: 3rem;
+    }
+    .status-item { text-align: center; }
+    .status-item .val {
+      font-family: 'Syne', sans-serif;
+      font-weight: 800;
+      font-size: 1.8rem;
+      color: var(--accent);
+    }
+    .status-item .lbl { color: var(--muted); font-size: 0.8rem; margin-top: 0.1rem; }
+    .build-badge {
+      display: flex; align-items: center; gap: 0.5rem;
+      background: rgba(0,229,160,0.08);
+      border: 1px solid rgba(0,229,160,0.2);
+      padding: 0.6rem 1.2rem;
+      border-radius: 8px;
+      color: var(--accent);
+      font-size: 0.88rem;
+      font-weight: 600;
+    }
+    .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--accent); animation: pulse 2s infinite; }
+
+    /* FOOTER */
+    footer {
+      border-top: 1px solid var(--border);
+      padding: 2.5rem 5%;
+      display: flex; align-items: center; justify-content: space-between;
+      flex-wrap: wrap; gap: 1rem;
+    }
+    footer .logo { font-size: 1.1rem; }
+    footer p { color: var(--muted); font-size: 0.85rem; }
+    footer a { color: var(--muted); text-decoration: none; transition: color 0.2s; }
+    footer a:hover { color: var(--accent); }
+
+    @media (max-width: 640px) {
+      nav ul { display: none; }
+      .flow-grid { grid-template-columns: 1fr; }
+      .flow-step { border-right: none; border-bottom: 1px solid var(--border); }
+      .flow-step:last-child { border-bottom: none; }
+      .arrow { display: none; }
+      .status-bar { justify-content: center; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- NAV -->
+  <nav>
+    <div class="logo">on<span>shipy</span></div>
+    <ul>
+      <li><a href="#how-it-works">How it works</a></li>
+      <li><a href="#features">Features</a></li>
+      <li><a href="#stack">Stack</a></li>
+      <li><a href="#team">Team</a></li>
+    </ul>
+    <button class="nav-cta">View on GitHub</button>
+  </nav>
+
+  <!-- HERO -->
+  <section class="hero">
+    <div class="hero-badge">🚀 In Active Development</div>
+    <h1>Automate Your<br><em>Order Fulfillment</em><br>Pipeline</h1>
+    <p class="hero-sub">Onshipy is a middleware SaaS platform that captures Shopify orders via webhooks and routes them automatically to the right supplier — no manual steps, no delays.</p>
+    <div class="hero-actions">
+      <a href="https://github.com/victorabuchi/onshipy" class="btn-primary" target="_blank">View Repository</a>
+      <a href="#how-it-works" class="btn-ghost">See How It Works</a>
+    </div>
+  </section>
+
+  <!-- HOW IT WORKS -->
+  <section id="how-it-works">
+    <div class="section-label">Core Logic</div>
+    <h2>From customer click<br>to supplier dispatch</h2>
+    <p class="section-intro">A four-step automated pipeline that removes human bottlenecks from order processing entirely.</p>
+
+    <div class="flow-grid">
+      <div class="flow-step">
+        <div class="step-num">01</div>
+        <div class="step-icon">🛒</div>
+        <h3>Customer Purchase</h3>
+        <p>A customer places an order on a connected storefront — Shopify, WooCommerce, or custom.</p>
+        <div class="arrow">→</div>
+      </div>
+      <div class="flow-step">
+        <div class="step-num">02</div>
+        <div class="step-icon">⚡</div>
+        <h3>Webhook Capture</h3>
+        <p>Onshipy's webhook listener receives the order data in real time via a secure POST request.</p>
+        <div class="arrow">→</div>
+      </div>
+      <div class="flow-step">
+        <div class="step-num">03</div>
+        <div class="step-icon">⚙️</div>
+        <h3>Middleware Processing</h3>
+        <p>The middleware validates, transforms, and routes the order to the correct supplier endpoint.</p>
+        <div class="arrow">→</div>
+      </div>
+      <div class="flow-step">
+        <div class="step-num">04</div>
+        <div class="step-icon">📦</div>
+        <h3>Supplier Dispatch</h3>
+        <p>The supplier receives structured order data and begins fulfillment. Status syncs back to the storefront.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- FEATURES -->
+  <section id="features" class="features-bg">
+    <div class="section-label">Features</div>
+    <h2>Built for reliability<br>at every step</h2>
+    <p class="section-intro">Every feature is designed around the real-world complexity of multi-supplier e-commerce operations.</p>
+
+    <div class="features-grid">
+      <div class="feature-card">
+        <span class="feat-icon">🔗</span>
+        <h3>Shopify Webhook Integration</h3>
+        <p>Real-time order capture via Shopify's webhook API. Handles authentication, retries, and idempotency out of the box.</p>
+      </div>
+      <div class="feature-card">
+        <span class="feat-icon">🔀</span>
+        <h3>Smart Order Routing</h3>
+        <p>Orders are mapped to the correct supplier based on product SKU, region, and stock availability rules.</p>
+      </div>
+      <div class="feature-card">
+        <span class="feat-icon">🛡️</span>
+        <h3>PII Data Protection</h3>
+        <p>Customer personal data is encrypted and masked during transit. Suppliers receive only fulfillment-relevant fields.</p>
+      </div>
+      <div class="feature-card">
+        <span class="feat-icon">🔄</span>
+        <h3>Status Sync</h3>
+        <p>Fulfillment status flows back from supplier to storefront automatically — no manual tracking updates needed.</p>
+      </div>
+      <div class="feature-card">
+        <span class="feat-icon">🗄️</span>
+        <h3>PostgreSQL Order Ledger</h3>
+        <p>Every order, event, and status change is persisted with full audit trail. Schema migrations handled via Liquibase.</p>
+      </div>
+      <div class="feature-card">
+        <span class="feat-icon">📊</span>
+        <h3>Dashboard & Monitoring</h3>
+        <p>Live order pipeline view with error flagging, retry controls, and per-supplier throughput metrics.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- STACK -->
+  <section id="stack">
+    <div class="section-label">Tech Stack</div>
+    <h2>What Onshipy<br>is built on</h2>
+    <p class="section-intro">Chosen for scalability, developer familiarity, and production reliability.</p>
+
+    <div class="stack-row">
+      <span class="stack-pill highlight">Node.js</span>
+      <span class="stack-pill highlight">React</span>
+      <span class="stack-pill highlight">PostgreSQL</span>
+      <span class="stack-pill">Shopify API</span>
+      <span class="stack-pill">Webhooks</span>
+      <span class="stack-pill">REST APIs</span>
+      <span class="stack-pill">Render</span>
+      <span class="stack-pill">GitHub Actions</span>
+      <span class="stack-pill">Postman</span>
+      <span class="stack-pill">DataGrip</span>
+      <span class="stack-pill">GitHub Projects</span>
+      <span class="stack-pill">Kanban</span>
+    </div>
+
+    <div class="status-bar">
+      <div class="status-item">
+        <div class="val">3+</div>
+        <div class="lbl">Git Commits</div>
+      </div>
+      <div class="status-item">
+        <div class="val">2</div>
+        <div class="lbl">Core Modules</div>
+      </div>
+      <div class="status-item">
+        <div class="val">1</div>
+        <div class="lbl">Live Deployment</div>
+      </div>
+      <div class="status-item">
+        <div class="val">3</div>
+        <div class="lbl">Team Members</div>
+      </div>
+      <div class="build-badge">
+        <div class="dot"></div>
+        Build: In Progress
+      </div>
+    </div>
+  </section>
+
+  <!-- TEAM -->
+  <section id="team" style="background: var(--surface);">
+    <div class="section-label">The Team</div>
+    <h2>Built by students,<br>for real problems</h2>
+    <p class="section-intro">University of Eastern Finland — BSc Information Technology, 2025</p>
+
+    <div class="team-grid">
+      <div class="team-card">
+        <div class="avatar">VA</div>
+        <h3>Victor Abuchi</h3>
+        <p>Backend architecture, webhook integration, database design & deployment.</p>
+        <span class="team-role">Lead Developer</span>
+      </div>
+      <div class="team-card">
+        <div class="avatar">OP</div>
+        <h3>Okolo Paschal</h3>
+        <p>Frontend development, UI components, and integration testing.</p>
+        <span class="team-role">Frontend Developer</span>
+      </div>
+      <div class="team-card">
+        <div class="avatar">NB</div>
+        <h3>Nwabude Benjamin</h3>
+        <p>API design, documentation, and supplier routing logic.</p>
+        <span class="team-role">API & Integration</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- FOOTER -->
+  <footer>
+    <div class="logo">on<span>shipy</span></div>
+    <p>BSc IT Project · University of Eastern Finland · 2025</p>
+    <a href="https://github.com/victorabuchi/onshipy" target="_blank">github.com/victorabuchi/onshipy</a>
+  </footer>
+
+</body>
+</html>

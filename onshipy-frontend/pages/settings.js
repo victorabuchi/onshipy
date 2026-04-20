@@ -354,71 +354,36 @@ export default function Settings() {
             </div>
           )}
 
+          {/* PAYMENTS */}
           {active === 'payments' && (
-  <div>
-    <h1 style={{ fontSize: '20px', fontWeight: '600', margin: '0 0 20px 0' }}>Payments</h1>
-
-    <div style={card}>
-      <div style={cardHead}>
-        <div style={{ fontWeight: '600', fontSize: '14px' }}>Payment providers</div>
-        <div style={{ fontSize: '13px', color: '#6b7280', marginTop: '2px' }}>Accept payments from your customers</div>
-      </div>
-      <div>
-        {[
-          {
-            name: 'Stripe',
-            desc: 'Credit cards, Apple Pay, Google Pay, SEPA',
-            connected: false,
-            logo: (
-              <svg viewBox="0 0 60 25" width="44" height="18" fill="#635BFF">
-                <path d="M25.6 10.4c0-1.6 1.3-2.2 3.4-2.2 3 0 6.9.9 9.9 2.5V4.2C36.1 2.8 33.3 2 30.3 2c-6.6 0-11 3.4-11 9.1 0 8.9 12.2 7.4 12.2 11.2 0 1.9-1.6 2.5-3.9 2.5-3.4 0-7.7-1.4-11.1-3.3v6.6c3.8 1.6 7.6 2.3 11.1 2.3 6.8 0 11.4-3.3 11.4-9.1C39 12.3 25.6 14 25.6 10.4zM5.9 7.9l-.4 2H0L4.5 28h6.8l4.6-18.1h-5.5l-.4-2zM54.2 5.2c-2.3 0-4.1 1.1-5.2 2.8l-.3-2.3h-5.9V28h6.8V14.3c0-2 .9-3.1 2.6-3.1 1.8 0 2.6 1 2.6 3.1V28H61V12.2c0-4.7-2.5-7-6.8-7z"/>
-              </svg>
-            )
-          },
-          {
-            name: 'Paystack',
-            desc: 'Accept payments across Africa — NGN, GHS, KES, ZAR',
-            connected: false,
-            logo: (
-              <svg viewBox="0 0 100 30" width="80" height="24">
-                <rect width="100" height="30" rx="4" fill="#00C3F7"/>
-                <text x="8" y="22" fontFamily="Arial" fontWeight="bold" fontSize="16" fill="white">Paystack</text>
-              </svg>
-            )
-          },
-          {
-            name: 'PayPal',
-            desc: 'PayPal, Venmo and Pay Later options',
-            connected: false,
-            logo: (
-              <svg viewBox="0 0 24 24" width="24" height="24">
-                <path fill="#003087" d="M20.1 7.4c.1-.5.1-1 .1-1.5C20.2 2.7 18 1 14.4 1H6.7c-.5 0-1 .4-1.1.9L2.7 20.3c-.1.4.2.8.6.8h4.4l-.3 1.9c-.1.4.2.7.6.7H11c.5 0 .9-.4 1-.9l.9-5.8c.1-.5.5-.9 1-.9h.7c3.8 0 6.5-1.7 7.2-5.3.4-1.5.2-2.8-.7-3.7z"/>
-                <path fill="#0070E0" d="M20.1 7.4c-.7 3.6-3.4 5.3-7.2 5.3h-.7c-.5 0-.9.4-1 .9l-.9 5.8c-.1.5-.5.9-1 .9H6.4L8 9.8c.1-.5.5-.9 1-.9h5.4c3.3 0 5.6 1.3 5.7 4.5z"/>
-              </svg>
-            )
-          },
-        ].map((p, i, arr) => (
-          <div key={i} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '16px 18px', borderBottom: i < arr.length - 1 ? '1px solid #f9fafb' : 'none' }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
-              <div style={{ width: '48px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                {p.logo}
-              </div>
-              <div>
-                <div style={{ fontWeight: '600', fontSize: '14px', color: '#111' }}>{p.name}</div>
-                <div style={{ fontSize: '13px', color: '#6b7280', marginTop: '2px' }}>{p.desc}</div>
+            <div>
+              <h1 style={{ fontSize: '20px', fontWeight: '600', margin: '0 0 20px 0' }}>Payments</h1>
+              <div style={card}>
+                <div style={cardHead}>
+                  <div style={{ fontWeight: '600', fontSize: '14px' }}>Payment providers</div>
+                  <div style={{ fontSize: '13px', color: '#6b7280', marginTop: '2px' }}>Accept payments from your customers</div>
+                </div>
+                <div>
+                  {[
+                    { name: 'Stripe', desc: 'Accept credit cards, Apple Pay, Google Pay', logo: '💳' },
+                    { name: 'PayPal', desc: 'Accept PayPal and Venmo payments', logo: '🅿️' },
+                    { name: 'Paystack', desc: 'Accept payments in Africa', logo: '💚' },
+                  ].map((p, i, arr) => (
+                    <div key={i} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '14px 18px', borderBottom: i < arr.length - 1 ? '1px solid #f9fafb' : 'none' }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                        <span style={{ fontSize: '22px' }}>{p.logo}</span>
+                        <div>
+                          <div style={{ fontWeight: '500', fontSize: '14px', color: '#111' }}>{p.name}</div>
+                          <div style={{ fontSize: '13px', color: '#6b7280' }}>{p.desc}</div>
+                        </div>
+                      </div>
+                      <button style={{ padding: '7px 16px', background: '#fff', border: '1px solid #e5e7eb', borderRadius: '8px', cursor: 'pointer', fontSize: '13px', fontWeight: '500', fontFamily: 'inherit' }}>Connect</button>
+                    </div>
+                  ))}
+                </div>
               </div>
             </div>
-            <button
-              style={{ padding: '8px 18px', background: p.connected ? '#f0fdf4' : '#111', color: p.connected ? '#00a47c' : '#fff', border: p.connected ? '1px solid #bbf7d0' : 'none', borderRadius: '8px', cursor: 'pointer', fontSize: '13px', fontWeight: '500', fontFamily: 'inherit', whiteSpace: 'nowrap' }}
-            >
-              {p.connected ? 'Connected' : 'Connect'}
-            </button>
-          </div>
-        ))}
-      </div>
-    </div>
-  </div>
-)}
+          )}
 
           {/* NOTIFICATIONS */}
           {active === 'notifications' && (
