@@ -106,22 +106,29 @@ module.exports = async function(fastify) {
 
       if (!listing) return reply.status(404).send({ error: 'Listing not found' });
 
-      // ── Smart image filter ──────────────────────────────────────────────────
-      const images = (() => {
+      // ── Smart image handler — supports URLs and base64 uploads ──────────────
+      const images = await (async () => {
         try {
           const imgs = typeof listing.images === 'string'
             ? JSON.parse(listing.images)
             : listing.images;
-          return (imgs || [])
-            .filter(src => {
-              if (!src || typeof src !== 'string') return false;
-              if (!src.startsWith('http')) return false;
-              if (src.startsWith('data:')) return false;
-              if (src.includes('localhost')) return false;
-              return true;
-            })
-            .slice(0, 3)
-            .map(src => ({ src }));
+
+          const valid = [];
+          for (const src of (imgs || []).slice(0, 3)) {
+            if (!src || typeof src !== 'string') continue;
+            if (src.startsWith('data:image')) {
+              // base64 uploaded image — send as attachment
+              const base64Data = src.split(',')[1];
+              if (base64Data) valid.push({ attachment: base64Data });
+            } else if (
+              src.startsWith('http') &&
+              !src.includes('localhost') &&
+              !src.startsWith('data:')
+            ) {
+              valid.push({ src });
+            }
+          }
+          return valid;
         } catch { return []; }
       })();
 
