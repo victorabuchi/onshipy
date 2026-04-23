@@ -11,7 +11,6 @@ module.exports = async function(fastify) {
     }
   };
 
-  // Helper — make HTTPS request without fetch
   const httpsRequest = (options, body = null) => {
     return new Promise((resolve, reject) => {
       const req = https.request(options, (res) => {
@@ -26,7 +25,7 @@ module.exports = async function(fastify) {
         });
       });
       req.on('error', reject);
-      if (body) req.write(JSON.stringify(body));
+      if (body) req.write(typeof body === 'string' ? body : JSON.stringify(body));
       req.end();
     });
   };
@@ -45,19 +44,33 @@ module.exports = async function(fastify) {
         .replace(/\/$/, '')
         .trim();
 
+      // Build Basic auth from client_id:secret
+      const clientId = process.env.SHOPIFY_CLIENT_ID;
+      const clientSecret = process.env.SHOPIFY_CLIENT_SECRET;
+
+      let authHeader;
+      if (access_token.startsWith('shpat_')) {
+        // Legacy access token
+        authHeader = { 'X-Shopify-Access-Token': access_token };
+      } else {
+        // Dev Dashboard app secret — use Basic auth
+        const basic = Buffer.from(`${clientId}:${access_token}`).toString('base64');
+        authHeader = { 'Authorization': `Basic ${basic}` };
+      }
+
       const result = await httpsRequest({
         hostname: cleanUrl,
         path: '/admin/api/2024-01/shop.json',
         method: 'GET',
         headers: {
-          'X-Shopify-Access-Token': access_token,
+          ...authHeader,
           'Content-Type': 'application/json'
         }
       });
 
       if (result.status !== 200) {
         return reply.status(401).send({
-          error: `Shopify returned ${result.status}. Check your store URL and access token. Make sure your Shopify app has read/write Products scope.`
+          error: `Shopify returned ${result.status}. Check your store URL and access token.`
         });
       }
 
@@ -70,9 +83,7 @@ module.exports = async function(fastify) {
       });
 
     } catch (err) {
-      return reply.status(500).send({
-        error: 'Could not reach Shopify: ' + err.message + '. Make sure your store URL is correct (e.g. your-store.myshopify.com)'
-      });
+      return reply.status(500).send({ error: 'Could not reach Shopify: ' + err.message });
     }
   });
 
@@ -115,6 +126,16 @@ module.exports = async function(fastify) {
         .replace(/\/$/, '')
         .trim();
 
+      const clientId = process.env.SHOPIFY_CLIENT_ID;
+
+      let authHeader;
+      if (access_token.startsWith('shpat_')) {
+        authHeader = { 'X-Shopify-Access-Token': access_token };
+      } else {
+        const basic = Buffer.from(`${clientId}:${access_token}`).toString('base64');
+        authHeader = { 'Authorization': `Basic ${basic}` };
+      }
+
       const productBody = {
         product: {
           title: listing.custom_title || listing.title,
@@ -140,11 +161,11 @@ module.exports = async function(fastify) {
         path: '/admin/api/2024-01/products.json',
         method: 'POST',
         headers: {
-          'X-Shopify-Access-Token': access_token,
+          ...authHeader,
           'Content-Type': 'application/json',
           'Content-Length': Buffer.byteLength(bodyStr)
         }
-      }, productBody);
+      }, bodyStr);
 
       if (result.status !== 201 && result.status !== 200) {
         return reply.status(result.status).send({
