@@ -44,16 +44,12 @@ module.exports = async function(fastify) {
         .replace(/\/$/, '')
         .trim();
 
-      // Build Basic auth from client_id:secret
       const clientId = process.env.SHOPIFY_CLIENT_ID;
-      const clientSecret = process.env.SHOPIFY_CLIENT_SECRET;
 
       let authHeader;
       if (access_token.startsWith('shpat_')) {
-        // Legacy access token
         authHeader = { 'X-Shopify-Access-Token': access_token };
       } else {
-        // Dev Dashboard app secret — use Basic auth
         const basic = Buffer.from(`${clientId}:${access_token}`).toString('base64');
         authHeader = { 'Authorization': `Basic ${basic}` };
       }
@@ -62,10 +58,7 @@ module.exports = async function(fastify) {
         hostname: cleanUrl,
         path: '/admin/api/2024-01/shop.json',
         method: 'GET',
-        headers: {
-          ...authHeader,
-          'Content-Type': 'application/json'
-        }
+        headers: { ...authHeader, 'Content-Type': 'application/json' }
       });
 
       if (result.status !== 200) {
@@ -113,10 +106,22 @@ module.exports = async function(fastify) {
 
       if (!listing) return reply.status(404).send({ error: 'Listing not found' });
 
+      // ── Smart image filter ──────────────────────────────────────────────────
       const images = (() => {
         try {
-          const imgs = typeof listing.images === 'string' ? JSON.parse(listing.images) : listing.images;
-          return (imgs || []).slice(0, 5).map(src => ({ src }));
+          const imgs = typeof listing.images === 'string'
+            ? JSON.parse(listing.images)
+            : listing.images;
+          return (imgs || [])
+            .filter(src => {
+              if (!src || typeof src !== 'string') return false;
+              if (!src.startsWith('http')) return false;
+              if (src.startsWith('data:')) return false;
+              if (src.includes('localhost')) return false;
+              return true;
+            })
+            .slice(0, 3)
+            .map(src => ({ src }));
         } catch { return []; }
       })();
 
