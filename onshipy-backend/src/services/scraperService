@@ -12,14 +12,12 @@ const detectCurrency = (domain, $, bodyText) => {
     mx: 'MXN', sg: 'SGD', nz: 'NZD', za: 'ZAR'
   };
 
-  // Check meta tags first (most reliable)
   const metaCurrency =
     $('meta[property="product:price:currency"]').attr('content') ||
     $('meta[property="og:price:currency"]').attr('content') ||
     $('meta[itemprop="priceCurrency"]').attr('content');
   if (metaCurrency) return metaCurrency.toUpperCase();
 
-  // Check JSON-LD
   let ldCurrency = null;
   $('script[type="application/ld+json"]').each((_, el) => {
     try {
@@ -33,7 +31,6 @@ const detectCurrency = (domain, $, bodyText) => {
   });
   if (ldCurrency) return ldCurrency;
 
-  // Symbol detection in page body
   const symbolMap = [
     { sym: '€', cur: 'EUR' }, { sym: '£', cur: 'GBP' },
     { sym: '¥', cur: 'JPY' }, { sym: 'A$', cur: 'AUD' },
@@ -45,7 +42,6 @@ const detectCurrency = (domain, $, bodyText) => {
     if (bodyText.includes(sym)) return cur;
   }
 
-  // TLD fallback
   if (domain.includes('.co.uk')) return 'GBP';
   if (domain.includes('.com.au')) return 'AUD';
   if (domain.includes('.co.jp')) return 'JPY';
@@ -56,18 +52,15 @@ const detectCurrency = (domain, $, bodyText) => {
 const parsePrice = (raw) => {
   if (!raw) return null;
   const str = String(raw).trim();
-  // European format: 1.299,99
   const euMatch = str.match(/(\d{1,3}(?:\.\d{3})*),(\d{2})$/);
   if (euMatch) return parseFloat(str.replace(/\./g, '').replace(',', '.').replace(/[^0-9.]/g, ''));
-  // Remove all non-numeric except dot
   const cleaned = str.replace(/[^0-9.]/g, '');
   const n = parseFloat(cleaned);
-  // Handle pence/cents stored as integers (e.g. 1999 = 19.99)
   if (n > 1000 && !str.includes('.') && !str.includes(',')) return n / 100;
   return isNaN(n) || n <= 0 ? null : n;
 };
 
-// ─── Image scorer — pick only product images ──────────────────────────────────
+// ─── Image helpers ────────────────────────────────────────────────────────────
 const isJunkImage = (src) => {
   if (!src) return true;
   return /icon|logo|sprite|pixel|tracking|badge|flag|star|avatar|placeholder|spinner|loading|blank|spacer|banner|ad[-_]|[-_]ad\.|social|share|cart|wishlist|compare|zoom-icon/i.test(src);
@@ -78,14 +71,10 @@ const upgradeImageUrl = (src) => {
   src = src.trim();
   if (src.startsWith('//')) src = 'https:' + src;
   if (!src.startsWith('http')) return null;
-  // Shopify
   src = src.replace(/_(pico|icon|thumb|small|compact|medium|large|grande|1024x1024|800x800|600x600)(\.|_)/i, '_2048x2048$2');
-  // WooCommerce / WordPress
   src = src.replace(/-(\d+x\d+)\.(jpg|jpeg|png|webp)/i, '.$2');
-  // Generic width params
   src = src.replace(/([?&])w=\d+/, '$1w=2048').replace(/([?&])width=\d+/, '$1width=2048');
   src = src.replace(/([?&])h=\d+/, '$1h=2048').replace(/([?&])height=\d+/, '$1height=2048');
-  // Cloudinary
   src = src.replace(/\/upload\/w_\d+,h_\d+/, '/upload/w_2048,h_2048');
   src = src.replace(/\/upload\/c_\w+,w_\d+/, '/upload/w_2048');
   return src;
@@ -96,29 +85,183 @@ const scoreImage = (src, title = '') => {
   let score = 0;
   const lower = src.toLowerCase();
   const titleWords = title.toLowerCase().split(/\s+/).filter(w => w.length > 3);
-
-  // Reward product-related patterns
   if (/product|item|goods|pdp|main|hero|primary|featured/i.test(lower)) score += 30;
   if (/gallery|carousel|slide|zoom/i.test(lower)) score += 20;
   if (titleWords.some(w => lower.includes(w))) score += 25;
-
-  // Reward high-res indicators
   if (/2048|1920|1600|1200|large|full|original/i.test(lower)) score += 15;
   if (/\.(jpg|jpeg|png|webp)(\?|$)/i.test(lower)) score += 10;
-
-  // Penalize thumbnails
   if (/thumb|small|tiny|mini|preview|60x|80x|100x|120x|150x/i.test(lower)) score -= 20;
-
   return score;
+};
+
+// ─── Variant extractor ────────────────────────────────────────────────────────
+const extractVariants = ($, product) => {
+  const variants = [];
+  const seen = new Set();
+
+  const addVariant = (option, value) => {
+    if (!option || !value) return;
+    option = option.trim();
+    value = value.trim();
+    if (!option || !value) return;
+    const key = `${option}::${value}`;
+    if (seen.has(key)) return;
+    seen.add(key);
+    variants.push({ option, value });
+  };
+
+  // ── 1. JSON-LD offers with color/size ──────────────────────────────────────
+  $('script[type="application/ld+json"]').each((_, el) => {
+    try {
+      const d = JSON.parse($(el).html());
+      const items = Array.isArray(d) ? d : [d];
+      for (const data of items) {
+        if (data['@type'] !== 'Product') continue;
+        const offers = Array.isArray(data.offers) ? data.offers : [data.offers];
+        for (const offer of offers) {
+          if (!offer) continue;
+          if (offer.color) addVariant('Color', offer.color);
+          if (offer.size) addVariant('Size', offer.size);
+          if (offer.itemOffered?.color) addVariant('Color', offer.itemOffered.color);
+          if (offer.itemOffered?.size) addVariant('Size', offer.itemOffered.size);
+        }
+        // Product-level color/size
+        if (data.color) addVariant('Color', data.color);
+        if (data.size) addVariant('Size', data.size);
+      }
+    } catch {}
+  });
+
+  // ── 2. Shopify product JSON in script tags ─────────────────────────────────
+  $('script:not([src])').each((_, el) => {
+    const text = $(el).html() || '';
+
+    // Shopify window.ShopifyAnalytics.meta
+    const metaMatch = text.match(/ShopifyAnalytics\.meta\s*=\s*(\{[\s\S]*?\});/) ||
+                      text.match(/var\s+meta\s*=\s*(\{[\s\S]*?\});/);
+    if (metaMatch) {
+      try {
+        const meta = JSON.parse(metaMatch[1]);
+        const svariants = meta?.product?.variants || [];
+        for (const v of svariants) {
+          if (v.option1) addVariant(meta?.product?.options?.[0] || 'Option 1', v.option1);
+          if (v.option2) addVariant(meta?.product?.options?.[1] || 'Option 2', v.option2);
+          if (v.option3) addVariant(meta?.product?.options?.[2] || 'Option 3', v.option3);
+        }
+      } catch {}
+    }
+
+    // Shopify product JSON blob: var product = {...}
+    const prodMatch = text.match(/var\s+product\s*=\s*(\{[\s\S]*?"variants"[\s\S]*?\});/);
+    if (prodMatch) {
+      try {
+        const p = JSON.parse(prodMatch[1]);
+        const opts = p.options || [];
+        for (const v of (p.variants || [])) {
+          if (v.option1 && opts[0]) addVariant(opts[0], v.option1);
+          if (v.option2 && opts[1]) addVariant(opts[1], v.option2);
+          if (v.option3 && opts[2]) addVariant(opts[2], v.option3);
+        }
+      } catch {}
+    }
+
+    // WooCommerce variation_form data
+    const wooMatch = text.match(/\"variations\"\s*:\s*(\[[\s\S]*?\])/);
+    if (wooMatch) {
+      try {
+        const wooVars = JSON.parse(wooMatch[1]);
+        for (const v of wooVars) {
+          for (const [attr, val] of Object.entries(v.attributes || {})) {
+            const optionName = attr.replace('attribute_pa_', '').replace('attribute_', '').replace(/-/g, ' ');
+            const capitalized = optionName.charAt(0).toUpperCase() + optionName.slice(1);
+            addVariant(capitalized, val);
+          }
+        }
+      } catch {}
+    }
+  });
+
+  // ── 3. HTML selects (universal fallback) ───────────────────────────────────
+  $('select').each((_, el) => {
+    const $sel = $(el);
+    const label =
+      $sel.attr('data-option') ||
+      $sel.attr('name') ||
+      $(`label[for="${$sel.attr('id')}"]`).text().trim() ||
+      $sel.closest('[class*="variant"], [class*="option"]').find('label').first().text().trim();
+
+    if (!label) return;
+
+    const optionName = label.replace(/[_-]/g, ' ').trim();
+    if (!optionName || optionName.toLowerCase().includes('quantity')) return;
+
+    $sel.find('option').each((_, opt) => {
+      const val = $(opt).val() || $(opt).text().trim();
+      if (val && val !== '' && !val.toLowerCase().includes('select') && !val.toLowerCase().includes('choose')) {
+        addVariant(optionName.charAt(0).toUpperCase() + optionName.slice(1), val);
+      }
+    });
+  });
+
+  // ── 4. Swatch buttons (color/size buttons) ─────────────────────────────────
+  const swatchSelectors = [
+    '[class*="swatch"] [data-value]',
+    '[class*="variant"] button[data-value]',
+    '[class*="option"] button[value]',
+    '[class*="color"] button',
+    '[class*="size"] button',
+    '[data-option-value]',
+  ];
+
+  for (const sel of swatchSelectors) {
+    $(sel).each((_, el) => {
+      const $el = $(el);
+      const val =
+        $el.attr('data-value') ||
+        $el.attr('value') ||
+        $el.attr('data-option-value') ||
+        $el.text().trim();
+
+      const container = $el.closest('[class*="swatch"], [class*="variant"], [class*="option"], [class*="color"], [class*="size"]');
+      const label =
+        container.find('label, [class*="label"], [class*="title"]').first().text().trim() ||
+        container.attr('data-option-name') ||
+        container.attr('data-name') || '';
+
+      if (val && label && !val.toLowerCase().includes('select')) {
+        const optionName = label.replace(/[_:-]/g, ' ').trim();
+        if (optionName) addVariant(optionName.charAt(0).toUpperCase() + optionName.slice(1), val);
+      }
+    });
+  }
+
+  // ── 5. Amazon specific ─────────────────────────────────────────────────────
+  if (product.source_domain?.includes('amazon')) {
+    $('#variation_color_name .selection, #variation_size_name .selection').each((_, el) => {
+      const text = $(el).text().trim();
+      const isColor = $(el).closest('#variation_color_name').length > 0;
+      if (text) addVariant(isColor ? 'Color' : 'Size', text);
+    });
+
+    $('[data-dp-url]').each((_, el) => {
+      const $el = $(el);
+      const dimensionName = $el.closest('[data-a-input-name]').attr('data-a-input-name') || '';
+      const val = $el.attr('title') || $el.text().trim();
+      if (val && dimensionName) {
+        const name = dimensionName.replace(/_/g, ' ');
+        addVariant(name.charAt(0).toUpperCase() + name.slice(1), val);
+      }
+    });
+  }
+
+  return variants;
 };
 
 // ─── Platform-specific extractors ────────────────────────────────────────────
 const extractShopify = ($, product) => {
-  // Shopify exposes window.ShopifyAnalytics or product JSON
   let found = false;
   $('script:not([src])').each((_, el) => {
     const text = $(el).html() || '';
-    // Try window.__INITIAL_STATE__ or product JSON blob
     const match = text.match(/var\s+meta\s*=\s*(\{[\s\S]*?\});/) ||
                   text.match(/ShopifyAnalytics\.meta\s*=\s*(\{[\s\S]*?\});/);
     if (match) {
@@ -140,10 +283,8 @@ const extractShopify = ($, product) => {
 };
 
 const extractWooCommerce = ($, product) => {
-  // WooCommerce structured data
   const price = $('.woocommerce-Price-amount').first().text();
   if (price && !product.source_price) product.source_price = parsePrice(price);
-
   const desc = $('.woocommerce-product-details__short-description, .entry-summary .description').first().text().trim();
   if (desc && desc.length > 30 && !product.description) product.description = desc;
 };
@@ -157,8 +298,9 @@ const extractAmazon = ($, product) => {
     if (p) product.source_price = parsePrice(p);
   }
   if (!product.description) {
-    product.description = $('#productDescription p').map((_, el) => $(el).text().trim()).get().join(' ') ||
-                          $('#feature-bullets .a-list-item').map((_, el) => $(el).text().trim()).get().join('. ');
+    product.description =
+      $('#productDescription p').map((_, el) => $(el).text().trim()).get().join(' ') ||
+      $('#feature-bullets .a-list-item').map((_, el) => $(el).text().trim()).get().join('. ');
   }
 };
 
@@ -196,7 +338,7 @@ const scrapeProduct = async (url) => {
       variants: []
     };
 
-    // ── 1. JSON-LD (most reliable across all sites) ──────────────────────────
+    // ── 1. JSON-LD ───────────────────────────────────────────────────────────
     $('script[type="application/ld+json"]').each((_, el) => {
       try {
         const raw = $(el).html();
@@ -206,7 +348,6 @@ const scrapeProduct = async (url) => {
           if (data['@type'] !== 'Product') continue;
           if (data.name && !product.title) product.title = data.name;
           if (data.description && !product.description) {
-            // Strip HTML tags from description
             product.description = data.description.replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim();
           }
           if (!product.source_price) {
@@ -216,7 +357,6 @@ const scrapeProduct = async (url) => {
               if (p) { product.source_price = p; break; }
             }
           }
-          // JSON-LD images
           if (data.image) {
             const imgs = Array.isArray(data.image) ? data.image : [data.image];
             for (const img of imgs) {
@@ -228,7 +368,7 @@ const scrapeProduct = async (url) => {
       } catch {}
     });
 
-    // ── 2. Platform-specific extractors ─────────────────────────────────────
+    // ── 2. Platform extractors ───────────────────────────────────────────────
     if (domain.includes('amazon')) extractAmazon($, product);
     else if ($('body').hasClass('woocommerce') || $('[class*="woocommerce"]').length) extractWooCommerce($, product);
     else extractShopify($, product);
@@ -269,7 +409,6 @@ const scrapeProduct = async (url) => {
 
     // ── 5. Fallback price ────────────────────────────────────────────────────
     if (!product.source_price) {
-      // Meta tags
       const metaPrice =
         $('meta[property="product:price:amount"]').attr('content') ||
         $('meta[property="og:price:amount"]').attr('content') ||
@@ -298,11 +437,14 @@ const scrapeProduct = async (url) => {
       }
     }
 
-    // ── 6. Currency detection ────────────────────────────────────────────────
+    // ── 6. Currency ──────────────────────────────────────────────────────────
     product.currency = detectCurrency(domain, $, bodyText);
 
-    // ── 7. Smart image collection ────────────────────────────────────────────
-    const imageMap = new Map(); // src → score
+    // ── 7. Variants ──────────────────────────────────────────────────────────
+    product.variants = extractVariants($, product);
+
+    // ── 8. Images ────────────────────────────────────────────────────────────
+    const imageMap = new Map();
 
     const addImage = (src, bonus = 0) => {
       if (!src) return;
@@ -313,15 +455,12 @@ const scrapeProduct = async (url) => {
       if (score >= 0) imageMap.set(upgraded, score);
     };
 
-    // Already collected from JSON-LD — add with high score
     for (const img of product.images) addImage(img, 50);
     product.images = [];
 
-    // OG image (usually the main product image)
     addImage($('meta[property="og:image"]').attr('content'), 40);
     addImage($('meta[property="og:image:secure_url"]').attr('content'), 40);
 
-    // Product gallery selectors — ordered by specificity
     const gallerySelectors = [
       '[data-product-image]', '[data-zoom-image]',
       '[class*="product-image"] img', '[class*="product__image"] img',
@@ -337,7 +476,6 @@ const scrapeProduct = async (url) => {
     for (const sel of gallerySelectors) {
       $(sel).each((_, el) => {
         const $el = $(el);
-        // Prefer data-zoom or data-src (lazy-loaded full image)
         const src =
           $el.attr('data-zoom-image') ||
           $el.attr('data-zoom') ||
@@ -348,7 +486,6 @@ const scrapeProduct = async (url) => {
           $el.attr('src');
         addImage(src, 20);
 
-        // Also check srcset for highest resolution
         const srcset = $el.attr('srcset') || $el.attr('data-srcset');
         if (srcset) {
           const best = srcset.split(',')
@@ -359,14 +496,13 @@ const scrapeProduct = async (url) => {
       });
     }
 
-    // Sort by score and take top 12
     product.images = [...imageMap.entries()]
       .sort((a, b) => b[1] - a[1])
       .map(([src]) => src)
       .filter(src => !isJunkImage(src))
       .slice(0, 12);
 
-    // ── 8. Validation ────────────────────────────────────────────────────────
+    // ── 9. Validation ─────────────────────────────────────────────────────────
     if (!product.title || /404|not found|page not found/i.test(product.title)) {
       return { success: false, error: 'Product page not found. Please check the URL.' };
     }
@@ -374,7 +510,6 @@ const scrapeProduct = async (url) => {
       return { success: false, error: 'Could not detect the product price. This site may block scrapers or use JavaScript rendering.' };
     }
     if (product.images.length === 0) {
-      // Last resort — grab any reasonably sized image
       $('img').each((_, el) => {
         const w = parseInt($(el).attr('width') || '0');
         const h = parseInt($(el).attr('height') || '0');
@@ -385,7 +520,6 @@ const scrapeProduct = async (url) => {
       product.images = [...imageMap.keys()].filter(s => !isJunkImage(s)).slice(0, 12);
     }
 
-    // Clean up description — remove excessive whitespace
     product.description = product.description.replace(/\s{3,}/g, '\n\n').trim();
 
     return { success: true, product };
