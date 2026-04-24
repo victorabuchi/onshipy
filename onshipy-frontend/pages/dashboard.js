@@ -177,7 +177,6 @@ export default function Dashboard() {
 
   const completedSteps = steps.filter(s => s.done).length;
   const progressPct = (completedSteps / steps.length) * 100;
-
   const sym = modalProduct ? getCurrencySymbol(modalProduct.currency) : '$';
 
   return (
@@ -185,17 +184,11 @@ export default function Dashboard() {
       <div style={{ background: '#f1f2f4', minHeight: '100vh', fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif' }}>
         <div style={{ maxWidth: '960px', margin: '0 auto', padding: '28px 20px 60px' }}>
 
-          {/* Header */}
           <div style={{ marginBottom: '28px' }}>
-            <h1 style={{ fontSize: '22px', fontWeight: '700', color: '#111', margin: 0 }}>
-              Welcome back, {seller?.full_name?.split(' ')[0] || 'there'}
-            </h1>
-            <p style={{ color: '#6b7280', marginTop: '4px', fontSize: '14px' }}>
-              {seller?.store_name || 'Your store'} · {seller?.plan || 'free'} plan
-            </p>
+            <h1 style={{ fontSize: '22px', fontWeight: '700', color: '#111', margin: 0 }}>Welcome back, {seller?.full_name?.split(' ')[0] || 'there'}</h1>
+            <p style={{ color: '#6b7280', marginTop: '4px', fontSize: '14px' }}>{seller?.store_name || 'Your store'} · {seller?.plan || 'free'} plan</p>
           </div>
 
-          {/* Stats row */}
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))', gap: '12px', marginBottom: '24px' }}>
             {[
               { label: 'Products', value: products.length, color: '#111', href: '/products' },
@@ -203,14 +196,13 @@ export default function Dashboard() {
               { label: 'Orders', value: orders.length, color: '#7c3aed', href: '/orders' },
               { label: 'Revenue', value: `$${orders.reduce((s, o) => s + parseFloat(o.amount_paid || 0), 0).toFixed(0)}`, color: '#00a47c', href: '/analytics' },
             ].map((s, i) => (
-              <div key={i} onClick={() => router.push(s.href)} style={{ background: '#fff', borderRadius: '10px', padding: '16px 18px', border: '1px solid #e5e7eb', cursor: 'pointer', transition: 'box-shadow 0.15s' }}>
+              <div key={i} onClick={() => router.push(s.href)} style={{ background: '#fff', borderRadius: '10px', padding: '16px 18px', border: '1px solid #e5e7eb', cursor: 'pointer' }}>
                 <div style={{ fontSize: '24px', fontWeight: '700', color: s.color }}>{s.value}</div>
                 <div style={{ fontSize: '13px', color: '#6b7280', marginTop: '3px' }}>{s.label}</div>
               </div>
             ))}
           </div>
 
-          {/* Getting started checklist */}
           <div style={{ background: '#fff', borderRadius: '12px', border: '1px solid #e5e7eb', marginBottom: '24px', overflow: 'hidden' }}>
             <div style={{ padding: '18px 20px', borderBottom: '1px solid #f3f4f6' }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '10px' }}>
@@ -220,31 +212,23 @@ export default function Dashboard() {
                 </div>
                 <div style={{ fontSize: '13px', fontWeight: '600', color: '#00a47c' }}>{Math.round(progressPct)}%</div>
               </div>
-              {/* Progress bar */}
               <div style={{ height: '6px', background: '#f3f4f6', borderRadius: '3px', overflow: 'hidden' }}>
                 <div style={{ height: '100%', width: `${progressPct}%`, background: '#00a47c', borderRadius: '3px', transition: 'width 0.4s ease' }} />
               </div>
             </div>
             {steps.map((step, i) => (
-              <div key={i} onClick={step.action} style={{ display: 'flex', alignItems: 'center', gap: '14px', padding: '14px 20px', borderBottom: i < steps.length - 1 ? '1px solid #f9fafb' : 'none', cursor: 'pointer', background: step.done ? '#fafff9' : '#fff', transition: 'background 0.12s' }}>
-                <div style={{ width: '28px', height: '28px', borderRadius: '50%', background: step.done ? '#00a47c' : '#f3f4f6', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, transition: 'background 0.2s' }}>
+              <div key={i} onClick={step.action} style={{ display: 'flex', alignItems: 'center', gap: '14px', padding: '14px 20px', borderBottom: i < steps.length - 1 ? '1px solid #f9fafb' : 'none', cursor: 'pointer', background: step.done ? '#fafff9' : '#fff' }}>
+                <div style={{ width: '28px', height: '28px', borderRadius: '50%', background: step.done ? '#00a47c' : '#f3f4f6', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
                   {step.done
                     ? <svg width="14" height="14" fill="none" stroke="#fff" strokeWidth="2.5" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
-                    : <span style={{ fontSize: '12px', fontWeight: '700', color: '#9ca3af' }}>{step.num}</span>
-                  }
+                    : <span style={{ fontSize: '12px', fontWeight: '700', color: '#9ca3af' }}>{step.num}</span>}
                 </div>
                 <div style={{ flex: 1, minWidth: 0 }}>
                   <div style={{ fontSize: '14px', fontWeight: '500', color: step.done ? '#6b7280' : '#111', textDecoration: step.done ? 'line-through' : 'none' }}>{step.title}</div>
                   <div style={{ fontSize: '12px', color: '#9ca3af', marginTop: '1px' }}>{step.desc} · ~{step.time}</div>
                 </div>
-                {!step.done && (
-                  <div style={{ fontSize: '12px', color: '#00a47c', fontWeight: '600', flexShrink: 0 }}>
-                    Start →
-                  </div>
-                )}
-                {step.done && (
-                  <span style={{ fontSize: '11px', padding: '2px 8px', background: '#dcfce7', color: '#00a47c', borderRadius: '20px', fontWeight: '600', flexShrink: 0 }}>Done</span>
-                )}
+                {!step.done && <div style={{ fontSize: '12px', color: '#00a47c', fontWeight: '600', flexShrink: 0 }}>Start →</div>}
+                {step.done && <span style={{ fontSize: '11px', padding: '2px 8px', background: '#dcfce7', color: '#00a47c', borderRadius: '20px', fontWeight: '600', flexShrink: 0 }}>Done</span>}
               </div>
             ))}
           </div>
@@ -252,9 +236,7 @@ export default function Dashboard() {
           {/* Import section */}
           <div style={{ background: '#fff', borderRadius: '12px', border: '1px solid #e5e7eb', padding: '20px', marginBottom: '24px' }}>
             <div style={{ fontWeight: '600', fontSize: '15px', color: '#111', marginBottom: '4px' }}>Import a product</div>
-            <div style={{ fontSize: '13px', color: '#6b7280', marginBottom: '14px' }}>
-              Paste any product URL from Nike, ASOS, Amazon, Zara and thousands of other websites
-            </div>
+            <div style={{ fontSize: '13px', color: '#6b7280', marginBottom: '14px' }}>Paste any product URL from Nike, ASOS, Amazon, Zara and thousands of other websites</div>
             <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
               <input
                 id="import-input"
@@ -274,18 +256,22 @@ export default function Dashboard() {
               </button>
             </div>
 
+            {/* ── Green spinner loading ── */}
             {message === 'loading' && (
-              <div style={{ marginTop: '12px' }}>
-                <div style={{ height: '3px', background: '#f3f4f6', borderRadius: '2px', overflow: 'hidden' }}>
-                  <div style={{ height: '100%', width: '40%', background: '#111', borderRadius: '2px', animation: 'slide 1.4s ease-in-out infinite' }} />
-                </div>
-                <div style={{ fontSize: '13px', color: '#6b7280', marginTop: '6px' }}>Scraping product details, images and price...</div>
-                <style>{`@keyframes slide { 0% { margin-left: -40% } 100% { margin-left: 100% } }`}</style>
+              <div style={{ marginTop: '14px', display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
+                {['Importing product details', 'Fetching images', 'Detecting price & currency'].map((label, i) => (
+                  <div key={i} style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                    <div style={{ width: '16px', height: '16px', borderRadius: '50%', border: '2px solid #00a47c', borderTopColor: 'transparent', animation: 'spin 0.8s linear infinite', flexShrink: 0 }} />
+                    <span style={{ fontSize: '13px', color: '#6b7280' }}>{label}</span>
+                  </div>
+                ))}
               </div>
             )}
+
             {message === 'success' && (
               <div style={{ marginTop: '10px', padding: '10px 14px', background: '#f0fdf4', border: '1px solid #bbf7d0', borderRadius: '8px', fontSize: '13px', color: '#00a47c', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                <span>Product imported successfully!</span>
+                <span>✓ Product imported successfully!</span>
                 <button onClick={() => router.push('/products')} style={{ background: 'none', border: 'none', color: '#00a47c', cursor: 'pointer', fontWeight: '600', fontSize: '13px', textDecoration: 'underline' }}>View Products</button>
               </div>
             )}
@@ -322,82 +308,40 @@ export default function Dashboard() {
                   const isListed = listings.some(l => l.imported_product_id === p.id);
                   return (
                     <div key={p.id} style={{ display: 'flex', alignItems: 'center', gap: '14px', padding: '14px 20px', borderBottom: i < Math.min(products.length, 5) - 1 ? '1px solid #f9fafb' : 'none' }}>
-                      {/* Image */}
                       <div style={{ width: '52px', height: '52px', flexShrink: 0, borderRadius: '8px', overflow: 'hidden', background: '#f3f4f6', border: '1px solid #e5e7eb' }}>
                         {imgs[0]
                           ? <img src={imgs[0]} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} onError={e => e.target.style.display = 'none'} />
-                          : <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '20px' }}>📦</div>
-                        }
+                          : <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '20px' }}>📦</div>}
                       </div>
-
-                      {/* Info */}
                       <div style={{ flex: 1, minWidth: 0 }}>
                         <div style={{ fontWeight: '500', fontSize: '14px', color: '#111', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{p.title}</div>
                         <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginTop: '3px', flexWrap: 'wrap' }}>
                           <span style={{ fontSize: '12px', color: '#6b7280' }}>{p.source_domain}</span>
                           <span style={{ fontSize: '12px', color: '#6b7280' }}>·</span>
                           <span style={{ fontSize: '12px', fontWeight: '600', color: '#111' }}>{getCurrencySymbol(p.currency)}{p.source_price}</span>
-                          <span style={{ fontSize: '11px', padding: '1px 7px', borderRadius: '20px', background: isListed ? '#dcfce7' : '#f3f4f6', color: isListed ? '#00a47c' : '#6b7280', fontWeight: '500' }}>
-                            {isListed ? 'Listed' : 'Not listed'}
-                          </span>
+                          <span style={{ fontSize: '11px', padding: '1px 7px', borderRadius: '20px', background: isListed ? '#dcfce7' : '#f3f4f6', color: isListed ? '#00a47c' : '#6b7280', fontWeight: '500' }}>{isListed ? 'Listed' : 'Not listed'}</span>
                         </div>
                       </div>
-
-                      {/* Action buttons */}
                       <div style={{ display: 'flex', gap: '6px', flexShrink: 0, flexWrap: 'wrap', justifyContent: 'flex-end' }}>
-                        <button
-                          onClick={() => router.push('/products')}
-                          style={{ padding: '6px 10px', background: '#f9fafb', border: '1px solid #e5e7eb', borderRadius: '6px', cursor: 'pointer', fontSize: '12px', color: '#374151', fontWeight: '500', whiteSpace: 'nowrap' }}
-                        >
-                          View
-                        </button>
-                        <button
-                          onClick={() => openModal(p, 'edit')}
-                          style={{ padding: '6px 10px', background: '#f9fafb', border: '1px solid #e5e7eb', borderRadius: '6px', cursor: 'pointer', fontSize: '12px', color: '#374151', fontWeight: '500', whiteSpace: 'nowrap' }}
-                        >
-                          Edit
-                        </button>
-                        <button
-                          onClick={() => openModal(p, 'price')}
-                          style={{ padding: '6px 10px', background: '#111', color: '#fff', border: 'none', borderRadius: '6px', cursor: 'pointer', fontSize: '12px', fontWeight: '500', whiteSpace: 'nowrap' }}
-                        >
-                          {isListed ? 'Update price' : 'Set price'}
-                        </button>
-                        <button
-                          onClick={() => openModal(p, 'image')}
-                          style={{ padding: '6px 10px', background: '#f9fafb', border: '1px solid #e5e7eb', borderRadius: '6px', cursor: 'pointer', fontSize: '12px', color: '#374151', fontWeight: '500', whiteSpace: 'nowrap' }}
-                        >
-                          Images
-                        </button>
-                        <button
-                          onClick={() => router.push('/online-store')}
-                          style={{ padding: '6px 10px', background: '#f0fdf4', border: '1px solid #bbf7d0', borderRadius: '6px', cursor: 'pointer', fontSize: '12px', color: '#00a47c', fontWeight: '500', whiteSpace: 'nowrap' }}
-                        >
-                          Push
-                        </button>
-                        <button
-                          onClick={() => handleDelete(p)}
-                          style={{ padding: '6px 10px', background: '#fff', border: '1px solid #fecaca', borderRadius: '6px', cursor: 'pointer', fontSize: '12px', color: '#dc2626', fontWeight: '500', whiteSpace: 'nowrap' }}
-                        >
-                          Delete
-                        </button>
+                        <button onClick={() => router.push('/products')} style={{ padding: '6px 10px', background: '#f9fafb', border: '1px solid #e5e7eb', borderRadius: '6px', cursor: 'pointer', fontSize: '12px', color: '#374151', fontWeight: '500', whiteSpace: 'nowrap' }}>View</button>
+                        <button onClick={() => openModal(p, 'edit')} style={{ padding: '6px 10px', background: '#f9fafb', border: '1px solid #e5e7eb', borderRadius: '6px', cursor: 'pointer', fontSize: '12px', color: '#374151', fontWeight: '500', whiteSpace: 'nowrap' }}>Edit</button>
+                        <button onClick={() => openModal(p, 'price')} style={{ padding: '6px 10px', background: '#111', color: '#fff', border: 'none', borderRadius: '6px', cursor: 'pointer', fontSize: '12px', fontWeight: '500', whiteSpace: 'nowrap' }}>{isListed ? 'Update price' : 'Set price'}</button>
+                        <button onClick={() => openModal(p, 'image')} style={{ padding: '6px 10px', background: '#f9fafb', border: '1px solid #e5e7eb', borderRadius: '6px', cursor: 'pointer', fontSize: '12px', color: '#374151', fontWeight: '500', whiteSpace: 'nowrap' }}>Images</button>
+                        <button onClick={() => router.push('/online-store')} style={{ padding: '6px 10px', background: '#f0fdf4', border: '1px solid #bbf7d0', borderRadius: '6px', cursor: 'pointer', fontSize: '12px', color: '#00a47c', fontWeight: '500', whiteSpace: 'nowrap' }}>Push</button>
+                        <button onClick={() => handleDelete(p)} style={{ padding: '6px 10px', background: '#fff', border: '1px solid #fecaca', borderRadius: '6px', cursor: 'pointer', fontSize: '12px', color: '#dc2626', fontWeight: '500', whiteSpace: 'nowrap' }}>Delete</button>
                       </div>
                     </div>
                   );
                 })}
-
                 {products.length > 5 && (
                   <div style={{ padding: '12px 20px', textAlign: 'center', borderTop: '1px solid #f3f4f6' }}>
-                    <button onClick={() => router.push('/products')} style={{ background: 'none', border: 'none', color: '#00a47c', cursor: 'pointer', fontWeight: '600', fontSize: '13px' }}>
-                      View all {products.length} products →
-                    </button>
+                    <button onClick={() => router.push('/products')} style={{ background: 'none', border: 'none', color: '#00a47c', cursor: 'pointer', fontWeight: '600', fontSize: '13px' }}>View all {products.length} products →</button>
                   </div>
                 )}
               </div>
             )}
           </div>
 
-          {/* Quick links */}
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '12px', marginBottom: '24px' }}>
             {[
               { title: 'Browse brands', desc: 'Find products from top brands to import', href: '/browse', color: '#1d4ed8' },
@@ -405,7 +349,7 @@ export default function Dashboard() {
               { title: 'Connect store', desc: 'Link Shopify, WooCommerce and more', href: '/online-store', color: '#00a47c' },
               { title: 'Analytics', desc: 'Track your revenue and profit', href: '/analytics', color: '#b45309' },
             ].map((item, i) => (
-              <div key={i} onClick={() => router.push(item.href)} style={{ background: '#fff', borderRadius: '10px', border: '1px solid #e5e7eb', padding: '16px 18px', cursor: 'pointer', transition: 'box-shadow 0.15s' }}>
+              <div key={i} onClick={() => router.push(item.href)} style={{ background: '#fff', borderRadius: '10px', border: '1px solid #e5e7eb', padding: '16px 18px', cursor: 'pointer' }}>
                 <div style={{ width: '32px', height: '32px', background: item.color + '18', borderRadius: '8px', marginBottom: '10px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                   <div style={{ width: '10px', height: '10px', background: item.color, borderRadius: '50%' }} />
                 </div>
@@ -415,7 +359,6 @@ export default function Dashboard() {
             ))}
           </div>
 
-          {/* Recent orders */}
           {orders.length > 0 && (
             <div style={{ background: '#fff', borderRadius: '12px', border: '1px solid #e5e7eb', overflow: 'hidden' }}>
               <div style={{ padding: '16px 20px', borderBottom: '1px solid #f3f4f6', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
@@ -430,9 +373,7 @@ export default function Dashboard() {
                   </div>
                   <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
                     <span style={{ fontWeight: '600', fontSize: '14px' }}>${o.amount_paid}</span>
-                    <span style={{ padding: '3px 10px', borderRadius: '20px', fontSize: '11px', fontWeight: '500', background: o.status === 'delivered' ? '#dcfce7' : o.status === 'shipped' ? '#dbeafe' : '#fef9c3', color: o.status === 'delivered' ? '#00a47c' : o.status === 'shipped' ? '#1d4ed8' : '#92400e' }}>
-                      {o.status}
-                    </span>
+                    <span style={{ padding: '3px 10px', borderRadius: '20px', fontSize: '11px', fontWeight: '500', background: o.status === 'delivered' ? '#dcfce7' : o.status === 'shipped' ? '#dbeafe' : '#fef9c3', color: o.status === 'delivered' ? '#00a47c' : o.status === 'shipped' ? '#1d4ed8' : '#92400e' }}>{o.status}</span>
                   </div>
                 </div>
               ))}
@@ -441,12 +382,9 @@ export default function Dashboard() {
         </div>
       </div>
 
-      {/* Modal */}
       {modalProduct && (
         <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000, padding: '16px' }}>
           <div style={{ background: '#fff', borderRadius: '12px', width: '100%', maxWidth: '460px', maxHeight: '90vh', overflow: 'auto', boxShadow: '0 20px 60px rgba(0,0,0,0.2)' }}>
-
-            {/* Modal header */}
             <div style={{ padding: '18px 20px', borderBottom: '1px solid #f3f4f6', display: 'flex', justifyContent: 'space-between', alignItems: 'center', position: 'sticky', top: 0, background: '#fff', zIndex: 1 }}>
               <div style={{ fontWeight: '600', fontSize: '15px', color: '#111' }}>
                 {modalType === 'price' && 'Set Selling Price'}
@@ -455,12 +393,9 @@ export default function Dashboard() {
               </div>
               <button onClick={closeModal} style={{ background: 'none', border: 'none', fontSize: '22px', cursor: 'pointer', color: '#6b7280' }}>×</button>
             </div>
-
             <div style={{ padding: '20px' }}>
-              {/* Product name */}
               <div style={{ fontSize: '13px', color: '#6b7280', marginBottom: '16px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{modalProduct.title}</div>
 
-              {/* SET PRICE */}
               {modalType === 'price' && (
                 <>
                   <div style={{ background: '#f9fafb', borderRadius: '8px', padding: '12px 14px', marginBottom: '16px', display: 'flex', justifyContent: 'space-between' }}>
@@ -485,14 +420,11 @@ export default function Dashboard() {
                   {listMessage && <div style={{ padding: '10px 14px', borderRadius: '8px', marginBottom: '12px', fontSize: '13px', background: listMessage.includes('error') ? '#fef2f2' : '#f0fdf4', color: listMessage.includes('error') ? '#dc2626' : '#00a47c' }}>{listMessage}</div>}
                   <div style={{ display: 'flex', gap: '10px' }}>
                     <button onClick={closeModal} style={{ flex: 1, padding: '10px', background: '#f9fafb', border: '1px solid #e5e7eb', borderRadius: '8px', cursor: 'pointer', fontSize: '14px' }}>Cancel</button>
-                    <button onClick={handleSetPrice} disabled={listing || !sellingPrice || parseFloat(sellingPrice) <= parseFloat(modalProduct.source_price)} style={{ flex: 2, padding: '10px', background: listing || !sellingPrice || parseFloat(sellingPrice) <= parseFloat(modalProduct.source_price) ? '#9ca3af' : '#111', color: '#fff', border: 'none', borderRadius: '8px', cursor: 'pointer', fontSize: '14px', fontWeight: '500' }}>
-                      {listing ? 'Saving...' : 'Save Listing'}
-                    </button>
+                    <button onClick={handleSetPrice} disabled={listing || !sellingPrice || parseFloat(sellingPrice) <= parseFloat(modalProduct.source_price)} style={{ flex: 2, padding: '10px', background: listing || !sellingPrice || parseFloat(sellingPrice) <= parseFloat(modalProduct.source_price) ? '#9ca3af' : '#111', color: '#fff', border: 'none', borderRadius: '8px', cursor: 'pointer', fontSize: '14px', fontWeight: '500' }}>{listing ? 'Saving...' : 'Save Listing'}</button>
                   </div>
                 </>
               )}
 
-              {/* EDIT */}
               {modalType === 'edit' && (
                 <>
                   <div style={{ marginBottom: '14px' }}>
@@ -506,14 +438,11 @@ export default function Dashboard() {
                   {listMessage && <div style={{ padding: '10px 14px', borderRadius: '8px', marginBottom: '12px', fontSize: '13px', background: '#f0fdf4', color: '#00a47c' }}>{listMessage}</div>}
                   <div style={{ display: 'flex', gap: '10px' }}>
                     <button onClick={closeModal} style={{ flex: 1, padding: '10px', background: '#f9fafb', border: '1px solid #e5e7eb', borderRadius: '8px', cursor: 'pointer', fontSize: '14px' }}>Cancel</button>
-                    <button onClick={handleSaveEdit} disabled={saving} style={{ flex: 2, padding: '10px', background: saving ? '#9ca3af' : '#111', color: '#fff', border: 'none', borderRadius: '8px', cursor: 'pointer', fontSize: '14px', fontWeight: '500' }}>
-                      {saving ? 'Saving...' : 'Save Changes'}
-                    </button>
+                    <button onClick={handleSaveEdit} disabled={saving} style={{ flex: 2, padding: '10px', background: saving ? '#9ca3af' : '#111', color: '#fff', border: 'none', borderRadius: '8px', cursor: 'pointer', fontSize: '14px', fontWeight: '500' }}>{saving ? 'Saving...' : 'Save Changes'}</button>
                   </div>
                 </>
               )}
 
-              {/* IMAGES */}
               {modalType === 'image' && (
                 <>
                   <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', marginBottom: '16px' }}>

@@ -23,6 +23,7 @@ export default function Products() {
   const [lightboxOpen, setLightboxOpen] = useState(false);
   const [lightboxIndex, setLightboxIndex] = useState(0);
   const [saveMessage, setSaveMessage] = useState('');
+  const [selectedVariants, setSelectedVariants] = useState({});
   const fileInputRef = useRef(null);
 
   useEffect(() => {
@@ -35,9 +36,7 @@ export default function Products() {
   const fetchProducts = async () => {
     setLoading(true);
     try {
-      const res = await fetch(`${API_BASE}/api/products`, {
-        headers: { Authorization: `Bearer ${tokenRef.current}` }
-      });
+      const res = await fetch(`${API_BASE}/api/products`, { headers: { Authorization: `Bearer ${tokenRef.current}` } });
       const data = await res.json();
       if (data.products) setProducts(data.products);
     } catch (err) { console.error(err); }
@@ -53,6 +52,15 @@ export default function Products() {
     } catch { return []; }
   };
 
+  const getVariants = (variants) => {
+    try {
+      if (!variants) return [];
+      if (typeof variants === 'string') return JSON.parse(variants);
+      if (Array.isArray(variants)) return variants;
+      return [];
+    } catch { return []; }
+  };
+
   const getCurrencySymbol = (currency) => {
     const s = { GBP: '£', USD: '$', EUR: '€', JPY: '¥', CAD: 'CA$', AUD: 'A$' };
     return s[currency] || '$';
@@ -63,20 +71,18 @@ export default function Products() {
     setActiveImage(0);
     setEditData({ title: product.title, description: product.description || '', images: getImages(product.images) });
     setSellingPrice(''); setProfitMargin(''); setListMessage(''); setSaveMessage('');
+    setSelectedVariants({});
     setEditing(false); setPanelOpen(true);
   };
 
-  const closePanel = () => { setPanelOpen(false); setSelectedProduct(null); setEditing(false); setActiveImage(0); };
+  const closePanel = () => { setPanelOpen(false); setSelectedProduct(null); setEditing(false); setActiveImage(0); setSelectedVariants({}); };
 
   const handleDelete = async () => {
     if (!selectedProduct) return;
     if (!confirm('Delete this product? This cannot be undone.')) return;
     setDeleting(true);
     try {
-      const res = await fetch(`${API_BASE}/api/products/${selectedProduct.id}`, {
-        method: 'DELETE',
-        headers: { Authorization: `Bearer ${tokenRef.current}` }
-      });
+      const res = await fetch(`${API_BASE}/api/products/${selectedProduct.id}`, { method: 'DELETE', headers: { Authorization: `Bearer ${tokenRef.current}` } });
       if (res.ok) { setProducts(prev => prev.filter(p => p.id !== selectedProduct.id)); closePanel(); }
       else { const d = await res.json(); alert(d.error || 'Delete failed'); }
     } catch (err) { alert('Error: ' + err.message); }
@@ -147,8 +153,19 @@ export default function Products() {
 
   const sym = selectedProduct ? getCurrencySymbol(selectedProduct.currency) : '$';
   const images = editing ? (editData.images || []) : (selectedProduct ? getImages(selectedProduct.images) : []);
+  const variants = selectedProduct ? getVariants(selectedProduct.variants) : [];
+
   const th = { padding: '9px 16px', fontSize: '11px', fontWeight: '600', color: '#6d7175', textTransform: 'uppercase', letterSpacing: '0.06em', textAlign: 'left', borderBottom: '1px solid #e1e3e5', background: '#f9fafb' };
   const td = { padding: '12px 16px', fontSize: '14px', borderBottom: '1px solid #f1f1f1', verticalAlign: 'middle' };
+
+  // Group variants by option name e.g. { Color: ['Red','Blue'], Size: ['S','M','L'] }
+  const groupedVariants = variants.reduce((acc, v) => {
+    if (v.option && v.value) {
+      if (!acc[v.option]) acc[v.option] = [];
+      if (!acc[v.option].includes(v.value)) acc[v.option].push(v.value);
+    }
+    return acc;
+  }, {});
 
   return (
     <Layout>
@@ -162,8 +179,13 @@ export default function Products() {
               </div>
               <button onClick={() => router.push('/dashboard')} style={{ padding: '9px 18px', background: '#1a1a1a', color: '#fff', border: 'none', borderRadius: '8px', cursor: 'pointer', fontWeight: '500', fontSize: '14px' }}>Import product</button>
             </div>
+
             {loading ? (
-              <div style={{ textAlign: 'center', padding: '60px', color: '#6d7175', background: '#fff', borderRadius: '10px', border: '1px solid #e1e3e5' }}>Loading...</div>
+              <div style={{ textAlign: 'center', padding: '60px', color: '#6d7175', background: '#fff', borderRadius: '10px', border: '1px solid #e1e3e5' }}>
+                <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
+                <div style={{ width: '24px', height: '24px', borderRadius: '50%', border: '3px solid #00a47c', borderTopColor: 'transparent', animation: 'spin 0.8s linear infinite', margin: '0 auto 12px' }} />
+                Loading products...
+              </div>
             ) : products.length === 0 ? (
               <div style={{ textAlign: 'center', padding: '80px', background: '#fff', borderRadius: '10px', border: '1px solid #e1e3e5' }}>
                 <div style={{ fontWeight: '600', fontSize: '15px', marginBottom: '6px' }}>No products yet</div>
@@ -173,18 +195,43 @@ export default function Products() {
             ) : (
               <div style={{ background: '#fff', borderRadius: '10px', border: '1px solid #e1e3e5', overflow: 'hidden' }}>
                 <table style={{ width: '100%', borderCollapse: 'collapse' }}>
-                  <thead><tr><th style={th}></th><th style={th}>Product</th><th style={th}>Source</th><th style={th}>Price</th><th style={th}>Status</th><th style={th}></th></tr></thead>
+                  <thead>
+                    <tr>
+                      <th style={th}></th>
+                      <th style={th}>Product</th>
+                      <th style={th}>Source</th>
+                      <th style={th}>Price</th>
+                      <th style={th}>Variants</th>
+                      <th style={th}>Status</th>
+                      <th style={th}></th>
+                    </tr>
+                  </thead>
                   <tbody>
                     {products.map(p => {
                       const imgs = getImages(p.images);
+                      const pvars = getVariants(p.variants);
                       const isSel = selectedProduct?.id === p.id;
                       return (
                         <tr key={p.id} onClick={() => openProduct(p)} style={{ cursor: 'pointer', background: isSel ? '#f0fdf6' : '#fff' }}>
-                          <td style={{ ...td, width: '52px' }}>{imgs[0] ? <img src={imgs[0]} alt="" style={{ width: '36px', height: '36px', objectFit: 'cover', borderRadius: '6px', border: '1px solid #e1e3e5', display: 'block' }} onError={e => e.target.style.display = 'none'} /> : <div style={{ width: '36px', height: '36px', background: '#f1f1f1', borderRadius: '6px' }} />}</td>
-                          <td style={td}><div style={{ fontWeight: '500', color: '#1a1a1a', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', maxWidth: '300px' }}>{p.title}</div><div style={{ fontSize: '12px', color: '#6d7175', marginTop: '2px' }}>{new Date(p.created_at).toLocaleDateString()}</div></td>
+                          <td style={{ ...td, width: '52px' }}>
+                            {imgs[0]
+                              ? <img src={imgs[0]} alt="" style={{ width: '36px', height: '36px', objectFit: 'cover', borderRadius: '6px', border: '1px solid #e1e3e5', display: 'block' }} onError={e => e.target.style.display = 'none'} />
+                              : <div style={{ width: '36px', height: '36px', background: '#f1f1f1', borderRadius: '6px' }} />}
+                          </td>
+                          <td style={td}>
+                            <div style={{ fontWeight: '500', color: '#1a1a1a', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', maxWidth: '260px' }}>{p.title}</div>
+                            <div style={{ fontSize: '12px', color: '#6d7175', marginTop: '2px' }}>{new Date(p.created_at).toLocaleDateString()}</div>
+                          </td>
                           <td style={{ ...td, color: '#6d7175', fontSize: '13px' }}>{p.source_domain}</td>
                           <td style={{ ...td, fontWeight: '600' }}>{getCurrencySymbol(p.currency)}{p.source_price}</td>
-                          <td style={td}><span style={{ padding: '3px 10px', borderRadius: '20px', fontSize: '12px', fontWeight: '500', background: p.scrape_status === 'completed' ? '#e3f9ef' : '#fff3cd', color: p.scrape_status === 'completed' ? '#008060' : '#856404' }}>{p.scrape_status}</span></td>
+                          <td style={td}>
+                            {pvars.length > 0
+                              ? <span style={{ fontSize: '12px', padding: '2px 8px', background: '#eff6ff', color: '#1d4ed8', borderRadius: '20px', fontWeight: '500' }}>{pvars.length} variants</span>
+                              : <span style={{ fontSize: '12px', color: '#9ca3af' }}>—</span>}
+                          </td>
+                          <td style={td}>
+                            <span style={{ padding: '3px 10px', borderRadius: '20px', fontSize: '12px', fontWeight: '500', background: p.scrape_status === 'completed' ? '#e3f9ef' : '#fff3cd', color: p.scrape_status === 'completed' ? '#008060' : '#856404' }}>{p.scrape_status}</span>
+                          </td>
                           <td style={{ ...td, color: '#6d7175', fontSize: '13px' }}>View</td>
                         </tr>
                       );
@@ -206,8 +253,11 @@ export default function Products() {
               </div>
             </div>
             <div style={{ padding: '20px', flex: 1 }}>
-              {saveMessage && <div style={{ padding: '9px 14px', borderRadius: '8px', marginBottom: '14px', fontSize: '13px', background: saveMessage.includes('Error') ? '#fff0f0' : '#f0fdf6', color: saveMessage.includes('Error') ? '#cc0000' : '#008060', border: saveMessage.includes('Error') ? '1px solid #ffcccc' : '1px solid #b7e9d4' }}>{saveMessage}</div>}
+              {saveMessage && (
+                <div style={{ padding: '9px 14px', borderRadius: '8px', marginBottom: '14px', fontSize: '13px', background: saveMessage.includes('Error') ? '#fff0f0' : '#f0fdf6', color: saveMessage.includes('Error') ? '#cc0000' : '#008060', border: saveMessage.includes('Error') ? '1px solid #ffcccc' : '1px solid #b7e9d4' }}>{saveMessage}</div>
+              )}
 
+              {/* Images */}
               <div style={{ marginBottom: '20px' }}>
                 {images.length > 0 ? (
                   <>
@@ -242,23 +292,72 @@ export default function Products() {
                 <div style={{ fontWeight: '600' }}>{sym}{selectedProduct.source_price}</div>
               </div>
 
+              {/* Title */}
               <div style={{ marginBottom: '14px' }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '5px' }}>
                   <label style={{ fontSize: '12px', fontWeight: '600', color: '#6d7175', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Title</label>
                   {!editing && <button onClick={() => setEditing(true)} style={{ fontSize: '12px', color: '#008060', background: 'none', border: 'none', cursor: 'pointer', fontWeight: '500', padding: 0 }}>Edit</button>}
                 </div>
-                {editing ? <input value={editData.title} onChange={e => setEditData({ ...editData, title: e.target.value })} style={{ width: '100%', padding: '9px 12px', border: '1px solid #1a1a1a', borderRadius: '8px', fontSize: '14px', outline: 'none', boxSizing: 'border-box' }} /> : <p style={{ margin: 0, fontSize: '14px', color: '#1a1a1a', fontWeight: '500', lineHeight: '1.5' }}>{selectedProduct.title}</p>}
+                {editing
+                  ? <input value={editData.title} onChange={e => setEditData({ ...editData, title: e.target.value })} style={{ width: '100%', padding: '9px 12px', border: '1px solid #1a1a1a', borderRadius: '8px', fontSize: '14px', outline: 'none', boxSizing: 'border-box' }} />
+                  : <p style={{ margin: 0, fontSize: '14px', color: '#1a1a1a', fontWeight: '500', lineHeight: '1.5' }}>{selectedProduct.title}</p>}
               </div>
 
+              {/* Description */}
               <div style={{ marginBottom: '20px' }}>
                 <label style={{ display: 'block', fontSize: '12px', fontWeight: '600', color: '#6d7175', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: '5px' }}>Description</label>
-                {editing ? <textarea value={editData.description} onChange={e => setEditData({ ...editData, description: e.target.value })} rows={5} style={{ width: '100%', padding: '9px 12px', border: '1px solid #1a1a1a', borderRadius: '8px', fontSize: '14px', outline: 'none', boxSizing: 'border-box', resize: 'vertical', fontFamily: 'inherit', lineHeight: '1.6' }} /> : <p style={{ margin: 0, fontSize: '14px', color: '#6d7175', lineHeight: '1.7', whiteSpace: 'pre-wrap' }}>{selectedProduct.description || 'No description. Click Edit to add one.'}</p>}
+                {editing
+                  ? <textarea value={editData.description} onChange={e => setEditData({ ...editData, description: e.target.value })} rows={5} style={{ width: '100%', padding: '9px 12px', border: '1px solid #1a1a1a', borderRadius: '8px', fontSize: '14px', outline: 'none', boxSizing: 'border-box', resize: 'vertical', fontFamily: 'inherit', lineHeight: '1.6' }} />
+                  : <p style={{ margin: 0, fontSize: '14px', color: '#6d7175', lineHeight: '1.7', whiteSpace: 'pre-wrap' }}>{selectedProduct.description || 'No description. Click Edit to add one.'}</p>}
               </div>
 
               {editing && (
                 <div style={{ display: 'flex', gap: '8px', marginBottom: '20px' }}>
                   <button onClick={() => { setEditing(false); setEditData({ title: selectedProduct.title, description: selectedProduct.description || '', images: getImages(selectedProduct.images) }); }} style={{ flex: 1, padding: '9px', background: '#f6f6f7', border: '1px solid #e1e3e5', borderRadius: '8px', cursor: 'pointer', fontSize: '14px' }}>Cancel</button>
                   <button onClick={handleSaveEdit} disabled={saving} style={{ flex: 2, padding: '9px', background: '#1a1a1a', color: '#fff', border: 'none', borderRadius: '8px', cursor: 'pointer', fontSize: '14px', fontWeight: '500' }}>{saving ? 'Saving...' : 'Save changes'}</button>
+                </div>
+              )}
+
+              {/* Variants */}
+              {Object.keys(groupedVariants).length > 0 && (
+                <div style={{ marginBottom: '20px' }}>
+                  <div style={{ borderTop: '1px solid #e1e3e5', paddingTop: '16px', marginBottom: '12px' }}>
+                    <label style={{ fontSize: '12px', fontWeight: '600', color: '#6d7175', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Variants</label>
+                  </div>
+                  {Object.entries(groupedVariants).map(([optionName, values]) => (
+                    <div key={optionName} style={{ marginBottom: '12px' }}>
+                      <div style={{ fontSize: '12px', fontWeight: '600', color: '#1a1a1a', marginBottom: '6px' }}>{optionName}</div>
+                      <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px' }}>
+                        {values.map(val => {
+                          const isSelected = selectedVariants[optionName] === val;
+                          const isColor = optionName.toLowerCase().includes('color') || optionName.toLowerCase().includes('colour');
+                          return (
+                            <button
+                              key={val}
+                              onClick={() => setSelectedVariants(prev => ({ ...prev, [optionName]: isSelected ? null : val }))}
+                              style={{
+                                padding: isColor ? '0' : '5px 12px',
+                                width: isColor ? '28px' : 'auto',
+                                height: isColor ? '28px' : 'auto',
+                                borderRadius: isColor ? '50%' : '6px',
+                                border: isSelected ? '2px solid #1a1a1a' : '1px solid #e1e3e5',
+                                background: isColor ? val.toLowerCase() : isSelected ? '#1a1a1a' : '#fff',
+                                color: isSelected && !isColor ? '#fff' : '#1a1a1a',
+                                fontSize: '12px',
+                                fontWeight: '500',
+                                cursor: 'pointer',
+                                flexShrink: 0,
+                                boxShadow: isSelected ? '0 0 0 2px #fff, 0 0 0 4px #1a1a1a' : 'none',
+                              }}
+                              title={val}
+                            >
+                              {isColor ? '' : val}
+                            </button>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  ))}
                 </div>
               )}
 
