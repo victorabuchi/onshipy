@@ -133,58 +133,6 @@ export default function Layout({ children, title }) {
   const SidebarContent = () => (
     <div style={{ display: 'flex', flexDirection: 'column', height: '100%', overflow: 'hidden' }}>
 
-      {/* Store switcher */}
-      <div ref={storeRef} style={{ padding: '6px 8px', borderBottom: `1px solid ${P.border}`, flexShrink: 0, position: 'relative' }}>
-        <div
-          onClick={() => setStoreOpen(!storeOpen)}
-          style={{
-            display: 'flex', alignItems: 'center', gap: 10,
-            padding: '8px 10px', borderRadius: 8, cursor: 'pointer',
-            background: storeOpen ? P.surfaceTertiaryActive : 'transparent',
-            transition: 'background .1s',
-          }}
-          onMouseEnter={e => { if (!storeOpen) e.currentTarget.style.background = P.surfaceHover; }}
-          onMouseLeave={e => { if (!storeOpen) e.currentTarget.style.background = storeOpen ? P.surfaceTertiaryActive : 'transparent'; }}
-        >
-          <div style={{ width: 28, height: 28, background: P.green, borderRadius: 8, display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', fontWeight: '650', fontSize: 12, flexShrink: 0 }}>
-            {seller?.store_name?.[0]?.toUpperCase() || 'N'}
-          </div>
-          <div style={{ flex: 1, minWidth: 0 }}>
-            <div style={{ color: P.text, fontWeight: '600', fontSize: P.fontSize, letterSpacing: P.letterSpacing, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-              {seller?.store_name || 'My Store'}
-            </div>
-            <div style={{ color: P.textSubdued, fontSize: '0.6875rem' }}>onshipy.com</div>
-          </div>
-          <svg width="12" height="12" fill="none" stroke={P.textSubdued} strokeWidth="2" viewBox="0 0 24 24" style={{ flexShrink: 0, transform: storeOpen ? 'rotate(180deg)' : 'none', transition: 'transform .2s' }}>
-            <polyline points="6 9 12 15 18 9"/>
-          </svg>
-        </div>
-
-        {storeOpen && (
-          <div style={{ position: 'absolute', top: '100%', left: 8, right: 8, background: P.surface, borderRadius: 10, boxShadow: '0 8px 24px rgba(0,0,0,0.12)', border: `1px solid ${P.border}`, overflow: 'hidden', zIndex: 500, marginTop: 4 }}>
-            <div style={{ padding: '10px 12px', borderBottom: `1px solid ${P.border}`, background: P.surfaceSecondary }}>
-              <div style={{ fontSize: '0.6875rem', fontWeight: '600', color: P.textSubdued, textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: 8 }}>Current store</div>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                <div style={{ width: 26, height: 26, background: P.green, borderRadius: 6, display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', fontWeight: 700, fontSize: 11 }}>
-                  {seller?.store_name?.[0]?.toUpperCase() || 'N'}
-                </div>
-                <div>
-                  <div style={{ fontWeight: '600', fontSize: P.fontSize, color: P.text }}>{seller?.store_name}</div>
-                  <div style={{ fontSize: '0.6875rem', color: P.textSubdued }}>onshipy.com</div>
-                </div>
-              </div>
-            </div>
-            {[{ label: 'Add another store', href: '/online-store' }, { label: 'Store settings', href: '/settings' }].map((item, i) => (
-              <Link key={i} href={item.href} onClick={() => setStoreOpen(false)}
-                style={{ display: 'block', padding: '9px 12px', fontSize: P.fontSize, color: P.text, textDecoration: 'none', borderBottom: i === 0 ? `1px solid ${P.border}` : 'none', letterSpacing: P.letterSpacing }}
-                onMouseEnter={e => e.currentTarget.style.background = P.surfaceHover}
-                onMouseLeave={e => e.currentTarget.style.background = 'transparent'}
-              >{item.label}</Link>
-            ))}
-          </div>
-        )}
-      </div>
-
       {/* Navigation */}
       <div style={{ flex: 1, overflowY: 'auto', padding: '8px 8px 0', scrollbarWidth: 'none' }}>
         {mainNav.map(item => <NavItem key={item.href} item={item} />)}
@@ -359,11 +307,7 @@ export default function Layout({ children, title }) {
         {menuOpen && <div className="overlay" onClick={() => setMenuOpen(false)} />}
 
         <aside className={`sidebar${menuOpen ? ' open' : ''}`}>
-          {/* Sidebar logo — custom bag favicon + wordmark */}
-          <div style={{ height: 56, display: 'flex', alignItems: 'center', padding: '0 16px', borderBottom: `1px solid ${P.border}`, gap: 9, flexShrink: 0 }}>
-            <img src="/favicon.png" alt="Onshipy" style={{ width: 26, height: 26, objectFit: 'contain' }} />
-            <span style={{ fontWeight: 700, fontSize: '0.9375rem', color: P.text, letterSpacing: '-0.02em' }}>Onshipy</span>
-          </div>
+
           <SidebarContent />
         </aside>
 
