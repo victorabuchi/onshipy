@@ -341,66 +341,132 @@ export default function Browse() {
     letterSpacing: P.letterSpacing, color: P.text, background: '#fff',
   };
 
-  // ── Embedded browser view ─────────────────────────────────────────────────
+  // ── Brand landing page (iframe blocked by most sites) ────────────────────
   if (embeddedUrl && embeddedBrand) {
+    const importInputRef = { current: null };
     return (
       <Layout title={`Browse — ${embeddedBrand.name}`}>
         <style>{`
-          .embed-topbar { display:flex; align-items:center; gap:10px; padding:10px 16px; background:#fff; border-bottom:1px solid ${P.border}; position:sticky; top:0; z-index:100; }
-          .embed-frame { width:100%; height:calc(100vh - 108px); border:none; display:block; }
-          .url-bar { flex:1; padding:6px 12px; background:${P.bg}; border:1px solid ${P.border}; border-radius:624px; font-size:${P.fontSize}; color:${P.textSubdued}; font-family:${P.font}; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
-          .copy-btn { padding:6px 14px; background:${P.text}; color:#fff; border:none; border-radius:624px; font-size:${P.fontSize}; cursor:pointer; font-family:${P.font}; white-space:nowrap; font-weight:500; }
-          .import-bar-embed { display:flex; gap:8px; padding:10px 16px; background:#fff; border-top:1px solid ${P.border}; position:sticky; bottom:0; }
+          @keyframes fadeUp { from{opacity:0;transform:translateY(12px)} to{opacity:1;transform:translateY(0)} }
+          .step-card { background:#fff; border:1px solid ${P.border}; border-radius:12px; padding:20px; display:flex; gap:14px; align-items:flex-start; transition:box-shadow .15s; }
+          .step-card:hover { box-shadow:0 2px 10px rgba(0,0,0,0.07); }
+          .step-num { width:28px; height:28px; border-radius:50%; background:rgba(48,48,48,1); color:#fff; display:flex; align-items:center; justify-content:center; font-size:0.75rem; font-weight:700; flex-shrink:0; }
         `}</style>
 
-        {/* Embedded browser topbar */}
-        <div className="embed-topbar">
-          <button onClick={closeEmbed} style={{ display:'flex', alignItems:'center', gap:5, background:'none', border:'none', cursor:'pointer', color:P.textSubdued, fontSize:P.fontSize, fontFamily:P.font, padding:'4px 8px', borderRadius:6 }}>
-            <svg width="14" height="14" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg>
-            Back
-          </button>
-          <div style={{ width:32, height:32, borderRadius:8, background:embeddedBrand.color, display:'flex', alignItems:'center', justifyContent:'center', color:'#fff', fontWeight:700, fontSize:13, flexShrink:0 }}>
-            {embeddedBrand.name[0]}
-          </div>
-          <div className="url-bar">{embeddedUrl}</div>
-          <button className="copy-btn" onClick={() => { navigator.clipboard.writeText(embeddedUrl); }}>
-            Copy URL
-          </button>
-          <a href={embeddedUrl} target="_blank" rel="noreferrer" style={{ padding:'6px 14px', background:'#fff', color:P.text, border:`1px solid ${P.border}`, borderRadius:624, fontSize:P.fontSize, cursor:'pointer', fontFamily:P.font, whiteSpace:'nowrap', textDecoration:'none' }}>
-            Open tab ↗
-          </a>
+        {/* Live activity */}
+        <div style={{ position:'fixed', bottom:24, right:20, zIndex:9999, display:'flex', flexDirection:'column', gap:6 }}>
+          {notifs.map(n => <ActivityPill key={n.id} item={n} visible={notifVisible} />)}
         </div>
 
-        {/* Iframe */}
-        <iframe
-          src={embeddedUrl}
-          className="embed-frame"
-          title={embeddedBrand.name}
-          sandbox="allow-scripts allow-same-origin allow-forms allow-popups"
-        />
+        <div style={{ maxWidth:700, margin:'0 auto', padding:'24px 20px 60px' }}>
 
-        {/* Import bar at bottom */}
-        <div className="import-bar-embed">
-          <input
-            value={importUrl}
-            onChange={e => setImportUrl(e.target.value)}
-            onKeyDown={e => e.key === 'Enter' && handleImport(importUrl)}
-            placeholder={`Paste a product URL from ${embeddedBrand.name}...`}
-            style={{ ...inp, flex:1 }}
-          />
-          <button onClick={() => handleImport(importUrl)} disabled={importing || !importUrl} style={{ padding:'7px 16px', background:importing || !importUrl ? P.bg : P.text, color:importing || !importUrl ? P.textSubdued : '#fff', border:`1px solid ${P.border}`, borderRadius:8, fontSize:P.fontSize, fontWeight:500, cursor:importing || !importUrl ? 'not-allowed' : 'pointer', fontFamily:P.font, whiteSpace:'nowrap' }}>
-            {importing ? 'Importing...' : 'Import product'}
+          {/* Back */}
+          <button onClick={closeEmbed} style={{ display:'flex', alignItems:'center', gap:5, background:'none', border:'none', cursor:'pointer', color:P.textSubdued, fontSize:P.fontSize, fontFamily:P.font, padding:0, marginBottom:20, fontWeight:500 }}>
+            <svg width="14" height="14" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg>
+            Back to {nicheData?.label}
           </button>
-          {importMsg && (
-            <div style={{ alignSelf:'center', padding:'4px 10px', borderRadius:8, fontSize:P.fontSize, background:importMsg.startsWith('error:') ? '#fee8eb' : '#cdfed4', color:importMsg.startsWith('error:') ? '#d82c0d' : '#006847', whiteSpace:'nowrap' }}>
-              {importMsg.startsWith('success:') ? '✓ Imported!' : importMsg.replace('error:', '')}
+
+          {/* Brand hero */}
+          <div style={{ background:embeddedBrand.color, borderRadius:16, padding:'32px 28px', marginBottom:20, position:'relative', overflow:'hidden' }}>
+            <div style={{ position:'absolute', inset:0, background:'linear-gradient(135deg,rgba(0,0,0,0.25) 0%,rgba(0,0,0,0) 60%)', pointerEvents:'none' }}/>
+            <div style={{ position:'relative', zIndex:1, display:'flex', justifyContent:'space-between', alignItems:'center', flexWrap:'wrap', gap:14 }}>
+              <div>
+                <div style={{ fontSize:'0.6875rem', color:'rgba(255,255,255,0.6)', fontWeight:600, textTransform:'uppercase', letterSpacing:'0.08em', marginBottom:6 }}>
+                  {embeddedBrand.hot ? '🔥 Trending brand' : '📦 Brand'}
+                </div>
+                <div style={{ fontSize:'2rem', fontWeight:800, color:'#fff', letterSpacing:'-0.04em', marginBottom:4 }}>{embeddedBrand.name}</div>
+                <div style={{ fontSize:P.fontSize, color:'rgba(255,255,255,0.65)' }}>{embeddedUrl}</div>
+              </div>
+              <a href={embeddedUrl} target="_blank" rel="noreferrer" style={{
+                padding:'10px 22px', background:'rgba(255,255,255,0.15)', backdropFilter:'blur(8px)',
+                border:'1px solid rgba(255,255,255,0.3)', borderRadius:8,
+                color:'#fff', fontWeight:600, fontSize:P.fontSize, textDecoration:'none',
+                fontFamily:P.font, display:'flex', alignItems:'center', gap:6, whiteSpace:'nowrap'
+              }}>
+                Visit {embeddedBrand.name}
+                <svg width="13" height="13" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6M15 3h6v6M10 14L21 3"/></svg>
+              </a>
+            </div>
+          </div>
+
+          {/* How to import — 3 steps */}
+          <div style={{ marginBottom:20 }}>
+            <div style={{ fontSize:'0.6875rem', fontWeight:600, color:P.textSubdued, textTransform:'uppercase', letterSpacing:'0.08em', marginBottom:12 }}>How to import from {embeddedBrand.name}</div>
+            <div style={{ display:'flex', flexDirection:'column', gap:10 }}>
+              {[
+                { n:1, title:`Visit ${embeddedBrand.name}`, desc:'Click "Visit" above — the site opens in a new tab', action: <a href={embeddedUrl} target="_blank" rel="noreferrer" style={{ padding:'5px 12px', background:P.text, color:'#fff', borderRadius:6, fontSize:P.fontSize, fontWeight:500, textDecoration:'none', fontFamily:P.font, whiteSpace:'nowrap' }}>Visit site ↗</a> },
+                { n:2, title:'Find a product you want to sell', desc:'Browse their catalog — pick something with good resell potential' },
+                { n:3, title:'Copy the product URL', desc:'Copy the URL from your browser address bar (or right-click → Copy link)' },
+              ].map((step, i) => (
+                <div key={i} className="step-card" style={{ animation:`fadeUp .35s ease ${i*0.07}s both` }}>
+                  <div className="step-num">{step.n}</div>
+                  <div style={{ flex:1 }}>
+                    <div style={{ fontWeight:600, fontSize:P.fontSize, color:P.text, marginBottom:2 }}>{step.title}</div>
+                    <div style={{ fontSize:'0.75rem', color:P.textSubdued }}>{step.desc}</div>
+                  </div>
+                  {step.action}
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Import box — step 4, prominent */}
+          <div style={{ background:'#fff', borderRadius:12, border:`2px solid ${P.green}`, padding:'20px', marginBottom:16 }}>
+            <div style={{ display:'flex', alignItems:'center', gap:8, marginBottom:10 }}>
+              <div className="step-num" style={{ background:P.green }}>4</div>
+              <div>
+                <div style={{ fontWeight:600, fontSize:P.fontSize, color:P.text }}>Paste the product URL here to import</div>
+                <div style={{ fontSize:'0.75rem', color:P.textSubdued, marginTop:1 }}>Onshipy scrapes title, price, images & variants instantly</div>
+              </div>
+            </div>
+            <div style={{ display:'flex', gap:8 }}>
+              <input
+                autoFocus
+                value={importUrl}
+                onChange={e => setImportUrl(e.target.value)}
+                onKeyDown={e => e.key === 'Enter' && handleImport(importUrl)}
+                placeholder={`https://www.${embeddedBrand.name.toLowerCase().replace(/[^a-z]/g,'')}.com/products/...`}
+                style={{ ...inp, flex:1, borderColor: P.border }}
+              />
+              <button onClick={() => handleImport(importUrl)} disabled={importing || !importUrl} style={{
+                padding:'7px 18px', background:importing || !importUrl ? P.bg : P.green,
+                color:importing || !importUrl ? P.textSubdued : '#fff',
+                border:'none', borderRadius:8, fontSize:P.fontSize, fontWeight:600,
+                cursor:importing || !importUrl ? 'not-allowed' : 'pointer', fontFamily:P.font, whiteSpace:'nowrap'
+              }}>
+                {importing ? 'Importing...' : 'Import product'}
+              </button>
+            </div>
+            {importMsg && (
+              <div style={{ marginTop:10, padding:'8px 12px', borderRadius:8, fontSize:P.fontSize, background:importMsg.startsWith('error:') ? '#fee8eb' : '#cdfed4', color:importMsg.startsWith('error:') ? '#d82c0d' : '#006847', display:'flex', justifyContent:'space-between', alignItems:'center' }}>
+                <span>{importMsg.replace('error:','').replace('success:','')}</span>
+                {importMsg.startsWith('success:') && (
+                  <button onClick={() => router.push('/products')} style={{ background:'none', border:'none', color:'#006847', cursor:'pointer', fontWeight:600, fontSize:P.fontSize, fontFamily:P.font }}>View products →</button>
+                )}
+              </div>
+            )}
+          </div>
+
+          {/* Other brands in this niche */}
+          {nicheData && (
+            <div>
+              <div style={{ fontSize:'0.6875rem', fontWeight:600, color:P.textSubdued, textTransform:'uppercase', letterSpacing:'0.08em', marginBottom:10 }}>
+                Other {nicheData.label} brands
+              </div>
+              <div style={{ display:'flex', gap:8, flexWrap:'wrap' }}>
+                {nicheData.brands.filter(b => b.name !== embeddedBrand.name).slice(0, 8).map((b, i) => (
+                  <button key={i} onClick={() => openBrand(b)} style={{
+                    padding:'5px 12px', background:P.surface, border:`1px solid ${P.border}`,
+                    borderRadius:20, fontSize:P.fontSize, color:P.text, cursor:'pointer',
+                    fontFamily:P.font, fontWeight:P.fontWeight, display:'flex', alignItems:'center', gap:6
+                  }}>
+                    <div style={{ width:8, height:8, borderRadius:'50%', background:b.color, flexShrink:0 }}/>
+                    {b.name}
+                  </button>
+                ))}
+              </div>
             </div>
           )}
-        </div>
-
-        {/* Live activity pills */}
-        <div style={{ position:'fixed', bottom:80, right:20, zIndex:9999, display:'flex', flexDirection:'column', gap:6 }}>
-          {notifs.map(n => <ActivityPill key={n.id} item={n} visible={notifVisible} />)}
         </div>
       </Layout>
     );
