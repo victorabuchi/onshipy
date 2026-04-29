@@ -137,11 +137,7 @@ export default function Dashboard() {
         headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${tokenRef.current}` },
         body: JSON.stringify(editData)
       });
-      if (res.ok) {
-        await fetchAll();
-        setListMessage('Saved successfully!');
-        setTimeout(() => closeModal(), 1500);
-      }
+      if (res.ok) { await fetchAll(); setListMessage('Saved!'); setTimeout(() => closeModal(), 1500); }
     } catch {}
     setSaving(false);
   };
@@ -150,8 +146,7 @@ export default function Dashboard() {
     if (!confirm('Delete this product?')) return;
     try {
       await fetch(`${API_BASE}/api/products/${product.id}`, {
-        method: 'DELETE',
-        headers: { Authorization: `Bearer ${tokenRef.current}` }
+        method: 'DELETE', headers: { Authorization: `Bearer ${tokenRef.current}` }
       });
       await fetchAll();
     } catch {}
@@ -170,293 +165,383 @@ export default function Dashboard() {
 
   const steps = [
     { num: 1, title: 'Import a product', desc: 'Paste any product URL to import it instantly', done: products.length > 0, time: '1 min', action: () => document.getElementById('import-input')?.focus() },
-    { num: 2, title: 'Set your price', desc: 'Set a selling price and profit margin on your product', done: listings.length > 0, time: '2 min', action: () => router.push('/products') },
-    { num: 3, title: 'Connect your store', desc: 'Link your Shopify, WooCommerce or custom store', done: false, time: '5 min', action: () => router.push('/online-store') },
-    { num: 4, title: 'Push products', desc: 'Publish your listed products to your connected store', done: false, time: '1 min', action: () => router.push('/online-store') },
+    { num: 2, title: 'Set your price', desc: 'Set a selling price and profit margin', done: listings.length > 0, time: '2 min', action: () => router.push('/products') },
+    { num: 3, title: 'Connect your store', desc: 'Link Shopify, WooCommerce or custom store', done: false, time: '5 min', action: () => router.push('/online-store') },
+    { num: 4, title: 'Push products', desc: 'Publish your listed products to your store', done: false, time: '1 min', action: () => router.push('/online-store') },
   ];
-
   const completedSteps = steps.filter(s => s.done).length;
   const progressPct = (completedSteps / steps.length) * 100;
   const sym = modalProduct ? getCurrencySymbol(modalProduct.currency) : '$';
 
+  const revenue = orders.reduce((s, o) => s + parseFloat(o.amount_paid || 0), 0).toFixed(0);
+
+  // ── Shared style tokens ───────────────────────────────────────────────────
+  const card = { background: '#fff', borderRadius: 12, border: '1px solid #e5e7eb' };
+  const cardHeader = { padding: '14px 20px', borderBottom: '1px solid #f3f4f6', display: 'flex', justifyContent: 'space-between', alignItems: 'center' };
+  const inp = { width: '100%', padding: '9px 12px', border: '1px solid #e5e7eb', borderRadius: 8, fontSize: 14, outline: 'none', boxSizing: 'border-box', fontFamily: 'inherit' };
+  const btnPrimary = { padding: '8px 18px', background: '#111', color: '#fff', border: 'none', borderRadius: 8, cursor: 'pointer', fontSize: 13, fontWeight: 600, fontFamily: 'inherit' };
+  const btnSecondary = { padding: '8px 14px', background: '#fff', border: '1px solid #e5e7eb', borderRadius: 8, cursor: 'pointer', fontSize: 13, fontWeight: 500, color: '#374151', fontFamily: 'inherit' };
+
   return (
-    <Layout>
-      <div style={{ background: '#f1f2f4', minHeight: '100vh', fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif' }}>
-        <div style={{ maxWidth: '960px', margin: '0 auto', padding: '28px 20px 60px' }}>
+    <Layout title="Home">
+      <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
 
-          <div style={{ marginBottom: '28px' }}>
-            <h1 style={{ fontSize: '22px', fontWeight: '700', color: '#111', margin: 0 }}>Welcome back, {seller?.full_name?.split(' ')[0] || 'there'}</h1>
-            <p style={{ color: '#6b7280', marginTop: '4px', fontSize: '14px' }}>{seller?.store_name || 'Your store'} · {seller?.plan || 'free'} plan</p>
-          </div>
+      <div style={{ maxWidth: 960, margin: '0 auto', padding: '28px 20px 60px' }}>
 
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))', gap: '12px', marginBottom: '24px' }}>
-            {[
-              { label: 'Products', value: products.length, color: '#111', href: '/products' },
-              { label: 'Listings', value: listings.length, color: '#1d4ed8', href: '/listings' },
-              { label: 'Orders', value: orders.length, color: '#7c3aed', href: '/orders' },
-              { label: 'Revenue', value: `$${orders.reduce((s, o) => s + parseFloat(o.amount_paid || 0), 0).toFixed(0)}`, color: '#00a47c', href: '/analytics' },
-            ].map((s, i) => (
-              <div key={i} onClick={() => router.push(s.href)} style={{ background: '#fff', borderRadius: '10px', padding: '16px 18px', border: '1px solid #e5e7eb', cursor: 'pointer' }}>
-                <div style={{ fontSize: '24px', fontWeight: '700', color: s.color }}>{s.value}</div>
-                <div style={{ fontSize: '13px', color: '#6b7280', marginTop: '3px' }}>{s.label}</div>
-              </div>
-            ))}
-          </div>
+        {/* ── Page header ───────────────────────────────────────────────── */}
+        <div style={{ marginBottom: 24 }}>
+          <h1 style={{ fontSize: 22, fontWeight: 700, color: '#111', margin: 0, letterSpacing: '-0.3px' }}>
+            Hey {seller?.full_name?.split(' ')[0] || 'there'}, let's get started.
+          </h1>
+          <p style={{ color: '#6b7280', marginTop: 4, fontSize: 14 }}>
+            {seller?.store_name || 'Your store'} · <span style={{ color: '#008060', fontWeight: 500 }}>{seller?.plan || 'free'} plan</span>
+          </p>
+        </div>
 
-          <div style={{ background: '#fff', borderRadius: '12px', border: '1px solid #e5e7eb', marginBottom: '24px', overflow: 'hidden' }}>
-            <div style={{ padding: '18px 20px', borderBottom: '1px solid #f3f4f6' }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '10px' }}>
-                <div>
-                  <div style={{ fontWeight: '600', fontSize: '15px', color: '#111' }}>Getting started</div>
-                  <div style={{ fontSize: '13px', color: '#6b7280', marginTop: '2px' }}>{completedSteps} of {steps.length} steps completed</div>
-                </div>
-                <div style={{ fontSize: '13px', fontWeight: '600', color: '#00a47c' }}>{Math.round(progressPct)}%</div>
+        {/* ── Stat cards ────────────────────────────────────────────────── */}
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4,1fr)', gap: 12, marginBottom: 24 }}>
+          {[
+            { label: 'Sessions', value: '—', sub: '', href: '/analytics' },
+            { label: 'Total sales', value: `$${revenue}`, sub: orders.length > 0 ? `${orders.length} orders` : '—', href: '/orders' },
+            { label: 'Orders', value: orders.length, sub: orders.length > 0 ? 'this month' : '—', href: '/orders' },
+            { label: 'Conversion rate', value: '0%', sub: '—', href: '/analytics' },
+          ].map((s, i) => (
+            <div key={i} onClick={() => router.push(s.href)} style={{
+              ...card, padding: '16px 18px', cursor: 'pointer',
+              transition: 'box-shadow .15s',
+            }}
+              onMouseEnter={e => e.currentTarget.style.boxShadow = '0 2px 8px rgba(0,0,0,0.08)'}
+              onMouseLeave={e => e.currentTarget.style.boxShadow = 'none'}
+            >
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 6 }}>
+                <span style={{ fontSize: 13, color: '#6b7280' }}>{s.label}</span>
+                <svg width="14" height="14" fill="none" stroke="#d1d5db" strokeWidth="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
               </div>
-              <div style={{ height: '6px', background: '#f3f4f6', borderRadius: '3px', overflow: 'hidden' }}>
-                <div style={{ height: '100%', width: `${progressPct}%`, background: '#00a47c', borderRadius: '3px', transition: 'width 0.4s ease' }} />
-              </div>
+              <div style={{ fontSize: 24, fontWeight: 700, color: '#111', letterSpacing: '-0.5px' }}>{s.value}</div>
+              <div style={{ fontSize: 12, color: '#9ca3af', marginTop: 3 }}>{s.sub}</div>
             </div>
-            {steps.map((step, i) => (
-              <div key={i} onClick={step.action} style={{ display: 'flex', alignItems: 'center', gap: '14px', padding: '14px 20px', borderBottom: i < steps.length - 1 ? '1px solid #f9fafb' : 'none', cursor: 'pointer', background: step.done ? '#fafff9' : '#fff' }}>
-                <div style={{ width: '28px', height: '28px', borderRadius: '50%', background: step.done ? '#00a47c' : '#f3f4f6', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-                  {step.done
-                    ? <svg width="14" height="14" fill="none" stroke="#fff" strokeWidth="2.5" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
-                    : <span style={{ fontSize: '12px', fontWeight: '700', color: '#9ca3af' }}>{step.num}</span>}
-                </div>
-                <div style={{ flex: 1, minWidth: 0 }}>
-                  <div style={{ fontSize: '14px', fontWeight: '500', color: step.done ? '#6b7280' : '#111', textDecoration: step.done ? 'line-through' : 'none' }}>{step.title}</div>
-                  <div style={{ fontSize: '12px', color: '#9ca3af', marginTop: '1px' }}>{step.desc} · ~{step.time}</div>
-                </div>
-                {!step.done && <div style={{ fontSize: '12px', color: '#00a47c', fontWeight: '600', flexShrink: 0 }}>Start →</div>}
-                {step.done && <span style={{ fontSize: '11px', padding: '2px 8px', background: '#dcfce7', color: '#00a47c', borderRadius: '20px', fontWeight: '600', flexShrink: 0 }}>Done</span>}
-              </div>
-            ))}
-          </div>
+          ))}
+        </div>
 
-          {/* Import section */}
-          <div style={{ background: '#fff', borderRadius: '12px', border: '1px solid #e5e7eb', padding: '20px', marginBottom: '24px' }}>
-            <div style={{ fontWeight: '600', fontSize: '15px', color: '#111', marginBottom: '4px' }}>Import a product</div>
-            <div style={{ fontSize: '13px', color: '#6b7280', marginBottom: '14px' }}>Paste any product URL from Nike, ASOS, Amazon, Zara and thousands of other websites</div>
-            <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
-              <input
-                id="import-input"
-                type="text"
-                value={url}
-                onChange={e => setUrl(e.target.value)}
-                onKeyDown={e => e.key === 'Enter' && !importing && handleImport()}
-                placeholder="https://www.nike.com/product/..."
-                style={{ flex: 1, minWidth: '200px', padding: '10px 14px', border: '1px solid #e5e7eb', borderRadius: '8px', fontSize: '14px', outline: 'none', boxSizing: 'border-box' }}
-              />
-              <button
-                onClick={handleImport}
-                disabled={importing || !url.trim()}
-                style={{ padding: '10px 24px', background: importing || !url.trim() ? '#9ca3af' : '#111', color: '#fff', border: 'none', borderRadius: '8px', cursor: importing || !url.trim() ? 'not-allowed' : 'pointer', fontWeight: '600', fontSize: '14px', whiteSpace: 'nowrap' }}
-              >
-                {importing ? 'Importing...' : 'Import'}
-              </button>
+        {/* ── Getting started ────────────────────────────────────────────── */}
+        <div style={{ ...card, marginBottom: 20, overflow: 'hidden' }}>
+          <div style={{ ...cardHeader }}>
+            <div>
+              <div style={{ fontWeight: 600, fontSize: 15, color: '#111' }}>Getting started</div>
+              <div style={{ fontSize: 13, color: '#6b7280', marginTop: 2 }}>{completedSteps} of {steps.length} tasks complete</div>
             </div>
-
-            {/* ── Green spinner loading ── */}
-            {message === 'loading' && (
-              <div style={{ marginTop: '14px', display: 'flex', flexDirection: 'column', gap: '10px' }}>
-                <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
-                {['Importing product details', 'Fetching images', 'Detecting price & currency'].map((label, i) => (
-                  <div key={i} style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                    <div style={{ width: '16px', height: '16px', borderRadius: '50%', border: '2px solid #00a47c', borderTopColor: 'transparent', animation: 'spin 0.8s linear infinite', flexShrink: 0 }} />
-                    <span style={{ fontSize: '13px', color: '#6b7280' }}>{label}</span>
-                  </div>
-                ))}
-              </div>
-            )}
-
-            {message === 'success' && (
-              <div style={{ marginTop: '10px', padding: '10px 14px', background: '#f0fdf4', border: '1px solid #bbf7d0', borderRadius: '8px', fontSize: '13px', color: '#00a47c', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                <span>✓ Product imported successfully!</span>
-                <button onClick={() => router.push('/products')} style={{ background: 'none', border: 'none', color: '#00a47c', cursor: 'pointer', fontWeight: '600', fontSize: '13px', textDecoration: 'underline' }}>View Products</button>
-              </div>
-            )}
-            {message.startsWith('error:') && (
-              <div style={{ marginTop: '10px', padding: '10px 14px', background: '#fef2f2', border: '1px solid #fecaca', borderRadius: '8px', fontSize: '13px', color: '#dc2626' }}>
-                {message.replace('error:', '')}
-              </div>
-            )}
+            <span style={{ fontSize: 13, fontWeight: 600, color: '#008060' }}>{Math.round(progressPct)}%</span>
           </div>
-
-          {/* My Products */}
-          <div style={{ background: '#fff', borderRadius: '12px', border: '1px solid #e5e7eb', overflow: 'hidden', marginBottom: '24px' }}>
-            <div style={{ padding: '16px 20px', borderBottom: '1px solid #f3f4f6', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-              <div>
-                <div style={{ fontWeight: '600', fontSize: '15px', color: '#111' }}>My Products</div>
-                <div style={{ fontSize: '13px', color: '#6b7280', marginTop: '2px' }}>{products.length} imported</div>
+          <div style={{ height: 4, background: '#f3f4f6' }}>
+            <div style={{ height: '100%', width: `${progressPct}%`, background: '#008060', transition: 'width .4s ease' }} />
+          </div>
+          {steps.map((step, i) => (
+            <div key={i} onClick={step.action} style={{
+              display: 'flex', alignItems: 'center', gap: 14,
+              padding: '14px 20px',
+              borderBottom: i < steps.length - 1 ? '1px solid #f9fafb' : 'none',
+              cursor: 'pointer', background: step.done ? '#fafff9' : '#fff',
+              transition: 'background .12s',
+            }}
+              onMouseEnter={e => { if (!step.done) e.currentTarget.style.background = '#fafafa'; }}
+              onMouseLeave={e => e.currentTarget.style.background = step.done ? '#fafff9' : '#fff'}
+            >
+              <div style={{
+                width: 28, height: 28, borderRadius: '50%', flexShrink: 0,
+                background: step.done ? '#008060' : '#f3f4f6',
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+              }}>
+                {step.done
+                  ? <svg width="13" height="13" fill="none" stroke="#fff" strokeWidth="2.5" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
+                  : <span style={{ fontSize: 12, fontWeight: 700, color: '#9ca3af' }}>{step.num}</span>
+                }
               </div>
-              <div style={{ display: 'flex', gap: '8px' }}>
-                <button onClick={() => fetchAll()} style={{ padding: '6px 14px', background: '#f9fafb', border: '1px solid #e5e7eb', borderRadius: '6px', cursor: 'pointer', fontSize: '13px', color: '#374151', fontWeight: '500' }}>Refresh</button>
-                <button onClick={() => router.push('/products')} style={{ padding: '6px 14px', background: '#111', color: '#fff', border: 'none', borderRadius: '6px', cursor: 'pointer', fontSize: '13px', fontWeight: '500' }}>View all</button>
+              <div style={{ flex: 1, minWidth: 0 }}>
+                <div style={{ fontSize: 14, fontWeight: 500, color: step.done ? '#9ca3af' : '#111', textDecoration: step.done ? 'line-through' : 'none' }}>{step.title}</div>
+                <div style={{ fontSize: 12, color: '#9ca3af', marginTop: 1 }}>{step.desc} · ~{step.time}</div>
               </div>
+              {!step.done
+                ? <span style={{ fontSize: 13, color: '#008060', fontWeight: 600, flexShrink: 0 }}>Start →</span>
+                : <span style={{ fontSize: 11, padding: '2px 8px', background: '#dcfce7', color: '#008060', borderRadius: 20, fontWeight: 600, flexShrink: 0 }}>Done</span>
+              }
             </div>
+          ))}
+        </div>
 
-            {products.length === 0 ? (
-              <div style={{ padding: '48px', textAlign: 'center' }}>
-                <div style={{ width: '48px', height: '48px', background: '#f3f4f6', borderRadius: '10px', margin: '0 auto 14px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '22px' }}>📦</div>
-                <div style={{ fontWeight: '600', fontSize: '15px', color: '#111', marginBottom: '6px' }}>No products yet</div>
-                <div style={{ fontSize: '13px', color: '#6b7280' }}>Import your first product using the bar above</div>
-              </div>
-            ) : (
-              <div>
-                {products.slice(0, 5).map((p, i) => {
-                  const imgs = getImages(p.images);
-                  const isListed = listings.some(l => l.imported_product_id === p.id);
-                  return (
-                    <div key={p.id} style={{ display: 'flex', alignItems: 'center', gap: '14px', padding: '14px 20px', borderBottom: i < Math.min(products.length, 5) - 1 ? '1px solid #f9fafb' : 'none' }}>
-                      <div style={{ width: '52px', height: '52px', flexShrink: 0, borderRadius: '8px', overflow: 'hidden', background: '#f3f4f6', border: '1px solid #e5e7eb' }}>
-                        {imgs[0]
-                          ? <img src={imgs[0]} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} onError={e => e.target.style.display = 'none'} />
-                          : <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '20px' }}>📦</div>}
-                      </div>
-                      <div style={{ flex: 1, minWidth: 0 }}>
-                        <div style={{ fontWeight: '500', fontSize: '14px', color: '#111', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{p.title}</div>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginTop: '3px', flexWrap: 'wrap' }}>
-                          <span style={{ fontSize: '12px', color: '#6b7280' }}>{p.source_domain}</span>
-                          <span style={{ fontSize: '12px', color: '#6b7280' }}>·</span>
-                          <span style={{ fontSize: '12px', fontWeight: '600', color: '#111' }}>{getCurrencySymbol(p.currency)}{p.source_price}</span>
-                          <span style={{ fontSize: '11px', padding: '1px 7px', borderRadius: '20px', background: isListed ? '#dcfce7' : '#f3f4f6', color: isListed ? '#00a47c' : '#6b7280', fontWeight: '500' }}>{isListed ? 'Listed' : 'Not listed'}</span>
-                        </div>
-                      </div>
-                      <div style={{ display: 'flex', gap: '6px', flexShrink: 0, flexWrap: 'wrap', justifyContent: 'flex-end' }}>
-                        <button onClick={() => router.push('/products')} style={{ padding: '6px 10px', background: '#f9fafb', border: '1px solid #e5e7eb', borderRadius: '6px', cursor: 'pointer', fontSize: '12px', color: '#374151', fontWeight: '500', whiteSpace: 'nowrap' }}>View</button>
-                        <button onClick={() => openModal(p, 'edit')} style={{ padding: '6px 10px', background: '#f9fafb', border: '1px solid #e5e7eb', borderRadius: '6px', cursor: 'pointer', fontSize: '12px', color: '#374151', fontWeight: '500', whiteSpace: 'nowrap' }}>Edit</button>
-                        <button onClick={() => openModal(p, 'price')} style={{ padding: '6px 10px', background: '#111', color: '#fff', border: 'none', borderRadius: '6px', cursor: 'pointer', fontSize: '12px', fontWeight: '500', whiteSpace: 'nowrap' }}>{isListed ? 'Update price' : 'Set price'}</button>
-                        <button onClick={() => openModal(p, 'image')} style={{ padding: '6px 10px', background: '#f9fafb', border: '1px solid #e5e7eb', borderRadius: '6px', cursor: 'pointer', fontSize: '12px', color: '#374151', fontWeight: '500', whiteSpace: 'nowrap' }}>Images</button>
-                        <button onClick={() => router.push('/online-store')} style={{ padding: '6px 10px', background: '#f0fdf4', border: '1px solid #bbf7d0', borderRadius: '6px', cursor: 'pointer', fontSize: '12px', color: '#00a47c', fontWeight: '500', whiteSpace: 'nowrap' }}>Push</button>
-                        <button onClick={() => handleDelete(p)} style={{ padding: '6px 10px', background: '#fff', border: '1px solid #fecaca', borderRadius: '6px', cursor: 'pointer', fontSize: '12px', color: '#dc2626', fontWeight: '500', whiteSpace: 'nowrap' }}>Delete</button>
-                      </div>
-                    </div>
-                  );
-                })}
-                {products.length > 5 && (
-                  <div style={{ padding: '12px 20px', textAlign: 'center', borderTop: '1px solid #f3f4f6' }}>
-                    <button onClick={() => router.push('/products')} style={{ background: 'none', border: 'none', color: '#00a47c', cursor: 'pointer', fontWeight: '600', fontSize: '13px' }}>View all {products.length} products →</button>
-                  </div>
-                )}
-              </div>
-            )}
+        {/* ── Import a product ───────────────────────────────────────────── */}
+        <div style={{ ...card, padding: 20, marginBottom: 20 }}>
+          <div style={{ fontWeight: 600, fontSize: 15, color: '#111', marginBottom: 4 }}>Import a product</div>
+          <div style={{ fontSize: 13, color: '#6b7280', marginBottom: 14 }}>
+            Paste any product URL from Nike, ASOS, Amazon, Zara and thousands of other websites
+          </div>
+          <div style={{ display: 'flex', gap: 8 }}>
+            <input
+              id="import-input"
+              type="text"
+              value={url}
+              onChange={e => setUrl(e.target.value)}
+              onKeyDown={e => e.key === 'Enter' && !importing && handleImport()}
+              placeholder="https://www.nike.com/product/..."
+              style={{ ...inp, flex: 1 }}
+            />
+            <button
+              onClick={handleImport}
+              disabled={importing || !url.trim()}
+              style={{ ...btnPrimary, opacity: importing || !url.trim() ? 0.5 : 1, cursor: importing || !url.trim() ? 'not-allowed' : 'pointer', whiteSpace: 'nowrap' }}
+            >
+              {importing ? 'Importing...' : 'Import'}
+            </button>
           </div>
 
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '12px', marginBottom: '24px' }}>
-            {[
-              { title: 'Browse brands', desc: 'Find products from top brands to import', href: '/browse', color: '#1d4ed8' },
-              { title: 'My listings', desc: 'Manage priced products ready to sell', href: '/listings', color: '#7c3aed' },
-              { title: 'Connect store', desc: 'Link Shopify, WooCommerce and more', href: '/online-store', color: '#00a47c' },
-              { title: 'Analytics', desc: 'Track your revenue and profit', href: '/analytics', color: '#b45309' },
-            ].map((item, i) => (
-              <div key={i} onClick={() => router.push(item.href)} style={{ background: '#fff', borderRadius: '10px', border: '1px solid #e5e7eb', padding: '16px 18px', cursor: 'pointer' }}>
-                <div style={{ width: '32px', height: '32px', background: item.color + '18', borderRadius: '8px', marginBottom: '10px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                  <div style={{ width: '10px', height: '10px', background: item.color, borderRadius: '50%' }} />
-                </div>
-                <div style={{ fontWeight: '600', fontSize: '14px', color: '#111', marginBottom: '3px' }}>{item.title}</div>
-                <div style={{ fontSize: '12px', color: '#6b7280', lineHeight: '1.5' }}>{item.desc}</div>
-              </div>
-            ))}
-          </div>
-
-          {orders.length > 0 && (
-            <div style={{ background: '#fff', borderRadius: '12px', border: '1px solid #e5e7eb', overflow: 'hidden' }}>
-              <div style={{ padding: '16px 20px', borderBottom: '1px solid #f3f4f6', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                <div style={{ fontWeight: '600', fontSize: '15px', color: '#111' }}>Recent orders</div>
-                <button onClick={() => router.push('/orders')} style={{ background: 'none', border: 'none', color: '#00a47c', cursor: 'pointer', fontWeight: '600', fontSize: '13px' }}>View all</button>
-              </div>
-              {orders.slice(0, 3).map((o, i) => (
-                <div key={o.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '12px 20px', borderBottom: i < 2 ? '1px solid #f9fafb' : 'none' }}>
-                  <div>
-                    <div style={{ fontWeight: '500', fontSize: '14px', color: '#111' }}>#{o.storefront_order_id || o.id.slice(0, 8)}</div>
-                    <div style={{ fontSize: '12px', color: '#6b7280', marginTop: '2px' }}>{o.customer_name} · {new Date(o.created_at).toLocaleDateString()}</div>
-                  </div>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                    <span style={{ fontWeight: '600', fontSize: '14px' }}>${o.amount_paid}</span>
-                    <span style={{ padding: '3px 10px', borderRadius: '20px', fontSize: '11px', fontWeight: '500', background: o.status === 'delivered' ? '#dcfce7' : o.status === 'shipped' ? '#dbeafe' : '#fef9c3', color: o.status === 'delivered' ? '#00a47c' : o.status === 'shipped' ? '#1d4ed8' : '#92400e' }}>{o.status}</span>
-                  </div>
+          {message === 'loading' && (
+            <div style={{ marginTop: 14, display: 'flex', flexDirection: 'column', gap: 8 }}>
+              {['Importing product details', 'Fetching images', 'Detecting price & currency'].map((label, i) => (
+                <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                  <div style={{ width: 14, height: 14, borderRadius: '50%', border: '2px solid #008060', borderTopColor: 'transparent', animation: 'spin 0.8s linear infinite', flexShrink: 0 }} />
+                  <span style={{ fontSize: 13, color: '#6b7280' }}>{label}</span>
                 </div>
               ))}
             </div>
           )}
+          {message === 'success' && (
+            <div style={{ marginTop: 10, padding: '10px 14px', background: '#f0fdf4', border: '1px solid #bbf7d0', borderRadius: 8, fontSize: 13, color: '#008060', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <span>✓ Product imported successfully!</span>
+              <button onClick={() => router.push('/products')} style={{ background: 'none', border: 'none', color: '#008060', cursor: 'pointer', fontWeight: 600, fontSize: 13, textDecoration: 'underline' }}>View Products</button>
+            </div>
+          )}
+          {message.startsWith('error:') && (
+            <div style={{ marginTop: 10, padding: '10px 14px', background: '#fef2f2', border: '1px solid #fecaca', borderRadius: 8, fontSize: 13, color: '#dc2626' }}>
+              {message.replace('error:', '')}
+            </div>
+          )}
         </div>
+
+        {/* ── My Products ────────────────────────────────────────────────── */}
+        <div style={{ ...card, overflow: 'hidden', marginBottom: 20 }}>
+          <div style={cardHeader}>
+            <div>
+              <div style={{ fontWeight: 600, fontSize: 15, color: '#111' }}>My Products</div>
+              <div style={{ fontSize: 13, color: '#6b7280', marginTop: 2 }}>{products.length} imported</div>
+            </div>
+            <div style={{ display: 'flex', gap: 8 }}>
+              <button onClick={() => fetchAll()} style={btnSecondary}>Refresh</button>
+              <button onClick={() => router.push('/products')} style={btnPrimary}>View all</button>
+            </div>
+          </div>
+
+          {products.length === 0 ? (
+            <div style={{ padding: '48px', textAlign: 'center' }}>
+              <div style={{ fontSize: 32, marginBottom: 12 }}>📦</div>
+              <div style={{ fontWeight: 600, fontSize: 15, color: '#111', marginBottom: 6 }}>No products yet</div>
+              <div style={{ fontSize: 13, color: '#6b7280' }}>Import your first product using the bar above</div>
+            </div>
+          ) : (
+            <>
+              {products.slice(0, 5).map((p, i) => {
+                const imgs = getImages(p.images);
+                const isListed = listings.some(l => l.imported_product_id === p.id);
+                return (
+                  <div key={p.id} style={{
+                    display: 'flex', alignItems: 'center', gap: 14,
+                    padding: '12px 20px',
+                    borderBottom: i < Math.min(products.length, 5) - 1 ? '1px solid #f9fafb' : 'none',
+                    transition: 'background .1s',
+                  }}
+                    onMouseEnter={e => e.currentTarget.style.background = '#fafafa'}
+                    onMouseLeave={e => e.currentTarget.style.background = 'transparent'}
+                  >
+                    <div style={{ width: 48, height: 48, flexShrink: 0, borderRadius: 8, overflow: 'hidden', background: '#f3f4f6', border: '1px solid #e5e7eb' }}>
+                      {imgs[0]
+                        ? <img src={imgs[0]} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} onError={e => e.target.style.display = 'none'} />
+                        : <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 18 }}>📦</div>}
+                    </div>
+                    <div style={{ flex: 1, minWidth: 0 }}>
+                      <div style={{ fontWeight: 500, fontSize: 14, color: '#111', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{p.title}</div>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginTop: 3, flexWrap: 'wrap' }}>
+                        <span style={{ fontSize: 12, color: '#6b7280' }}>{p.source_domain}</span>
+                        <span style={{ fontSize: 12, color: '#d1d5db' }}>·</span>
+                        <span style={{ fontSize: 12, fontWeight: 600, color: '#111' }}>{getCurrencySymbol(p.currency)}{p.source_price}</span>
+                        <span style={{ fontSize: 11, padding: '1px 7px', borderRadius: 20, background: isListed ? '#dcfce7' : '#f3f4f6', color: isListed ? '#008060' : '#6b7280', fontWeight: 500 }}>
+                          {isListed ? '● Listed' : 'Not listed'}
+                        </span>
+                      </div>
+                    </div>
+                    <div style={{ display: 'flex', gap: 5, flexShrink: 0, flexWrap: 'wrap', justifyContent: 'flex-end' }}>
+                      {[
+                        { label: 'Edit', action: () => openModal(p, 'edit'), style: btnSecondary },
+                        { label: isListed ? 'Update price' : 'Set price', action: () => openModal(p, 'price'), style: btnPrimary },
+                        { label: 'Images', action: () => openModal(p, 'image'), style: btnSecondary },
+                        { label: 'Push', action: () => router.push('/online-store'), style: { ...btnSecondary, color: '#008060', borderColor: '#bbf7d0', background: '#f0fdf4' } },
+                        { label: 'Delete', action: () => handleDelete(p), style: { ...btnSecondary, color: '#dc2626', borderColor: '#fecaca', background: '#fff' } },
+                      ].map((btn, bi) => (
+                        <button key={bi} onClick={btn.action} style={{ ...btn.style, padding: '5px 10px', fontSize: 12 }}>{btn.label}</button>
+                      ))}
+                    </div>
+                  </div>
+                );
+              })}
+              {products.length > 5 && (
+                <div style={{ padding: '12px 20px', textAlign: 'center', borderTop: '1px solid #f3f4f6' }}>
+                  <button onClick={() => router.push('/products')} style={{ background: 'none', border: 'none', color: '#008060', cursor: 'pointer', fontWeight: 600, fontSize: 13 }}>
+                    View all {products.length} products →
+                  </button>
+                </div>
+              )}
+            </>
+          )}
+        </div>
+
+        {/* ── Quick actions ──────────────────────────────────────────────── */}
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: 12, marginBottom: 20 }}>
+          {[
+            { title: 'Browse brands', desc: 'Find products from top brands', href: '/browse', emoji: '🔍' },
+            { title: 'My listings', desc: 'Manage priced products', href: '/listings', emoji: '📋' },
+            { title: 'Connect store', desc: 'Link Shopify & more', href: '/online-store', emoji: '🔗' },
+            { title: 'Analytics', desc: 'Track revenue & profit', href: '/analytics', emoji: '📊' },
+          ].map((item, i) => (
+            <div key={i} onClick={() => router.push(item.href)} style={{
+              ...card, padding: '16px 18px', cursor: 'pointer', transition: 'box-shadow .15s',
+            }}
+              onMouseEnter={e => e.currentTarget.style.boxShadow = '0 2px 8px rgba(0,0,0,0.08)'}
+              onMouseLeave={e => e.currentTarget.style.boxShadow = 'none'}
+            >
+              <div style={{ fontSize: 24, marginBottom: 10 }}>{item.emoji}</div>
+              <div style={{ fontWeight: 600, fontSize: 14, color: '#111', marginBottom: 3 }}>{item.title}</div>
+              <div style={{ fontSize: 12, color: '#9ca3af', lineHeight: 1.5 }}>{item.desc}</div>
+            </div>
+          ))}
+        </div>
+
+        {/* ── Recent orders ──────────────────────────────────────────────── */}
+        {orders.length > 0 && (
+          <div style={{ ...card, overflow: 'hidden' }}>
+            <div style={cardHeader}>
+              <div style={{ fontWeight: 600, fontSize: 15, color: '#111' }}>Recent orders</div>
+              <button onClick={() => router.push('/orders')} style={{ background: 'none', border: 'none', color: '#008060', cursor: 'pointer', fontWeight: 600, fontSize: 13 }}>View all</button>
+            </div>
+            {orders.slice(0, 3).map((o, i) => (
+              <div key={o.id} style={{
+                display: 'flex', justifyContent: 'space-between', alignItems: 'center',
+                padding: '12px 20px', borderBottom: i < 2 ? '1px solid #f9fafb' : 'none',
+                transition: 'background .1s',
+              }}
+                onMouseEnter={e => e.currentTarget.style.background = '#fafafa'}
+                onMouseLeave={e => e.currentTarget.style.background = 'transparent'}
+              >
+                <div>
+                  <div style={{ fontWeight: 500, fontSize: 14, color: '#111' }}>#{o.storefront_order_id || o.id.slice(0, 8)}</div>
+                  <div style={{ fontSize: 12, color: '#6b7280', marginTop: 2 }}>{o.customer_name} · {new Date(o.created_at).toLocaleDateString()}</div>
+                </div>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                  <span style={{ fontWeight: 600, fontSize: 14 }}>${o.amount_paid}</span>
+                  <span style={{
+                    padding: '3px 10px', borderRadius: 20, fontSize: 11, fontWeight: 500,
+                    background: o.status === 'delivered' ? '#dcfce7' : o.status === 'shipped' ? '#dbeafe' : '#fef9c3',
+                    color: o.status === 'delivered' ? '#008060' : o.status === 'shipped' ? '#1d4ed8' : '#92400e'
+                  }}>{o.status}</span>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
       </div>
 
+      {/* ── Modal ─────────────────────────────────────────────────────────── */}
       {modalProduct && (
-        <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000, padding: '16px' }}>
-          <div style={{ background: '#fff', borderRadius: '12px', width: '100%', maxWidth: '460px', maxHeight: '90vh', overflow: 'auto', boxShadow: '0 20px 60px rgba(0,0,0,0.2)' }}>
-            <div style={{ padding: '18px 20px', borderBottom: '1px solid #f3f4f6', display: 'flex', justifyContent: 'space-between', alignItems: 'center', position: 'sticky', top: 0, background: '#fff', zIndex: 1 }}>
-              <div style={{ fontWeight: '600', fontSize: '15px', color: '#111' }}>
-                {modalType === 'price' && 'Set Selling Price'}
-                {modalType === 'edit' && 'Edit Product'}
-                {modalType === 'image' && 'Manage Images'}
+        <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.45)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000, padding: 16 }}
+          onClick={e => e.target === e.currentTarget && closeModal()}>
+          <div style={{ background: '#fff', borderRadius: 12, width: '100%', maxWidth: 460, maxHeight: '90vh', overflow: 'auto', boxShadow: '0 20px 60px rgba(0,0,0,0.2)' }}>
+            <div style={{ padding: '16px 20px', borderBottom: '1px solid #f3f4f6', display: 'flex', justifyContent: 'space-between', alignItems: 'center', position: 'sticky', top: 0, background: '#fff', zIndex: 1 }}>
+              <div style={{ fontWeight: 600, fontSize: 15, color: '#111' }}>
+                {modalType === 'price' && 'Set selling price'}
+                {modalType === 'edit' && 'Edit product'}
+                {modalType === 'image' && 'Manage images'}
               </div>
-              <button onClick={closeModal} style={{ background: 'none', border: 'none', fontSize: '22px', cursor: 'pointer', color: '#6b7280' }}>×</button>
+              <button onClick={closeModal} style={{ background: 'none', border: 'none', fontSize: 22, cursor: 'pointer', color: '#6b7280', lineHeight: 1 }}>×</button>
             </div>
-            <div style={{ padding: '20px' }}>
-              <div style={{ fontSize: '13px', color: '#6b7280', marginBottom: '16px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{modalProduct.title}</div>
+            <div style={{ padding: 20 }}>
+              <div style={{ fontSize: 13, color: '#6b7280', marginBottom: 16, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{modalProduct.title}</div>
 
               {modalType === 'price' && (
                 <>
-                  <div style={{ background: '#f9fafb', borderRadius: '8px', padding: '12px 14px', marginBottom: '16px', display: 'flex', justifyContent: 'space-between' }}>
-                    <div><div style={{ fontSize: '12px', color: '#6b7280' }}>Source price</div><div style={{ fontWeight: '700', fontSize: '20px' }}>{sym}{modalProduct.source_price}</div></div>
-                    <div style={{ textAlign: 'right' }}><div style={{ fontSize: '12px', color: '#6b7280' }}>From</div><div style={{ fontSize: '13px', fontWeight: '500' }}>{modalProduct.source_domain}</div></div>
+                  <div style={{ background: '#f9fafb', borderRadius: 8, padding: '12px 14px', marginBottom: 16, display: 'flex', justifyContent: 'space-between' }}>
+                    <div>
+                      <div style={{ fontSize: 12, color: '#6b7280' }}>Source price</div>
+                      <div style={{ fontWeight: 700, fontSize: 20 }}>{sym}{modalProduct.source_price}</div>
+                    </div>
+                    <div style={{ textAlign: 'right' }}>
+                      <div style={{ fontSize: 12, color: '#6b7280' }}>From</div>
+                      <div style={{ fontSize: 13, fontWeight: 500 }}>{modalProduct.source_domain}</div>
+                    </div>
                   </div>
-                  <div style={{ marginBottom: '12px' }}>
-                    <label style={{ display: 'block', fontSize: '12px', fontWeight: '600', color: '#6b7280', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: '6px' }}>Selling price ({modalProduct.currency})</label>
-                    <input type="number" value={sellingPrice} onChange={e => handlePriceChange(e.target.value)} placeholder={`Min ${sym}${(parseFloat(modalProduct.source_price) + 1).toFixed(2)}`} style={{ width: '100%', padding: '10px 12px', border: '1px solid #e5e7eb', borderRadius: '8px', fontSize: '16px', fontWeight: '600', outline: 'none', boxSizing: 'border-box' }} />
+                  <div style={{ marginBottom: 12 }}>
+                    <label style={{ display: 'block', fontSize: 11, fontWeight: 600, color: '#6b7280', textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: 6 }}>Selling price ({modalProduct.currency})</label>
+                    <input type="number" value={sellingPrice} onChange={e => handlePriceChange(e.target.value)}
+                      placeholder={`Min ${sym}${(parseFloat(modalProduct.source_price) + 1).toFixed(2)}`}
+                      style={{ ...inp, fontSize: 16, fontWeight: 600 }} />
                   </div>
-                  <div style={{ marginBottom: '16px' }}>
-                    <label style={{ display: 'block', fontSize: '12px', fontWeight: '600', color: '#6b7280', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: '6px' }}>Or profit margin (%)</label>
-                    <input type="number" value={profitMargin} onChange={e => handleMarginChange(e.target.value)} placeholder="e.g. 30" style={{ width: '100%', padding: '10px 12px', border: '1px solid #e5e7eb', borderRadius: '8px', fontSize: '16px', outline: 'none', boxSizing: 'border-box' }} />
+                  <div style={{ marginBottom: 16 }}>
+                    <label style={{ display: 'block', fontSize: 11, fontWeight: 600, color: '#6b7280', textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: 6 }}>Or profit margin (%)</label>
+                    <input type="number" value={profitMargin} onChange={e => handleMarginChange(e.target.value)} placeholder="e.g. 30" style={{ ...inp, fontSize: 16 }} />
                   </div>
                   {sellingPrice && parseFloat(sellingPrice) > parseFloat(modalProduct.source_price) && (
-                    <div style={{ background: '#f0fdf4', border: '1px solid #bbf7d0', borderRadius: '8px', padding: '12px', marginBottom: '14px', display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '8px', textAlign: 'center' }}>
-                      <div><div style={{ fontSize: '11px', color: '#6b7280', marginBottom: '3px' }}>You pay</div><div style={{ fontWeight: '700', fontSize: '14px' }}>{sym}{modalProduct.source_price}</div></div>
-                      <div><div style={{ fontSize: '11px', color: '#6b7280', marginBottom: '3px' }}>Customer pays</div><div style={{ fontWeight: '700', fontSize: '14px' }}>{sym}{parseFloat(sellingPrice).toFixed(2)}</div></div>
-                      <div><div style={{ fontSize: '11px', color: '#6b7280', marginBottom: '3px' }}>Your profit</div><div style={{ fontWeight: '700', fontSize: '14px', color: '#00a47c' }}>{sym}{(sellingPrice - modalProduct.source_price).toFixed(2)}</div></div>
+                    <div style={{ background: '#f0fdf4', border: '1px solid #bbf7d0', borderRadius: 8, padding: 12, marginBottom: 14, display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 8, textAlign: 'center' }}>
+                      {[
+                        { label: 'You pay', val: `${sym}${modalProduct.source_price}` },
+                        { label: 'Customer pays', val: `${sym}${parseFloat(sellingPrice).toFixed(2)}` },
+                        { label: 'Your profit', val: `${sym}${(sellingPrice - modalProduct.source_price).toFixed(2)}`, green: true },
+                      ].map((s, i) => (
+                        <div key={i}>
+                          <div style={{ fontSize: 11, color: '#6b7280', marginBottom: 3 }}>{s.label}</div>
+                          <div style={{ fontWeight: 700, fontSize: 14, color: s.green ? '#008060' : '#111' }}>{s.val}</div>
+                        </div>
+                      ))}
                     </div>
                   )}
-                  {listMessage && <div style={{ padding: '10px 14px', borderRadius: '8px', marginBottom: '12px', fontSize: '13px', background: listMessage.includes('error') ? '#fef2f2' : '#f0fdf4', color: listMessage.includes('error') ? '#dc2626' : '#00a47c' }}>{listMessage}</div>}
-                  <div style={{ display: 'flex', gap: '10px' }}>
-                    <button onClick={closeModal} style={{ flex: 1, padding: '10px', background: '#f9fafb', border: '1px solid #e5e7eb', borderRadius: '8px', cursor: 'pointer', fontSize: '14px' }}>Cancel</button>
-                    <button onClick={handleSetPrice} disabled={listing || !sellingPrice || parseFloat(sellingPrice) <= parseFloat(modalProduct.source_price)} style={{ flex: 2, padding: '10px', background: listing || !sellingPrice || parseFloat(sellingPrice) <= parseFloat(modalProduct.source_price) ? '#9ca3af' : '#111', color: '#fff', border: 'none', borderRadius: '8px', cursor: 'pointer', fontSize: '14px', fontWeight: '500' }}>{listing ? 'Saving...' : 'Save Listing'}</button>
+                  {listMessage && (
+                    <div style={{ padding: '10px 14px', borderRadius: 8, marginBottom: 12, fontSize: 13, background: listMessage.includes('error') || listMessage.includes('Failed') ? '#fef2f2' : '#f0fdf4', color: listMessage.includes('error') || listMessage.includes('Failed') ? '#dc2626' : '#008060' }}>
+                      {listMessage}
+                    </div>
+                  )}
+                  <div style={{ display: 'flex', gap: 10 }}>
+                    <button onClick={closeModal} style={{ ...btnSecondary, flex: 1 }}>Cancel</button>
+                    <button onClick={handleSetPrice} disabled={listing || !sellingPrice || parseFloat(sellingPrice) <= parseFloat(modalProduct.source_price)} style={{ ...btnPrimary, flex: 2, opacity: listing || !sellingPrice || parseFloat(sellingPrice) <= parseFloat(modalProduct.source_price) ? 0.5 : 1, cursor: listing ? 'not-allowed' : 'pointer' }}>
+                      {listing ? 'Saving...' : 'Save listing'}
+                    </button>
                   </div>
                 </>
               )}
 
               {modalType === 'edit' && (
                 <>
-                  <div style={{ marginBottom: '14px' }}>
-                    <label style={{ display: 'block', fontSize: '12px', fontWeight: '600', color: '#6b7280', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: '6px' }}>Title</label>
-                    <input value={editData.title} onChange={e => setEditData({ ...editData, title: e.target.value })} style={{ width: '100%', padding: '10px 12px', border: '1px solid #e5e7eb', borderRadius: '8px', fontSize: '14px', outline: 'none', boxSizing: 'border-box' }} />
+                  <div style={{ marginBottom: 14 }}>
+                    <label style={{ display: 'block', fontSize: 11, fontWeight: 600, color: '#6b7280', textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: 6 }}>Title</label>
+                    <input value={editData.title} onChange={e => setEditData({ ...editData, title: e.target.value })} style={inp} />
                   </div>
-                  <div style={{ marginBottom: '16px' }}>
-                    <label style={{ display: 'block', fontSize: '12px', fontWeight: '600', color: '#6b7280', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: '6px' }}>Description</label>
-                    <textarea value={editData.description} onChange={e => setEditData({ ...editData, description: e.target.value })} rows={5} style={{ width: '100%', padding: '10px 12px', border: '1px solid #e5e7eb', borderRadius: '8px', fontSize: '14px', outline: 'none', boxSizing: 'border-box', resize: 'vertical', fontFamily: 'inherit' }} />
+                  <div style={{ marginBottom: 16 }}>
+                    <label style={{ display: 'block', fontSize: 11, fontWeight: 600, color: '#6b7280', textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: 6 }}>Description</label>
+                    <textarea value={editData.description} onChange={e => setEditData({ ...editData, description: e.target.value })} rows={5} style={{ ...inp, resize: 'vertical', lineHeight: 1.6 }} />
                   </div>
-                  {listMessage && <div style={{ padding: '10px 14px', borderRadius: '8px', marginBottom: '12px', fontSize: '13px', background: '#f0fdf4', color: '#00a47c' }}>{listMessage}</div>}
-                  <div style={{ display: 'flex', gap: '10px' }}>
-                    <button onClick={closeModal} style={{ flex: 1, padding: '10px', background: '#f9fafb', border: '1px solid #e5e7eb', borderRadius: '8px', cursor: 'pointer', fontSize: '14px' }}>Cancel</button>
-                    <button onClick={handleSaveEdit} disabled={saving} style={{ flex: 2, padding: '10px', background: saving ? '#9ca3af' : '#111', color: '#fff', border: 'none', borderRadius: '8px', cursor: 'pointer', fontSize: '14px', fontWeight: '500' }}>{saving ? 'Saving...' : 'Save Changes'}</button>
+                  {listMessage && <div style={{ padding: '10px 14px', borderRadius: 8, marginBottom: 12, fontSize: 13, background: '#f0fdf4', color: '#008060' }}>{listMessage}</div>}
+                  <div style={{ display: 'flex', gap: 10 }}>
+                    <button onClick={closeModal} style={{ ...btnSecondary, flex: 1 }}>Cancel</button>
+                    <button onClick={handleSaveEdit} disabled={saving} style={{ ...btnPrimary, flex: 2, opacity: saving ? 0.5 : 1 }}>{saving ? 'Saving...' : 'Save changes'}</button>
                   </div>
                 </>
               )}
 
               {modalType === 'image' && (
                 <>
-                  <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', marginBottom: '16px' }}>
+                  <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8, marginBottom: 16 }}>
                     {getImages(modalProduct.images).map((img, i) => (
-                      <div key={i} style={{ position: 'relative', width: '80px', height: '80px' }}>
-                        <img src={img} alt="" style={{ width: '80px', height: '80px', objectFit: 'cover', borderRadius: '8px', border: '1px solid #e5e7eb' }} onError={e => e.target.parentElement.style.display = 'none'} />
-                      </div>
+                      <img key={i} src={img} alt="" style={{ width: 80, height: 80, objectFit: 'cover', borderRadius: 8, border: '1px solid #e5e7eb' }} onError={e => e.target.style.display = 'none'} />
                     ))}
-                    <div onClick={() => fileInputRef.current?.click()} style={{ width: '80px', height: '80px', border: '2px dashed #e5e7eb', borderRadius: '8px', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', color: '#6b7280', fontSize: '20px' }}>
-                      +<span style={{ fontSize: '10px', marginTop: '3px' }}>Add</span>
+                    <div onClick={() => fileInputRef.current?.click()} style={{ width: 80, height: 80, border: '2px dashed #e5e7eb', borderRadius: 8, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', color: '#6b7280', fontSize: 22 }}>
+                      +<span style={{ fontSize: 10, marginTop: 2 }}>Add</span>
                     </div>
                     <input ref={fileInputRef} type="file" accept="image/*" multiple onChange={handleImageUpload} style={{ display: 'none' }} />
                   </div>
-                  <button onClick={closeModal} style={{ width: '100%', padding: '10px', background: '#f9fafb', border: '1px solid #e5e7eb', borderRadius: '8px', cursor: 'pointer', fontSize: '14px' }}>Close</button>
+                  <button onClick={closeModal} style={{ ...btnSecondary, width: '100%' }}>Close</button>
                 </>
               )}
             </div>
