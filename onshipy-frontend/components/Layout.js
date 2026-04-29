@@ -302,7 +302,7 @@ export default function Layout({ children, title }) {
           width: 240px; flex-shrink: 0;
           background: ${P.surface};
           border-right: 1px solid ${P.border};
-          position: fixed; top: 0; left: 0; bottom: 0; z-index: 400;
+          position: fixed; top: 56px; left: 0; bottom: 0; z-index: 400;
           display: flex; flex-direction: column;
         }
         .sidebar-logo {
@@ -312,9 +312,9 @@ export default function Layout({ children, title }) {
         }
         .desk-topbar {
           display: flex; align-items: center;
-          position: fixed; top: 0; left: 240px; right: 0; height: 56px;
+          position: fixed; top: 0; left: 0; right: 0; height: 56px;
           background: ${P.bgInverse}; z-index: 300;
-          padding: 0 20px; gap: 12px;
+          padding: 0 20px 0 16px; gap: 12px;
         }
         .topbar-search {
           flex: 1; max-width: 420px;
@@ -360,6 +360,11 @@ export default function Layout({ children, title }) {
         </aside>
 
         <div className="desk-topbar">
+          {/* Logo in black bar — exact Shopify style */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexShrink: 0, marginRight: 12 }}>
+            <img src="/favicon.png" alt="Onshipy" style={{ width: 28, height: 28, objectFit: 'contain', borderRadius: 6 }} />
+            <span style={{ color: '#fff', fontWeight: 700, fontSize: '0.9375rem', letterSpacing: '-0.02em', whiteSpace: 'nowrap' }}>Onshipy</span>
+          </div>
           <div className="topbar-search">
             <svg width="15" height="15" fill="none" stroke="rgba(255,255,255,0.4)" strokeWidth="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
             <span style={{ fontSize: '0.8125rem', color: 'rgba(255,255,255,0.38)', flex: 1, letterSpacing: P.letterSpacing }}>Search</span>
@@ -400,3 +405,6 @@ export default function Layout({ children, title }) {
     </>
   );
 }
+// TOPBAR FIX NOTE: See topbar-note.txt
+// The Layout.js already has the correct structure from the previous version
+// Only the topbar CSS needs updating for full-width span
