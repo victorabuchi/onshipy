@@ -359,15 +359,18 @@ export default function Layout({ children, title }) {
         {menuOpen && <div className="overlay" onClick={() => setMenuOpen(false)} />}
 
         <aside className={`sidebar${menuOpen ? ' open' : ''}`}>
-          {/* Logo hidden — shown in topbar */}
+          {/* Sidebar logo — custom bag favicon + wordmark */}
+          <div style={{ height: 56, display: 'flex', alignItems: 'center', padding: '0 16px', borderBottom: `1px solid ${P.border}`, gap: 9, flexShrink: 0 }}>
+            <img src="/favicon.png" alt="Onshipy" style={{ width: 26, height: 26, objectFit: 'contain' }} />
+            <span style={{ fontWeight: 700, fontSize: '0.9375rem', color: P.text, letterSpacing: '-0.02em' }}>Onshipy</span>
+          </div>
           <SidebarContent />
         </aside>
 
         <div className="desk-topbar">
-          {/* LEFT — logo only, same width as sidebar */}
+          {/* LEFT — wordmark only, Shopify style */}
           <div className="topbar-logo">
-            <img src="/favicon.png" alt="Onshipy" style={{ width: 28, height: 28, objectFit: 'contain', borderRadius: 6 }} />
-            <span style={{ color: '#fff', fontWeight: 700, fontSize: '0.9375rem', letterSpacing: '-0.02em' }}>Onshipy</span>
+            <span style={{ color: '#fff', fontWeight: 750, fontSize: '1rem', letterSpacing: '-0.03em', fontFamily: '"Inter var","Inter",sans-serif' }}>Onshipy</span>
           </div>
 
           {/* CENTER — pill search bar */}

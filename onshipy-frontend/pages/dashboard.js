@@ -334,8 +334,14 @@ export default function Dashboard() {
                 <span style={{ fontWeight: 600, fontSize: P.fontSize, color: P.text }}>My Products</span>
                 <span style={{ fontSize: P.fontSize, color: P.textSubdued, marginLeft: 8 }}>{products.length} imported</span>
               </div>
-              <div style={{ display: 'flex', gap: 6 }}>
-                <Btn onClick={() => fetchAll()}>Refresh</Btn>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                <button onClick={() => fetchAll()} style={{ background: 'none', border: 'none', cursor: 'pointer', color: P.textSubdued, display: 'flex', alignItems: 'center', gap: 4, fontSize: P.fontSize, fontFamily: P.font, padding: '4px 6px', borderRadius: 6 }}
+                  title="Refresh products"
+                  onMouseEnter={e => e.currentTarget.style.background = P.bg}
+                  onMouseLeave={e => e.currentTarget.style.background = 'none'}
+                >
+                  <svg width="13" height="13" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path d="M23 4v6h-6"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg>
+                </button>
                 <Btn variant="primary" onClick={() => router.push('/products')}>View all</Btn>
               </div>
             </div>
