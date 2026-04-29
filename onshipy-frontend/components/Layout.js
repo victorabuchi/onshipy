@@ -305,26 +305,33 @@ export default function Layout({ children, title }) {
           position: fixed; top: 56px; left: 0; bottom: 0; z-index: 400;
           display: flex; flex-direction: column;
         }
-        .sidebar-logo {
-          height: 56px; display: flex; align-items: center;
-          padding: 0 16px; border-bottom: 1px solid ${P.border};
-          flex-shrink: 0; gap: 10px;
-        }
+        .sidebar-logo { display: none; }
         .desk-topbar {
           display: flex; align-items: center;
           position: fixed; top: 0; left: 0; right: 0; height: 56px;
-          background: ${P.bgInverse}; z-index: 300;
-          padding: 0 20px 0 16px; gap: 12px;
+          background: ${P.bgInverse}; z-index: 500;
+          padding: 0 20px; gap: 0;
+        }
+        .topbar-logo {
+          display: flex; align-items: center; gap: 8px;
+          width: 240px; flex-shrink: 0; padding-left: 4px;
+        }
+        .topbar-center {
+          flex: 1; display: flex; justify-content: center; align-items: center;
         }
         .topbar-search {
-          flex: 1; max-width: 420px;
+          width: 100%; max-width: 480px;
           display: flex; align-items: center; gap: 8px;
           background: rgba(255,255,255,0.07);
           border: 1px solid rgba(255,255,255,0.12);
-          border-radius: 8px; padding: 0 12px; height: 36px; cursor: text;
+          border-radius: 624px; padding: 0 14px; height: 34px; cursor: text;
           transition: background .15s, border-color .15s;
         }
-        .topbar-search:hover { background: rgba(255,255,255,0.1); border-color: rgba(255,255,255,0.18); }
+        .topbar-search:hover { background: rgba(255,255,255,0.1); border-color: rgba(255,255,255,0.2); }
+        .topbar-right {
+          width: 240px; flex-shrink: 0;
+          display: flex; align-items: center; justify-content: flex-end; gap: 4px;
+        }
         .main-content {
           margin-left: 240px; flex: 1; min-height: 100vh;
           width: calc(100% - 240px); padding-top: 56px;
@@ -352,36 +359,47 @@ export default function Layout({ children, title }) {
         {menuOpen && <div className="overlay" onClick={() => setMenuOpen(false)} />}
 
         <aside className={`sidebar${menuOpen ? ' open' : ''}`}>
-          <div className="sidebar-logo">
-            <img src="/favicon.png" alt="Onshipy" style={{ width: 26, height: 26, objectFit: 'contain' }} />
-            <span style={{ fontWeight: '700', fontSize: '0.9375rem', color: P.text, letterSpacing: '-0.02em' }}>Onshipy</span>
-          </div>
+          {/* Logo hidden — shown in topbar */}
           <SidebarContent />
         </aside>
 
         <div className="desk-topbar">
-          {/* Logo in black bar — exact Shopify style */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexShrink: 0, marginRight: 12 }}>
+          {/* LEFT — logo only, same width as sidebar */}
+          <div className="topbar-logo">
             <img src="/favicon.png" alt="Onshipy" style={{ width: 28, height: 28, objectFit: 'contain', borderRadius: 6 }} />
-            <span style={{ color: '#fff', fontWeight: 700, fontSize: '0.9375rem', letterSpacing: '-0.02em', whiteSpace: 'nowrap' }}>Onshipy</span>
+            <span style={{ color: '#fff', fontWeight: 700, fontSize: '0.9375rem', letterSpacing: '-0.02em' }}>Onshipy</span>
           </div>
-          <div className="topbar-search">
-            <svg width="15" height="15" fill="none" stroke="rgba(255,255,255,0.4)" strokeWidth="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-            <span style={{ fontSize: '0.8125rem', color: 'rgba(255,255,255,0.38)', flex: 1, letterSpacing: P.letterSpacing }}>Search</span>
-            <div style={{ display: 'flex', gap: 3 }}>
-              <kbd style={{ fontSize: '0.6875rem', color: 'rgba(255,255,255,0.25)', background: 'rgba(255,255,255,0.08)', padding: '1px 5px', borderRadius: 4, fontFamily: P.fontFamily }}>CTRL</kbd>
-              <kbd style={{ fontSize: '0.6875rem', color: 'rgba(255,255,255,0.25)', background: 'rgba(255,255,255,0.08)', padding: '1px 5px', borderRadius: 4, fontFamily: P.fontFamily }}>K</kbd>
+
+          {/* CENTER — pill search bar */}
+          <div className="topbar-center">
+            <div className="topbar-search">
+              <svg width="14" height="14" fill="none" stroke="rgba(255,255,255,0.45)" strokeWidth="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+              <span style={{ fontSize: '0.8125rem', color: 'rgba(255,255,255,0.38)', flex: 1, letterSpacing: P.letterSpacing }}>Search</span>
+              <div style={{ display: 'flex', gap: 2 }}>
+                <kbd style={{ fontSize: '0.625rem', color: 'rgba(255,255,255,0.22)', background: 'rgba(255,255,255,0.07)', padding: '1px 5px', borderRadius: 3, fontFamily: P.fontFamily }}>CTRL</kbd>
+                <kbd style={{ fontSize: '0.625rem', color: 'rgba(255,255,255,0.22)', background: 'rgba(255,255,255,0.07)', padding: '1px 5px', borderRadius: 3, fontFamily: P.fontFamily }}>K</kbd>
+              </div>
             </div>
           </div>
-          <div style={{ flex: 1 }} />
-          <button style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'rgba(255,255,255,0.6)', display: 'flex', padding: 8, borderRadius: 8 }}
-            onMouseEnter={e => e.currentTarget.style.background = 'rgba(255,255,255,0.08)'}
-            onMouseLeave={e => e.currentTarget.style.background = 'none'}
-          >
-            <svg width="18" height="18" fill="none" stroke="currentColor" strokeWidth="1.75" viewBox="0 0 24 24"><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9M13.73 21a2 2 0 01-3.46 0"/></svg>
-          </button>
-          <div onClick={() => router.push('/settings')} style={{ width: 32, height: 32, background: P.green, borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', fontWeight: '700', fontSize: 11, cursor: 'pointer', border: '2px solid rgba(255,255,255,0.15)', letterSpacing: 0 }}>
-            {initials}
+
+          {/* RIGHT — actions */}
+          <div className="topbar-right">
+            <button style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'rgba(255,255,255,0.55)', display: 'flex', padding: 8, borderRadius: 8 }}
+              onMouseEnter={e => e.currentTarget.style.background = 'rgba(255,255,255,0.08)'}
+              onMouseLeave={e => e.currentTarget.style.background = 'none'}
+              title="Notifications"
+            >
+              <svg width="18" height="18" fill="none" stroke="currentColor" strokeWidth="1.75" viewBox="0 0 24 24"><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9M13.73 21a2 2 0 01-3.46 0"/></svg>
+            </button>
+            <div onClick={() => router.push('/settings')} style={{
+              width: 30, height: 30, background: P.green, borderRadius: '50%',
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+              color: '#fff', fontWeight: '700', fontSize: 11, cursor: 'pointer',
+              border: '2px solid rgba(255,255,255,0.15)',
+              fontFamily: P.fontFamily, letterSpacing: 0
+            }}>
+              {initials}
+            </div>
           </div>
         </div>
 
