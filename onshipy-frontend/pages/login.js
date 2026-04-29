@@ -4,19 +4,35 @@ import Link from 'next/link';
 
 const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000';
 
+const LIVE_STATS = [
+  { label: 'Active sellers', value: '2,400+' },
+  { label: 'Products imported', value: '84,000+' },
+  { label: 'Total profit made', value: '$1.2M+' },
+];
+
+const TESTIMONIALS = [
+  { name: 'Jessie K.', flag: '🇬🇧', text: 'Made €350 my first week. I just paste links and set prices — Onshipy does everything else.', profit: '+€350' },
+  { name: 'Diego M.', flag: '🇧🇷', text: 'I was skeptical but after pushing 5 products to Shopify in 10 minutes I was sold.', profit: '+$489' },
+  { name: 'Amara T.', flag: '🇳🇬', text: 'Finally a tool that actually works from Nigeria. Import, price, push. Done.', profit: '+₦280k' },
+];
+
 export default function Login() {
   const router = useRouter();
   const [form, setForm] = useState({ email: '', password: '' });
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+  const [testimonialIdx, setTestimonialIdx] = useState(0);
   const [showCookies, setShowCookies] = useState(false);
 
   useEffect(() => {
     const cookies = localStorage.getItem('onshipy_cookies');
     if (!cookies) setShowCookies(true);
-    if (router.query.error === 'google_failed') {
-      setError('Google sign in failed. Please try again or use email.');
-    }
+    if (router.query.error === 'google_failed') setError('Google sign in failed. Please try again.');
+
+    const iv = setInterval(() => {
+      setTestimonialIdx(i => (i + 1) % TESTIMONIALS.length);
+    }, 4000);
+    return () => clearInterval(iv);
   }, [router.query]);
 
   const handleSubmit = async (e) => {
@@ -30,314 +46,116 @@ export default function Login() {
         body: JSON.stringify(form)
       });
       const data = await res.json();
-      if (!res.ok) { setError(data.error || 'Login failed'); return; }
+      if (!res.ok) { setError(data.error || 'Login failed'); setLoading(false); return; }
       localStorage.setItem('onshipy_token', data.token);
       localStorage.setItem('onshipy_seller', JSON.stringify(data.seller));
       router.push('/dashboard');
-    } catch { setError('Cannot connect to server.'); }
-    finally { setLoading(false); }
+    } catch { setError('Cannot connect to server.'); setLoading(false); }
   };
 
-  const handleGoogle = () => {
-    window.location.href = `${API_BASE}/api/auth/google`;
-  };
+  const t = TESTIMONIALS[testimonialIdx];
 
   return (
     <>
       <style>{`
+        @import url('https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700;800&display=swap');
         *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-        html, body { width: 100%; min-height: 100vh; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; }
-
-        .page {
-          min-height: 100vh;
-          min-height: 100dvh;
-          display: flex;
-          background: #fff;
-        }
-
-        /* Left panel — full image/video background on desktop */
-        .left-panel {
-          flex: 1;
-          position: relative;
-          overflow: hidden;
-          display: none;
-          background: #1a1a2e;
-        }
-
-        .left-panel-bg {
-          position: absolute;
-          inset: 0;
-          background: linear-gradient(135deg, #0f0f1a 0%, #1a1a2e 40%, #0d2b1e 100%);
-        }
-
-        /* Grid pattern overlay */
-        .left-panel-grid {
-          position: absolute;
-          inset: 0;
-          background-image: linear-gradient(rgba(255,255,255,0.03) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.03) 1px, transparent 1px);
-          background-size: 40px 40px;
-        }
-         
-        .left-panel-content {
-          position: relative;
-          z-index: 2;
-          height: 100%;
-          display: flex;
-          flex-direction: column;
-          justify-content: center;
-          padding: 60px 56px;
-        }
-
-        .left-headline {
-          font-size: 52px;
-          font-weight: 900;
-          color: #fff;
-          line-height: 1.05;
-          letter-spacing: -1.5px;
-          margin-bottom: 20px;
-        }
-
-        .left-headline span { color: #00a47c; }
-
-        .left-sub {
-          font-size: 16px;
-          color: rgba(255,255,255,0.5);
-          line-height: 1.7;
-          max-width: 380px;
-          margin-bottom: 48px;
-        }
-
-        .stats-row {
-          display: flex;
-          gap: 32px;
-        }
-
-        .stat-item {}
-        .stat-num { font-size: 28px; font-weight: 800; color: #fff; letter-spacing: -0.5px; }
-        .stat-lbl { font-size: 12px; color: rgba(255,255,255,0.4); margin-top: 2px; text-transform: uppercase; letter-spacing: 0.05em; }
-
-        /* Floating product card */
-        .product-card {
-          position: absolute;
-          bottom: 60px;
-          right: 40px;
-          background: rgba(255,255,255,0.06);
-          backdrop-filter: blur(12px);
-          border: 1px solid rgba(255,255,255,0.1);
-          border-radius: 14px;
-          padding: 16px 20px;
-          width: 260px;
-        }
-
-        .product-card-top {
-          display: flex;
-          align-items: center;
-          gap: 10px;
-          margin-bottom: 12px;
-        }
-
-        .product-thumb {
-          width: 40px;
-          height: 40px;
-          background: rgba(255,255,255,0.1);
-          border-radius: 8px;
-          display: flex;
-          align-items: center;
-          justifyContent: center;
-          font-size: 20px;
-        }
-
-        .product-card-label { font-size: 11px; color: rgba(255,255,255,0.4); }
-        .product-card-title { font-size: 13px; color: #fff; fontWeight: 500; }
-        .product-card-prices { display: flex; justify-content: space-between; align-items: center; }
-        .product-card-cost { font-size: 12px; color: rgba(255,255,255,0.4); }
-        .product-card-profit { font-size: 13px; font-weight: 700; color: #00a47c; }
-
-        /* Right panel — the form */
-        .right-panel {
-          width: 100%;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          padding: 32px 24px 80px;
-          background: #fff;
-        }
-
-        .form-card {
-          width: 100%;
-          max-width: 400px;
-        }
-
-        .logo { font-size: 22px; font-weight: 800; color: #111; letter-spacing: -0.5px; margin-bottom: 28px; }
-
-        .social-btn {
-          width: 100%;
-          padding: 12px 16px;
-          background: #fff;
-          border: 1.5px solid #e5e7eb;
-          border-radius: 10px;
-          font-size: 14px;
-          font-weight: 500;
-          color: #111;
-          cursor: pointer;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          gap: 10px;
-          font-family: inherit;
-          margin-bottom: 10px;
-          transition: background 0.1s, border-color 0.1s;
-        }
-
-        .social-btn:hover { background: #f9fafb; border-color: #d1d5db; }
-
-        .divider { display: flex; align-items: center; gap: 12px; margin: 20px 0; }
-        .divider-line { flex: 1; height: 1px; background: #f3f4f6; }
-        .divider-text { font-size: 12px; color: #9ca3af; white-space: nowrap; }
-
-        .lbl { display: block; font-size: 13px; font-weight: 500; color: #111; margin-bottom: 6px; }
-
+        html, body { width: 100%; min-height: 100vh; background: #050509; font-family: 'Sora', sans-serif; }
+        @keyframes fadeSlide { from{opacity:0;transform:translateY(8px)} to{opacity:1;transform:translateY(0)} }
+        @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.4} }
+        @keyframes gridMove { from{transform:translateY(0)} to{transform:translateY(40px)} }
         .inp {
-          width: 100%;
-          padding: 12px 14px;
-          border: 1.5px solid #e5e7eb;
-          border-radius: 10px;
-          font-size: 15px;
-          outline: none;
-          color: #111;
-          background: #fff;
-          font-family: inherit;
-          transition: border-color 0.15s, box-shadow 0.15s;
+          width: 100%; padding: 12px 14px;
+          background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1);
+          border-radius: 10px; font-size: 14px; outline: none; color: #fff;
+          font-family: 'Sora',sans-serif; transition: border-color 0.2s, background 0.2s;
         }
-
-        .inp:focus { border-color: #111; box-shadow: 0 0 0 3px rgba(0,0,0,0.06); }
-
-        .btn {
-          width: 100%;
-          padding: 13px;
-          background: #111;
-          color: #fff;
-          border: none;
-          border-radius: 10px;
-          font-size: 15px;
-          font-weight: 600;
-          cursor: pointer;
-          font-family: inherit;
-          transition: opacity 0.15s;
-        }
-
-        .btn:hover { opacity: 0.85; }
-        .btn:disabled { opacity: 0.4; cursor: not-allowed; }
-
-        /* Cookie banner */
-        .cookie {
-          position: fixed;
-          bottom: 0; left: 0; right: 0;
-          background: #111;
-          padding: 14px 20px;
-          display: flex;
-          align-items: center;
-          justify-content: space-between;
-          gap: 16px;
-          z-index: 9999;
-          flex-wrap: wrap;
-        }
-
-        .cookie p { font-size: 13px; color: rgba(255,255,255,0.7); flex: 1; min-width: 180px; line-height: 1.5; }
-        .cookie p a { color: #00a47c; }
-        .cookie-btns { display: flex; gap: 8px; }
-        .c-accept { padding: 8px 18px; background: #00a47c; color: #fff; border: none; border-radius: 8px; font-size: 13px; font-weight: 600; cursor: pointer; font-family: inherit; }
-        .c-reject { padding: 8px 18px; background: transparent; color: rgba(255,255,255,0.6); border: 1px solid rgba(255,255,255,0.2); border-radius: 8px; font-size: 13px; cursor: pointer; font-family: inherit; }
-
-        @media (min-width: 900px) {
-          .left-panel { display: flex; flex-direction: column; }
-          .right-panel { width: 480px; flex-shrink: 0; padding: 40px 56px; }
-        }
-
-        @media (max-width: 480px) {
-          .right-panel { padding: 40px 20px 80px; align-items: flex-start; }
-          .cookie { flex-direction: column; align-items: flex-start; }
-          .cookie-btns { width: 100%; }
-          .c-accept, .c-reject { flex: 1; text-align: center; }
-        }
+        .inp::placeholder { color: rgba(255,255,255,0.25); }
+        .inp:focus { border-color: rgba(255,255,255,0.3); background: rgba(255,255,255,0.08); }
+        .page { display: flex; min-height: 100vh; }
+        .left { flex: 1; display: none; position: relative; overflow: hidden; padding: 48px; flex-direction: column; justify-content: space-between; }
+        .right { width: 100%; display: flex; align-items: center; justify-content: center; padding: 32px 24px; }
+        .form-box { width: 100%; max-width: 380px; }
+        .sub-btn { width: 100%; padding: 13px; background: #fff; color: #050509; border: none; border-radius: 10px; font-size: 15px; font-weight: 700; cursor: pointer; font-family:'Sora',sans-serif; transition: opacity .15s, transform .15s; }
+        .sub-btn:hover:not(:disabled) { opacity: .9; transform: translateY(-1px); }
+        .sub-btn:disabled { opacity: .4; cursor: not-allowed; }
+        .g-btn { width: 100%; padding: 12px; background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.12); border-radius: 10px; color: #fff; font-size: 14px; font-weight: 600; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 10px; font-family:'Sora',sans-serif; transition: background .15s; }
+        .g-btn:hover { background: rgba(255,255,255,0.1); }
+        @media(min-width:900px){ .left{display:flex;} .right{width:420px;flex-shrink:0;padding:48px 52px;} }
+        @media(max-width:480px){ .right{align-items:flex-start;padding-top:40px;} }
       `}</style>
 
       <div className="page">
 
-        {/* Left visual panel — desktop only */}
-        <div className="left-panel">
-          <div className="left-panel-bg" />
-          <div className="left-panel-grid" />
-          <div className="left-panel-content">
-            <div style={{ fontSize: '13px', fontWeight: '700', color: '#00a47c', textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: '20px' }}>
-              Onshipy Platform
+        {/* ── LEFT ─────────────────────────────────────────────────────────── */}
+        <div className="left" style={{ background: '#050509' }}>
+          <div style={{
+            position: 'absolute', inset: 0,
+            backgroundImage: `linear-gradient(rgba(255,255,255,0.03) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,0.03) 1px,transparent 1px)`,
+            backgroundSize: '48px 48px', animation: 'gridMove 8s linear infinite', zIndex: 0
+          }} />
+          <div style={{ position: 'absolute', bottom: '20%', left: '30%', width: 280, height: 280, borderRadius: '50%', background: 'radial-gradient(circle,rgba(0,200,83,0.06) 0%,transparent 70%)', zIndex: 0 }} />
+
+          {/* Logo */}
+          <div style={{ position: 'relative', zIndex: 1, fontSize: 22, fontWeight: 800, color: '#fff' }}>Onshipy</div>
+
+          {/* Center content */}
+          <div style={{ position: 'relative', zIndex: 1 }}>
+            <div style={{ fontSize: 36, fontWeight: 800, color: '#fff', lineHeight: 1.15, marginBottom: 16, letterSpacing: '-1px' }}>
+              Sell anything.<br />
+              <span style={{ color: 'rgba(255,255,255,0.35)' }}>From anywhere.</span>
             </div>
-            <h1 className="left-headline">
-              Sell <span>anything</span>.<br />
-              From anywhere.
-            </h1>
-            <p className="left-sub">
-              Import products from any website, set your price, and start selling. We handle purchasing, shipping, and tracking automatically.
+            <p style={{ fontSize: 15, color: 'rgba(255,255,255,0.4)', lineHeight: 1.7, marginBottom: 40, maxWidth: 360 }}>
+              Import from Nike, ASOS, Amazon and 1000+ stores. Set your price. We ship to your customers automatically.
             </p>
 
-            <div className="stats-row">
-              <div className="stat-item">
-                <div className="stat-num">10K+</div>
-                <div className="stat-lbl">Products imported</div>
+            {/* Stats */}
+            <div style={{ display: 'flex', gap: 24, marginBottom: 48 }}>
+              {LIVE_STATS.map((s, i) => (
+                <div key={i}>
+                  <div style={{ fontSize: 22, fontWeight: 800, color: '#fff', letterSpacing: '-0.5px' }}>{s.value}</div>
+                  <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.35)', marginTop: 2 }}>{s.label}</div>
+                </div>
+              ))}
+            </div>
+
+            {/* Rotating testimonial */}
+            <div style={{
+              background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)',
+              borderRadius: 16, padding: '20px 22px',
+              animation: 'fadeSlide 0.5s ease', key: testimonialIdx
+            }}>
+              <div style={{ fontSize: 14, color: 'rgba(255,255,255,0.7)', lineHeight: 1.7, marginBottom: 14, fontStyle: 'italic' }}>
+                "{t.text}"
               </div>
-              <div className="stat-item">
-                <div className="stat-num">500+</div>
-                <div className="stat-lbl">Active sellers</div>
-              </div>
-              <div className="stat-item">
-                <div className="stat-num">50+</div>
-                <div className="stat-lbl">Source websites</div>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                  <span style={{ fontSize: 18 }}>{t.flag}</span>
+                  <span style={{ fontSize: 13, fontWeight: 600, color: '#fff' }}>{t.name}</span>
+                </div>
+                <span style={{ fontSize: 14, fontWeight: 700, color: '#69f0ae' }}>{t.profit}</span>
               </div>
             </div>
           </div>
 
-          {/* Floating product card */}
-          <div className="product-card">
-            <div className="product-card-top">
-              <div style={{ width: '40px', height: '40px', background: 'rgba(255,255,255,0.08)', borderRadius: '8px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '18px', flexShrink: 0 }}>👟</div>
-              <div>
-                <div style={{ fontSize: '11px', color: 'rgba(255,255,255,0.35)' }}>Just imported</div>
-                <div style={{ fontSize: '13px', color: '#fff', fontWeight: '500' }}>Nike Air Max 270</div>
-              </div>
-            </div>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderTop: '1px solid rgba(255,255,255,0.08)', paddingTop: '10px' }}>
-              <div>
-                <div style={{ fontSize: '11px', color: 'rgba(255,255,255,0.35)' }}>Source price</div>
-                <div style={{ fontSize: '14px', color: '#fff', fontWeight: '600' }}>$120.00</div>
-              </div>
-              <div style={{ width: '1px', height: '28px', background: 'rgba(255,255,255,0.08)' }} />
-              <div>
-                <div style={{ fontSize: '11px', color: 'rgba(255,255,255,0.35)' }}>Selling price</div>
-                <div style={{ fontSize: '14px', color: '#fff', fontWeight: '600' }}>$165.00</div>
-              </div>
-              <div style={{ width: '1px', height: '28px', background: 'rgba(255,255,255,0.08)' }} />
-              <div>
-                <div style={{ fontSize: '11px', color: 'rgba(255,255,255,0.35)' }}>Profit</div>
-                <div style={{ fontSize: '14px', color: '#00a47c', fontWeight: '700' }}>+$45</div>
-              </div>
-            </div>
+          {/* Bottom */}
+          <div style={{ position: 'relative', zIndex: 1, display: 'flex', alignItems: 'center', gap: 6 }}>
+            <div style={{ width: 7, height: 7, borderRadius: '50%', background: '#00c853', animation: 'pulse 1.5s infinite' }} />
+            <span style={{ fontSize: 12, color: 'rgba(255,255,255,0.3)' }}>2,400+ sellers active right now</span>
           </div>
         </div>
 
-        {/* Right panel — form */}
-        <div className="right-panel">
-          <div className="form-card">
-            <div className="logo">Onshipy</div>
+        {/* ── RIGHT ────────────────────────────────────────────────────────── */}
+        <div className="right" style={{ background: '#0a0a0f', borderLeft: '1px solid rgba(255,255,255,0.06)' }}>
+          <div className="form-box">
+            <div style={{ fontSize: 22, fontWeight: 800, color: '#fff', marginBottom: 28 }}>Onshipy</div>
 
-            <div style={{ fontSize: '22px', fontWeight: '700', color: '#111', marginBottom: '4px' }}>
-              Sign in
-            </div>
-            <div style={{ fontSize: '14px', color: '#6b7280', marginBottom: '24px' }}>
-              Welcome back
+            <div style={{ marginBottom: 28 }}>
+              <h1 style={{ fontSize: 26, fontWeight: 800, color: '#fff', marginBottom: 6, letterSpacing: '-0.5px' }}>Welcome back</h1>
+              <p style={{ fontSize: 14, color: 'rgba(255,255,255,0.4)' }}>Sign in to your account</p>
             </div>
 
-            {/* Google */}
-            <button className="social-btn" onClick={handleGoogle}>
+            <button className="g-btn" onClick={() => window.location.href = `${API_BASE}/api/auth/google`} style={{ marginBottom: 20 }}>
               <svg width="18" height="18" viewBox="0 0 24 24">
                 <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
                 <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
@@ -347,46 +165,41 @@ export default function Login() {
               Continue with Google
             </button>
 
-            <div className="divider">
-              <div className="divider-line" />
-              <span className="divider-text">or continue with email</span>
-              <div className="divider-line" />
+            <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 20 }}>
+              <div style={{ flex: 1, height: 1, background: 'rgba(255,255,255,0.08)' }} />
+              <span style={{ fontSize: 12, color: 'rgba(255,255,255,0.25)' }}>or with email</span>
+              <div style={{ flex: 1, height: 1, background: 'rgba(255,255,255,0.08)' }} />
             </div>
 
             <form onSubmit={handleSubmit}>
-              <div style={{ marginBottom: '14px' }}>
-                <label className="lbl">Email</label>
-                <input className="inp" type="email" required value={form.email} onChange={e => setForm({ ...form, email: e.target.value })} placeholder="yourname@example.com" />
+              <div style={{ marginBottom: 12 }}>
+                <label style={{ fontSize: 12, fontWeight: 600, color: 'rgba(255,255,255,0.5)', display: 'block', marginBottom: 6, textTransform: 'uppercase', letterSpacing: '0.05em' }}>Email</label>
+                <input className="inp" type="email" required placeholder="you@example.com"
+                  value={form.email} onChange={e => setForm({ ...form, email: e.target.value })} />
               </div>
-
-              <div style={{ marginBottom: '20px' }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '6px' }}>
-                  <label className="lbl" style={{ marginBottom: 0 }}>Password</label>
-                  <a href="#" style={{ fontSize: '13px', color: '#00a47c', textDecoration: 'none', fontWeight: '500' }}>Forgot?</a>
+              <div style={{ marginBottom: 8 }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 6 }}>
+                  <label style={{ fontSize: 12, fontWeight: 600, color: 'rgba(255,255,255,0.5)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Password</label>
+                  <a href="#" style={{ fontSize: 12, color: 'rgba(255,255,255,0.4)', textDecoration: 'none' }}>Forgot?</a>
                 </div>
-                <input className="inp" type="password" required value={form.password} onChange={e => setForm({ ...form, password: e.target.value })} placeholder="••••••••" />
+                <input className="inp" type="password" required placeholder="••••••••"
+                  value={form.password} onChange={e => setForm({ ...form, password: e.target.value })} />
               </div>
 
               {error && (
-                <div style={{ padding: '10px 14px', background: '#fef2f2', border: '1px solid #fecaca', borderRadius: '8px', marginBottom: '14px', fontSize: '14px', color: '#dc2626' }}>
+                <div style={{ padding: '10px 14px', background: 'rgba(220,38,38,0.1)', border: '1px solid rgba(220,38,38,0.3)', borderRadius: 8, marginBottom: 14, fontSize: 13, color: '#f87171' }}>
                   {error}
                 </div>
               )}
 
-              <button className="btn" type="submit" disabled={loading}>
-                {loading ? 'Signing in...' : 'Sign in'}
+              <button className="sub-btn" type="submit" disabled={loading} style={{ marginTop: 12 }}>
+                {loading ? 'Signing in...' : 'Sign in →'}
               </button>
             </form>
 
-            <p style={{ textAlign: 'center', marginTop: '18px', fontSize: '14px', color: '#6b7280' }}>
+            <p style={{ textAlign: 'center', marginTop: 20, fontSize: 13, color: 'rgba(255,255,255,0.3)' }}>
               No account?{' '}
-              <Link href="/register" style={{ color: '#00a47c', fontWeight: '600', textDecoration: 'none' }}>Create one free</Link>
-            </p>
-
-            <p style={{ fontSize: '11px', color: '#9ca3af', textAlign: 'center', marginTop: '20px', lineHeight: 1.6 }}>
-              By signing in you agree to our{' '}
-              <a href="#" style={{ color: '#9ca3af' }}>Terms</a> and{' '}
-              <a href="#" style={{ color: '#9ca3af' }}>Privacy Policy</a>
+              <Link href="/register" style={{ color: '#fff', fontWeight: 600, textDecoration: 'none' }}>Create one free</Link>
             </p>
           </div>
         </div>
@@ -394,14 +207,25 @@ export default function Login() {
 
       {/* Cookie banner */}
       {showCookies && (
-        <div className="cookie">
-          <p>
-            We use cookies to improve your experience.{' '}
-            <a href="#">Learn more</a>
+        <div style={{
+          position: 'fixed', bottom: 0, left: 0, right: 0, zIndex: 9999,
+          background: 'rgba(10,10,15,0.95)', backdropFilter: 'blur(12px)',
+          borderTop: '1px solid rgba(255,255,255,0.08)',
+          padding: '14px 24px', display: 'flex', alignItems: 'center',
+          justifyContent: 'space-between', gap: 16, flexWrap: 'wrap'
+        }}>
+          <p style={{ fontSize: 13, color: 'rgba(255,255,255,0.5)', flex: 1, minWidth: 200 }}>
+            We use cookies to improve your experience.
           </p>
-          <div className="cookie-btns">
-            <button className="c-reject" onClick={() => { localStorage.setItem('onshipy_cookies', 'rejected'); setShowCookies(false); }}>Reject all</button>
-            <button className="c-accept" onClick={() => { localStorage.setItem('onshipy_cookies', 'accepted'); setShowCookies(false); }}>Accept cookies</button>
+          <div style={{ display: 'flex', gap: 8 }}>
+            <button onClick={() => { localStorage.setItem('onshipy_cookies','rejected'); setShowCookies(false); }}
+              style={{ padding: '7px 16px', background: 'transparent', border: '1px solid rgba(255,255,255,0.15)', borderRadius: 8, color: 'rgba(255,255,255,0.5)', cursor: 'pointer', fontSize: 13, fontFamily: 'Sora,sans-serif' }}>
+              Reject
+            </button>
+            <button onClick={() => { localStorage.setItem('onshipy_cookies','accepted'); setShowCookies(false); }}
+              style={{ padding: '7px 16px', background: '#fff', border: 'none', borderRadius: 8, color: '#050509', cursor: 'pointer', fontSize: 13, fontWeight: 600, fontFamily: 'Sora,sans-serif' }}>
+              Accept
+            </button>
           </div>
         </div>
       )}
