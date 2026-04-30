@@ -6,7 +6,7 @@ import Head from 'next/head';
 // ── Exact Shopify Polaris design tokens ───────────────────────────────────────
 const P = {
   bg:               '#f1f1f1',
-  bgInverse:        '#1a1a1a',
+  bgTopbar:         '#1a1a1a',
   surface:          '#ffffff',
   surfaceHover:     '#f7f7f7',
   surfaceActive:    '#f3f3f3',
@@ -14,14 +14,14 @@ const P = {
   surfaceSecondary: '#f7f7f7',
   surfaceTertiary:  '#f3f3f3',
   surfaceTertiaryActive: '#e3e3e3',
-  border:           'rgba(227,227,227,1)',   // #e3e3e3
-  text:             'rgba(48,48,48,1)',      // Shopify exact body text
+  border:           'rgba(227,227,227,1)',
+  text:             'rgba(48,48,48,1)',
   textSubdued:      'rgba(97,97,97,1)',
   textDisabled:     'rgba(140,140,140,1)',
   green:            '#008060',
   fontFamily:       '"Inter var","Inter",-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif',
-  fontSize:         '0.8125rem',  // 13px desktop
-  lineHeight:       '1.25rem',    // 20px
+  fontSize:         '0.8125rem',
+  lineHeight:       '1.25rem',
   fontWeight:       '450',
   letterSpacing:    '-0.00833em',
 };
@@ -31,9 +31,7 @@ export default function Layout({ children, title }) {
   const [seller, setSeller] = useState(null);
   const [menuOpen, setMenuOpen] = useState(false);
   const [profileOpen, setProfileOpen] = useState(false);
-  const [storeOpen, setStoreOpen] = useState(false);
   const profileRef = useRef(null);
-  const storeRef = useRef(null);
 
   useEffect(() => {
     const s = localStorage.getItem('onshipy_seller');
@@ -43,13 +41,11 @@ export default function Layout({ children, title }) {
   useEffect(() => {
     setMenuOpen(false);
     setProfileOpen(false);
-    setStoreOpen(false);
   }, [router.pathname]);
 
   useEffect(() => {
     const fn = (e) => {
       if (profileRef.current && !profileRef.current.contains(e.target)) setProfileOpen(false);
-      if (storeRef.current && !storeRef.current.contains(e.target)) setStoreOpen(false);
     };
     document.addEventListener('mousedown', fn);
     return () => document.removeEventListener('mousedown', fn);
@@ -77,7 +73,6 @@ export default function Layout({ children, title }) {
     { href: '/settings', label: 'Settings' },
   ];
 
-  // SVG icons matching Shopify's exact icon set
   const icons = {
     '/dashboard':    <svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor"><path d="M6.5 3A3.5 3.5 0 0 0 3 6.5v7A3.5 3.5 0 0 0 6.5 17h7a3.5 3.5 0 0 0 3.5-3.5v-7A3.5 3.5 0 0 0 13.5 3h-7ZM4.5 6.5A2 2 0 0 1 6.5 4.5h7a2 2 0 0 1 2 2v7a2 2 0 0 1-2 2h-7a2 2 0 0 1-2-2v-7Z"/><path d="M7.5 9.75a.75.75 0 0 1 .75-.75h3.5a.75.75 0 0 1 0 1.5h-3.5a.75.75 0 0 1-.75-.75ZM7.5 12.25a.75.75 0 0 1 .75-.75h2a.75.75 0 0 1 0 1.5h-2a.75.75 0 0 1-.75-.75Z"/></svg>,
     '/orders':       <svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor"><path d="M7.5 3.5a.75.75 0 0 0-1.5 0v.75H4.5a1 1 0 0 0-1 1v11a1 1 0 0 0 1 1h11a1 1 0 0 0 1-1v-11a1 1 0 0 0-1-1H14V3.5a.75.75 0 0 0-1.5 0v.75h-5V3.5ZM5 6.75h10v9H5v-9Zm5 2a.75.75 0 0 1 .75.75v1.75h1.75a.75.75 0 0 1 0 1.5H10.75V14.5a.75.75 0 0 1-1.5 0v-1.75H7.5a.75.75 0 0 1 0-1.5h1.75V9.5A.75.75 0 0 1 10 8.75Z"/></svg>,
@@ -133,8 +128,6 @@ export default function Layout({ children, title }) {
 
   const SidebarContent = () => (
     <div style={{ display: 'flex', flexDirection: 'column', height: '100%', overflow: 'hidden' }}>
-
-      {/* Navigation */}
       <div style={{ flex: 1, overflowY: 'auto', padding: '4px 4px 0', scrollbarWidth: 'none' }}>
         {mainNav.map(item => <NavItem key={item.href} item={item} />)}
 
@@ -147,7 +140,7 @@ export default function Layout({ children, title }) {
           padding: '6px 10px', borderRadius: 8, width: '100%',
           background: 'transparent', border: `1px dashed ${P.border}`,
           color: P.textSubdued, fontSize: P.fontSize, cursor: 'pointer',
-          fontFamily: P.font, marginTop: 4, letterSpacing: P.letterSpacing,
+          fontFamily: P.fontFamily, marginTop: 4, letterSpacing: P.letterSpacing,
         }}>
           <svg width="14" height="14" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
           Add sales channel
@@ -199,7 +192,7 @@ export default function Layout({ children, title }) {
                 <svg width="12" height="12" fill="none" stroke={P.textSubdued} strokeWidth="2" viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg>
               </Link>
             ))}
-            <button onClick={handleLogout} style={{ width: '100%', padding: '9px 12px', background: 'none', border: 'none', textAlign: 'left', fontSize: P.fontSize, color: '#d82c0d', cursor: 'pointer', fontWeight: '500', display: 'flex', alignItems: 'center', gap: 8, fontFamily: P.font, letterSpacing: P.letterSpacing }}
+            <button onClick={handleLogout} style={{ width: '100%', padding: '9px 12px', background: 'none', border: 'none', textAlign: 'left', fontSize: P.fontSize, color: '#d82c0d', cursor: 'pointer', fontWeight: '500', display: 'flex', alignItems: 'center', gap: 8, fontFamily: P.fontFamily, letterSpacing: P.letterSpacing }}
               onMouseEnter={e => e.currentTarget.style.background = '#fff4f4'}
               onMouseLeave={e => e.currentTarget.style.background = 'transparent'}
             >
@@ -255,11 +248,12 @@ export default function Layout({ children, title }) {
           padding: 4px;
           border-right: 1px solid rgba(227,227,227,1);
         }
-        .sidebar-logo { display: none; }
         .desk-topbar {
           display: flex; align-items: center;
           position: fixed; top: 0; left: 0; right: 0; height: 56px;
-          background: ${P.surface}; z-index: 500;
+          background: #1a1a1a;
+          border-bottom: 1px solid rgba(255,255,255,0.08);
+          z-index: 500;
           padding: 0 20px; gap: 0;
         }
         .topbar-logo {
@@ -292,16 +286,21 @@ export default function Layout({ children, title }) {
         a { text-decoration: none; color: inherit; }
         @media (max-width: 767px) {
           .desk-topbar { display: none; }
-          .sidebar { transform: translateX(-100%); transition: transform .25s ease; width: 260px; }
+          .sidebar { transform: translateX(-100%); transition: transform .25s ease; width: 260px; top: 52px; }
           .sidebar.open { transform: translateX(0); box-shadow: 4px 0 20px rgba(0,0,0,0.15); }
           .main-content { margin-left: 0; width: 100%; padding-top: 52px; }
-          .mob-topbar { display: flex; align-items: center; justify-content: space-between; padding: 0 16px; height: 52px; background: ${P.surface}; position: fixed; top: 0; left: 0; right: 0; z-index: 300; }
+          .mob-topbar {
+            display: flex; align-items: center; justify-content: space-between;
+            padding: 0 16px; height: 52px;
+            background: #1a1a1a;
+            border-bottom: 1px solid rgba(255,255,255,0.08);
+            position: fixed; top: 0; left: 0; right: 0; z-index: 500;
+          }
           .overlay { display: block; position: fixed; inset: 0; background: rgba(0,0,0,0.4); z-index: 350; }
         }
         @media (min-width: 768px) and (max-width: 1024px) {
           .sidebar { width: 200px; padding: 4px; }
           .main-content { margin-left: 200px; width: calc(100% - 200px); }
-          .desk-topbar { left: 200px; }
         }
       `}</style>
 
@@ -309,29 +308,26 @@ export default function Layout({ children, title }) {
         {menuOpen && <div className="overlay" onClick={() => setMenuOpen(false)} />}
 
         <aside className={`sidebar${menuOpen ? ' open' : ''}`}>
-
           <SidebarContent />
         </aside>
 
+        {/* DESKTOP TOPBAR — dark #1a1a1a like Shopify */}
         <div className="desk-topbar">
-          {/* LEFT — wordmark only, Shopify style */}
           <div className="topbar-logo">
             <span style={{ color: '#fff', fontWeight: 750, fontSize: '1rem', letterSpacing: '-0.03em', fontFamily: '"Inter var","Inter",sans-serif' }}>Onshipy</span>
           </div>
 
-          {/* CENTER — pill search bar */}
           <div className="topbar-center">
             <div className="topbar-search">
               <svg width="14" height="14" fill="none" stroke="rgba(255,255,255,0.45)" strokeWidth="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
               <span style={{ fontSize: '0.8125rem', color: 'rgba(255,255,255,0.38)', flex: 1, letterSpacing: P.letterSpacing }}>Search</span>
               <div style={{ display: 'flex', gap: 2 }}>
-                <kbd style={{ fontSize: '0.625rem', color: 'rgba(255,255,255,0.22)', background: 'rgba(255,255,255,0.07)', padding: '1px 5px', borderRadius: 3, fontFamily: P.font }}>CTRL</kbd>
-                <kbd style={{ fontSize: '0.625rem', color: 'rgba(255,255,255,0.22)', background: 'rgba(255,255,255,0.07)', padding: '1px 5px', borderRadius: 3, fontFamily: P.font }}>K</kbd>
+                <kbd style={{ fontSize: '0.625rem', color: 'rgba(255,255,255,0.22)', background: 'rgba(255,255,255,0.07)', padding: '1px 5px', borderRadius: 3, fontFamily: P.fontFamily }}>CTRL</kbd>
+                <kbd style={{ fontSize: '0.625rem', color: 'rgba(255,255,255,0.22)', background: 'rgba(255,255,255,0.07)', padding: '1px 5px', borderRadius: 3, fontFamily: P.fontFamily }}>K</kbd>
               </div>
             </div>
           </div>
 
-          {/* RIGHT — actions */}
           <div className="topbar-right">
             <button style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'rgba(255,255,255,0.55)', display: 'flex', padding: 8, borderRadius: 8 }}
               onMouseEnter={e => e.currentTarget.style.background = 'rgba(255,255,255,0.08)'}
@@ -345,15 +341,16 @@ export default function Layout({ children, title }) {
               display: 'flex', alignItems: 'center', justifyContent: 'center',
               color: '#fff', fontWeight: '700', fontSize: 11, cursor: 'pointer',
               border: '2px solid rgba(255,255,255,0.15)',
-              fontFamily: P.font, letterSpacing: 0
+              fontFamily: P.fontFamily, letterSpacing: 0
             }}>
               {initials}
             </div>
           </div>
         </div>
 
+        {/* MOBILE TOPBAR — dark #1a1a1a */}
         <header className="mob-topbar">
-          <button onClick={() => setMenuOpen(!menuOpen)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#fff', padding: 6, display: 'flex' }}>
+          <button onClick={() => setMenuOpen(!menuOpen)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'rgba(255,255,255,0.75)', padding: 6, display: 'flex' }}>
             {menuOpen
               ? <svg width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
               : <svg width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
@@ -372,6 +369,3 @@ export default function Layout({ children, title }) {
     </>
   );
 }
-// TOPBAR FIX NOTE: See topbar-note.txt
-// The Layout.js already has the correct structure from the previous version
-// Only the topbar CSS needs updating for full-width span
