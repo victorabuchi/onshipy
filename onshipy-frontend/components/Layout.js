@@ -3,17 +3,12 @@ import { useRouter } from 'next/router';
 import Link from 'next/link';
 import Head from 'next/head';
 
-// ── Exact Shopify Polaris design tokens ───────────────────────────────────────
 const P = {
   bg:               '#f1f1f1',
-  bgTopbar:         '#1a1a1a',
+  bgTopbar:         '#000000',
   surface:          '#ffffff',
   surfaceHover:     '#f7f7f7',
-  surfaceActive:    '#f3f3f3',
-  surfaceSelected:  '#f1f1f1',
   surfaceSecondary: '#f7f7f7',
-  surfaceTertiary:  '#f3f3f3',
-  surfaceTertiaryActive: '#e3e3e3',
   border:           'rgba(227,227,227,1)',
   text:             'rgba(48,48,48,1)',
   textSubdued:      'rgba(97,97,97,1)',
@@ -99,7 +94,7 @@ export default function Layout({ children, title }) {
         style={{
           display: 'flex', alignItems: 'center', gap: 10,
           padding: '7px 12px', borderRadius: 10, marginBottom: 2,
-          background: active ? '#e3e3e3' : 'transparent',
+          background: active ? '#e8e8e8' : 'transparent',
           color: P.text,
           textDecoration: 'none',
           fontSize: P.fontSize, fontWeight: active ? '600' : P.fontWeight,
@@ -108,7 +103,7 @@ export default function Layout({ children, title }) {
           transition: 'background .12s',
         }}
         onMouseEnter={e => { if (!active) e.currentTarget.style.background = '#f7f7f7'; }}
-        onMouseLeave={e => { if (!active) e.currentTarget.style.background = 'transparent'; }}
+        onMouseLeave={e => { if (!active) e.currentTarget.style.background = active ? '#e8e8e8' : 'transparent'; }}
       >
         <span style={{ flexShrink: 0, display: 'flex', width: 20, height: 20, alignItems: 'center', justifyContent: 'center', color: active ? P.text : 'rgba(97,97,97,1)' }}>
           {icons[item.href]}
@@ -128,7 +123,7 @@ export default function Layout({ children, title }) {
 
   const SidebarContent = () => (
     <div style={{ display: 'flex', flexDirection: 'column', height: '100%', overflow: 'hidden' }}>
-      <div style={{ flex: 1, overflowY: 'auto', padding: '4px 4px 0', scrollbarWidth: 'none' }}>
+      <div style={{ flex: 1, overflowY: 'auto', padding: '8px 4px 0', scrollbarWidth: 'none' }}>
         {mainNav.map(item => <NavItem key={item.href} item={item} />)}
 
         <Divider />
@@ -156,9 +151,9 @@ export default function Layout({ children, title }) {
       <div ref={profileRef} style={{ padding: '6px 6px', borderTop: `1px solid ${P.border}`, flexShrink: 0, position: 'relative' }}>
         <div
           onClick={() => setProfileOpen(!profileOpen)}
-          style={{ display: 'flex', alignItems: 'center', gap: 9, padding: '7px 10px', borderRadius: 10, cursor: 'pointer', background: profileOpen ? '#e3e3e3' : 'transparent', transition: 'background .12s' }}
+          style={{ display: 'flex', alignItems: 'center', gap: 9, padding: '7px 10px', borderRadius: 10, cursor: 'pointer', background: profileOpen ? '#e8e8e8' : 'transparent', transition: 'background .12s' }}
           onMouseEnter={e => { if (!profileOpen) e.currentTarget.style.background = '#f7f7f7'; }}
-          onMouseLeave={e => { if (!profileOpen) e.currentTarget.style.background = profileOpen ? '#e3e3e3' : 'transparent'; }}
+          onMouseLeave={e => { if (!profileOpen) e.currentTarget.style.background = profileOpen ? '#e8e8e8' : 'transparent'; }}
         >
           <div style={{ width: 28, height: 28, background: P.green, borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', fontWeight: 700, fontSize: 11, flexShrink: 0 }}>
             {initials}
@@ -218,7 +213,6 @@ export default function Layout({ children, title }) {
       <style>{`
         *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
         html {
-          position: relative;
           font-size: 100%;
           -webkit-font-smoothing: antialiased;
           -moz-osx-font-smoothing: grayscale;
@@ -232,33 +226,61 @@ export default function Layout({ children, title }) {
           font-weight: ${P.fontWeight};
           letter-spacing: ${P.letterSpacing};
           color: ${P.text};
-          background-color: ${P.bg};
+          background-color: #000000;
           min-height: 100vh;
           -webkit-tap-highlight-color: rgba(0,0,0,0);
         }
         ::-webkit-scrollbar { width: 4px; height: 4px; }
         ::-webkit-scrollbar-track { background: transparent; }
         ::-webkit-scrollbar-thumb { background: #c9cccf; border-radius: 4px; }
-        .layout-wrap { display: flex; min-height: 100vh; }
-        .sidebar {
-          width: 240px; flex-shrink: 0;
-          background: ${P.surface};
-          position: fixed; top: 56px; left: 0; bottom: 0; z-index: 400;
-          display: flex; flex-direction: column;
-          padding: 4px;
-          border-right: 1px solid rgba(227,227,227,1);
+
+        .layout-wrap {
+          display: flex;
+          min-height: 100vh;
+          background: #000000;
         }
+
+        /* Sidebar — black background */
+        .sidebar {
+          width: 248px;
+          flex-shrink: 0;
+          position: fixed;
+          top: 0; left: 0; bottom: 0;
+          z-index: 400;
+          display: flex;
+          flex-direction: column;
+          background: #000000;
+          padding: 0 6px 0 6px;
+        }
+
+        /* Black logo header inside sidebar */
+        .sidebar-header {
+          height: 56px;
+          display: flex;
+          align-items: center;
+          padding: 0 10px;
+          flex-shrink: 0;
+        }
+
+        /* White nav card — rounded top corners = the curve */
+        .sidebar-body {
+          flex: 1;
+          background: #ffffff;
+          border-radius: 12px 12px 0 0;
+          overflow: hidden;
+          display: flex;
+          flex-direction: column;
+          border: 1px solid rgba(227,227,227,0.8);
+          border-bottom: none;
+        }
+
+        /* Desktop topbar — black, sits to the right of sidebar */
         .desk-topbar {
           display: flex; align-items: center;
-          position: fixed; top: 0; left: 0; right: 0; height: 56px;
-          background: #1a1a1a;
-          border-bottom: 1px solid rgba(255,255,255,0.08);
+          position: fixed; top: 0; left: 248px; right: 0; height: 56px;
+          background: #000000;
           z-index: 500;
           padding: 0 20px; gap: 0;
-        }
-        .topbar-logo {
-          display: flex; align-items: center; gap: 8px;
-          width: 240px; flex-shrink: 0; padding-left: 4px;
         }
         .topbar-center {
           flex: 1; display: flex; justify-content: center; align-items: center;
@@ -273,61 +295,77 @@ export default function Layout({ children, title }) {
         }
         .topbar-search:hover { background: rgba(255,255,255,0.1); border-color: rgba(255,255,255,0.2); }
         .topbar-right {
-          width: 240px; flex-shrink: 0;
           display: flex; align-items: center; justify-content: flex-end; gap: 4px;
         }
+
+        /* Main content — light grey, rounded top-left corner */
         .main-content {
-          margin-left: 240px; flex: 1; min-height: 100vh;
-          width: calc(100% - 240px); padding-top: 56px;
-          background: ${P.bg};
+          margin-left: 248px;
+          flex: 1;
+          min-height: 100vh;
+          width: calc(100% - 248px);
+          padding-top: 56px;
+          background: #f1f1f1;
+          border-radius: 12px 0 0 0;
         }
+
         .mob-topbar { display: none; }
         .overlay { display: none; }
         a { text-decoration: none; color: inherit; }
+
         @media (max-width: 767px) {
           .desk-topbar { display: none; }
-          .sidebar { transform: translateX(-100%); transition: transform .25s ease; width: 260px; top: 52px; }
-          .sidebar.open { transform: translateX(0); box-shadow: 4px 0 20px rgba(0,0,0,0.15); }
-          .main-content { margin-left: 0; width: 100%; padding-top: 52px; }
+          .sidebar {
+            transform: translateX(-100%);
+            transition: transform .25s ease;
+            width: 270px;
+            padding: 0 6px;
+          }
+          .sidebar.open { transform: translateX(0); box-shadow: 4px 0 24px rgba(0,0,0,0.5); }
+          .main-content { margin-left: 0; width: 100%; padding-top: 52px; border-radius: 0; background: #f1f1f1; }
           .mob-topbar {
             display: flex; align-items: center; justify-content: space-between;
             padding: 0 16px; height: 52px;
-            background: #1a1a1a;
-            border-bottom: 1px solid rgba(255,255,255,0.08);
+            background: #000000;
             position: fixed; top: 0; left: 0; right: 0; z-index: 500;
           }
-          .overlay { display: block; position: fixed; inset: 0; background: rgba(0,0,0,0.4); z-index: 350; }
+          .overlay { display: block; position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 350; }
         }
+
         @media (min-width: 768px) and (max-width: 1024px) {
-          .sidebar { width: 200px; padding: 4px; }
-          .main-content { margin-left: 200px; width: calc(100% - 200px); }
+          .sidebar { width: 210px; }
+          .desk-topbar { left: 210px; }
+          .main-content { margin-left: 210px; width: calc(100% - 210px); }
         }
       `}</style>
 
       <div className="layout-wrap">
         {menuOpen && <div className="overlay" onClick={() => setMenuOpen(false)} />}
 
+        {/* SIDEBAR */}
         <aside className={`sidebar${menuOpen ? ' open' : ''}`}>
-          <SidebarContent />
+          {/* Black header with wordmark */}
+          <div className="sidebar-header">
+            <span style={{ color: '#ffffff', fontWeight: 750, fontSize: '1rem', letterSpacing: '-0.03em', fontFamily: '"Inter var","Inter",sans-serif' }}>Onshipy</span>
+          </div>
+          {/* White body with rounded top corners — creates the curved look */}
+          <div className="sidebar-body">
+            <SidebarContent />
+          </div>
         </aside>
 
-        {/* DESKTOP TOPBAR — dark #1a1a1a like Shopify */}
+        {/* DESKTOP TOPBAR */}
         <div className="desk-topbar">
-          <div className="topbar-logo">
-            <span style={{ color: '#fff', fontWeight: 750, fontSize: '1rem', letterSpacing: '-0.03em', fontFamily: '"Inter var","Inter",sans-serif' }}>Onshipy</span>
-          </div>
-
           <div className="topbar-center">
             <div className="topbar-search">
               <svg width="14" height="14" fill="none" stroke="rgba(255,255,255,0.45)" strokeWidth="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
               <span style={{ fontSize: '0.8125rem', color: 'rgba(255,255,255,0.38)', flex: 1, letterSpacing: P.letterSpacing }}>Search</span>
               <div style={{ display: 'flex', gap: 2 }}>
-                <kbd style={{ fontSize: '0.625rem', color: 'rgba(255,255,255,0.22)', background: 'rgba(255,255,255,0.07)', padding: '1px 5px', borderRadius: 3, fontFamily: P.fontFamily }}>CTRL</kbd>
-                <kbd style={{ fontSize: '0.625rem', color: 'rgba(255,255,255,0.22)', background: 'rgba(255,255,255,0.07)', padding: '1px 5px', borderRadius: 3, fontFamily: P.fontFamily }}>K</kbd>
+                <kbd style={{ fontSize: '0.625rem', color: 'rgba(255,255,255,0.22)', background: 'rgba(255,255,255,0.07)', padding: '1px 5px', borderRadius: 3 }}>CTRL</kbd>
+                <kbd style={{ fontSize: '0.625rem', color: 'rgba(255,255,255,0.22)', background: 'rgba(255,255,255,0.07)', padding: '1px 5px', borderRadius: 3 }}>K</kbd>
               </div>
             </div>
           </div>
-
           <div className="topbar-right">
             <button style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'rgba(255,255,255,0.55)', display: 'flex', padding: 8, borderRadius: 8 }}
               onMouseEnter={e => e.currentTarget.style.background = 'rgba(255,255,255,0.08)'}
@@ -341,14 +379,13 @@ export default function Layout({ children, title }) {
               display: 'flex', alignItems: 'center', justifyContent: 'center',
               color: '#fff', fontWeight: '700', fontSize: 11, cursor: 'pointer',
               border: '2px solid rgba(255,255,255,0.15)',
-              fontFamily: P.fontFamily, letterSpacing: 0
             }}>
               {initials}
             </div>
           </div>
         </div>
 
-        {/* MOBILE TOPBAR — dark #1a1a1a */}
+        {/* MOBILE TOPBAR */}
         <header className="mob-topbar">
           <button onClick={() => setMenuOpen(!menuOpen)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'rgba(255,255,255,0.75)', padding: 6, display: 'flex' }}>
             {menuOpen
@@ -364,6 +401,7 @@ export default function Layout({ children, title }) {
             onClick={() => router.push('/settings')}>{initials}</div>
         </header>
 
+        {/* MAIN CONTENT */}
         <main className="main-content">{children}</main>
       </div>
     </>
