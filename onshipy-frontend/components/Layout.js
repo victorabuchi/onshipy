@@ -5,16 +5,14 @@ import Head from 'next/head';
 
 const P = {
   bg:               '#f1f1f1',
-  bgTopbar:         '#000000',
   surface:          '#ffffff',
   surfaceHover:     '#f7f7f7',
   surfaceSecondary: '#f7f7f7',
   border:           'rgba(227,227,227,1)',
   text:             'rgba(48,48,48,1)',
   textSubdued:      'rgba(97,97,97,1)',
-  textDisabled:     'rgba(140,140,140,1)',
   green:            '#008060',
-  fontFamily:       '"Inter var","Inter",-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif',
+  font:             '"Inter var","Inter",-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif',
   fontSize:         '0.8125rem',
   lineHeight:       '1.25rem',
   fontWeight:       '450',
@@ -33,10 +31,7 @@ export default function Layout({ children, title }) {
     if (s) { try { setSeller(JSON.parse(s)); } catch {} }
   }, []);
 
-  useEffect(() => {
-    setMenuOpen(false);
-    setProfileOpen(false);
-  }, [router.pathname]);
+  useEffect(() => { setMenuOpen(false); setProfileOpen(false); }, [router.pathname]);
 
   useEffect(() => {
     const fn = (e) => {
@@ -54,17 +49,17 @@ export default function Layout({ children, title }) {
 
   const mainNav = [
     { href: '/dashboard', label: 'Home' },
-    { href: '/orders', label: 'Orders' },
-    { href: '/products', label: 'Products' },
+    { href: '/orders',    label: 'Orders' },
+    { href: '/products',  label: 'Products' },
     { href: '/customers', label: 'Customers' },
-    { href: '/listings', label: 'Listings' },
+    { href: '/listings',  label: 'Listings' },
     { href: '/analytics', label: 'Analytics' },
-    { href: '/browse', label: 'Browse' },
+    { href: '/browse',    label: 'Browse' },
   ];
-  const salesNav = [{ href: '/online-store', label: 'Online Store' }];
+  const salesNav   = [{ href: '/online-store', label: 'Online Store' }];
   const accountNav = [
-    { href: '/wallet', label: 'Wallet' },
-    { href: '/plans', label: 'Onshipy Plans' },
+    { href: '/wallet',   label: 'Wallet' },
+    { href: '/plans',    label: 'Onshipy Plans' },
     { href: '/settings', label: 'Settings' },
   ];
 
@@ -72,7 +67,7 @@ export default function Layout({ children, title }) {
     '/dashboard':    <svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor"><path d="M6.5 3A3.5 3.5 0 0 0 3 6.5v7A3.5 3.5 0 0 0 6.5 17h7a3.5 3.5 0 0 0 3.5-3.5v-7A3.5 3.5 0 0 0 13.5 3h-7ZM4.5 6.5A2 2 0 0 1 6.5 4.5h7a2 2 0 0 1 2 2v7a2 2 0 0 1-2 2h-7a2 2 0 0 1-2-2v-7Z"/><path d="M7.5 9.75a.75.75 0 0 1 .75-.75h3.5a.75.75 0 0 1 0 1.5h-3.5a.75.75 0 0 1-.75-.75ZM7.5 12.25a.75.75 0 0 1 .75-.75h2a.75.75 0 0 1 0 1.5h-2a.75.75 0 0 1-.75-.75Z"/></svg>,
     '/orders':       <svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor"><path d="M7.5 3.5a.75.75 0 0 0-1.5 0v.75H4.5a1 1 0 0 0-1 1v11a1 1 0 0 0 1 1h11a1 1 0 0 0 1-1v-11a1 1 0 0 0-1-1H14V3.5a.75.75 0 0 0-1.5 0v.75h-5V3.5ZM5 6.75h10v9H5v-9Zm5 2a.75.75 0 0 1 .75.75v1.75h1.75a.75.75 0 0 1 0 1.5H10.75V14.5a.75.75 0 0 1-1.5 0v-1.75H7.5a.75.75 0 0 1 0-1.5h1.75V9.5A.75.75 0 0 1 10 8.75Z"/></svg>,
     '/products':     <svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor"><path d="M10.4 2.143a1 1 0 0 0-.8 0l-7 3.11A1 1 0 0 0 2 6.167V13.833a1 1 0 0 0 .6.924l7 3.11a1 1 0 0 0 .8 0l7-3.11A1 1 0 0 0 18 13.833V6.167a1 1 0 0 0-.6-.924l-7-3.11ZM10 3.65l5.514 2.45L10 8.55 4.486 6.1 10 3.65ZM3.5 7.365 9.25 9.9v6.183l-5.75-2.556V7.365Zm7.25 8.718V9.9l5.75-2.535v6.162l-5.75 2.556Z"/></svg>,
-    '/customers':    <svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor"><path d="M13 8a3 3 0 1 1-6 0 3 3 0 0 1 6 0Zm-1.5 0a1.5 1.5 0 1 0-3 0 1.5 1.5 0 0 0 3 0Z"/><path d="M10 2a8 8 0 1 0 0 16A8 8 0 0 0 10 2ZM3.5 10a6.5 6.5 0 1 1 11.573 4.089c-.46-.707-1.197-1.323-2.183-1.768C11.862 11.814 10.963 11.5 10 11.5s-1.862.314-2.89.821c-.986.445-1.723 1.06-2.183 1.768A6.476 6.476 0 0 1 3.5 10Zm2.22 5.288c.283-.574.85-1.083 1.697-1.472.884-.4 1.672-.566 2.583-.566.91 0 1.7.166 2.583.566.848.389 1.414.898 1.697 1.472A6.474 6.474 0 0 1 10 16.5a6.474 6.474 0 0 1-4.28-1.212Z"/></svg>,
+    '/customers':    <svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor"><path d="M13 8a3 3 0 1 1-6 0 3 3 0 0 1 6 0Zm-1.5 0a1.5 1.5 0 1 0-3 0 1.5 1.5 0 0 0 3 0Z"/><path d="M10 2a8 8 0 1 0 0 16A8 8 0 0 0 10 2ZM3.5 10a6.5 6.5 0 1 1 11.573 4.089c-.46-.707-1.197-1.323-2.183-1.768C11.862 11.814 10.963 11.5 10 11.5s-1.862.314-2.89.821c-.986.445-1.723 1.06-2.183 1.768A6.476 6.476 0 0 1 3.5 10Z"/></svg>,
     '/listings':     <svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor"><path d="M3.25 4a.75.75 0 0 0 0 1.5h13.5a.75.75 0 0 0 0-1.5H3.25ZM3.25 8a.75.75 0 0 0 0 1.5h13.5a.75.75 0 0 0 0-1.5H3.25ZM3.25 12a.75.75 0 0 0 0 1.5h8.5a.75.75 0 0 0 0-1.5h-8.5Z"/></svg>,
     '/analytics':    <svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor"><path d="M4.5 12.25a.75.75 0 0 1 .75.75v3.25a.75.75 0 0 1-1.5 0V13a.75.75 0 0 1 .75-.75ZM10 8.5a.75.75 0 0 1 .75.75v7a.75.75 0 0 1-1.5 0V9.25A.75.75 0 0 1 10 8.5ZM15.5 4.5a.75.75 0 0 1 .75.75v11a.75.75 0 0 1-1.5 0v-11a.75.75 0 0 1 .75-.75Z"/></svg>,
     '/browse':       <svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor"><path d="M8.5 3a5.5 5.5 0 1 0 3.17 9.98l3.674 3.675a.75.75 0 1 0 1.06-1.06L12.731 12.23A5.5 5.5 0 0 0 8.5 3Zm-4 5.5a4 4 0 1 1 8 0 4 4 0 0 1-8 0Z"/></svg>,
@@ -90,22 +85,19 @@ export default function Layout({ children, title }) {
     const active = router.pathname === item.href ||
       (item.href !== '/dashboard' && router.pathname.startsWith(item.href));
     return (
-      <Link href={item.href}
-        style={{
-          display: 'flex', alignItems: 'center', gap: 10,
-          padding: '7px 12px', borderRadius: 10, marginBottom: 2,
-          background: active ? '#e8e8e8' : 'transparent',
-          color: P.text,
-          textDecoration: 'none',
-          fontSize: P.fontSize, fontWeight: active ? '600' : P.fontWeight,
-          letterSpacing: P.letterSpacing,
-          lineHeight: '1.5rem',
-          transition: 'background .12s',
-        }}
-        onMouseEnter={e => { if (!active) e.currentTarget.style.background = '#f7f7f7'; }}
-        onMouseLeave={e => { if (!active) e.currentTarget.style.background = active ? '#e8e8e8' : 'transparent'; }}
+      <Link href={item.href} style={{
+        display: 'flex', alignItems: 'center', gap: 10,
+        padding: '7px 12px', borderRadius: 10, marginBottom: 2,
+        background: active ? '#e8e8e8' : 'transparent',
+        color: P.text, textDecoration: 'none',
+        fontSize: P.fontSize, fontWeight: active ? '600' : P.fontWeight,
+        letterSpacing: P.letterSpacing, lineHeight: '1.5rem',
+        transition: 'background .12s',
+      }}
+        onMouseEnter={e => { if (!active) e.currentTarget.style.background = '#f0f0f0'; }}
+        onMouseLeave={e => { if (!active) e.currentTarget.style.background = 'transparent'; }}
       >
-        <span style={{ flexShrink: 0, display: 'flex', width: 20, height: 20, alignItems: 'center', justifyContent: 'center', color: active ? P.text : 'rgba(97,97,97,1)' }}>
+        <span style={{ flexShrink: 0, display: 'flex', width: 20, height: 20, alignItems: 'center', justifyContent: 'center', color: active ? P.text : P.textSubdued }}>
           {icons[item.href]}
         </span>
         {item.label}
@@ -114,33 +106,30 @@ export default function Layout({ children, title }) {
   };
 
   const SectionLabel = ({ label }) => (
-    <div style={{ fontSize: '0.6875rem', fontWeight: '600', color: P.textSubdued, textTransform: 'uppercase', letterSpacing: '0.08em', padding: '8px 12px 4px', lineHeight: '1rem' }}>
+    <div style={{ fontSize: '0.6875rem', fontWeight: '600', color: P.textSubdued, textTransform: 'uppercase', letterSpacing: '0.08em', padding: '8px 12px 4px' }}>
       {label}
     </div>
   );
 
-  const Divider = () => <div style={{ height: 1, background: P.border, margin: '6px 4px' }} />;
+  const Divider = () => <div style={{ height: 1, background: P.border, margin: '4px 8px' }} />;
 
   const SidebarContent = () => (
     <div style={{ display: 'flex', flexDirection: 'column', height: '100%', overflow: 'hidden' }}>
-      <div style={{ flex: 1, overflowY: 'auto', padding: '8px 4px 0', scrollbarWidth: 'none' }}>
+      <div style={{ flex: 1, overflowY: 'auto', padding: '8px 6px 0', scrollbarWidth: 'none' }}>
         {mainNav.map(item => <NavItem key={item.href} item={item} />)}
-
         <Divider />
         <SectionLabel label="Sales channels" />
         {salesNav.map(item => <NavItem key={item.href} item={item} />)}
-
         <button onClick={() => router.push('/online-store')} style={{
-          display: 'flex', alignItems: 'center', gap: 9,
-          padding: '6px 10px', borderRadius: 8, width: '100%',
+          display: 'flex', alignItems: 'center', gap: 8,
+          padding: '6px 12px', borderRadius: 10, width: '100%',
           background: 'transparent', border: `1px dashed ${P.border}`,
           color: P.textSubdued, fontSize: P.fontSize, cursor: 'pointer',
-          fontFamily: P.fontFamily, marginTop: 4, letterSpacing: P.letterSpacing,
+          fontFamily: P.font, marginTop: 4, letterSpacing: P.letterSpacing,
         }}>
           <svg width="14" height="14" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
           Add sales channel
         </button>
-
         <Divider />
         <SectionLabel label="Account" />
         {accountNav.map(item => <NavItem key={item.href} item={item} />)}
@@ -148,18 +137,20 @@ export default function Layout({ children, title }) {
       </div>
 
       {/* Profile */}
-      <div ref={profileRef} style={{ padding: '6px 6px', borderTop: `1px solid ${P.border}`, flexShrink: 0, position: 'relative' }}>
-        <div
-          onClick={() => setProfileOpen(!profileOpen)}
-          style={{ display: 'flex', alignItems: 'center', gap: 9, padding: '7px 10px', borderRadius: 10, cursor: 'pointer', background: profileOpen ? '#e8e8e8' : 'transparent', transition: 'background .12s' }}
-          onMouseEnter={e => { if (!profileOpen) e.currentTarget.style.background = '#f7f7f7'; }}
+      <div ref={profileRef} style={{ padding: '6px', borderTop: `1px solid ${P.border}`, flexShrink: 0, position: 'relative' }}>
+        <div onClick={() => setProfileOpen(!profileOpen)} style={{
+          display: 'flex', alignItems: 'center', gap: 9,
+          padding: '7px 10px', borderRadius: 10, cursor: 'pointer',
+          background: profileOpen ? '#e8e8e8' : 'transparent', transition: 'background .12s'
+        }}
+          onMouseEnter={e => { if (!profileOpen) e.currentTarget.style.background = '#f0f0f0'; }}
           onMouseLeave={e => { if (!profileOpen) e.currentTarget.style.background = profileOpen ? '#e8e8e8' : 'transparent'; }}
         >
           <div style={{ width: 28, height: 28, background: P.green, borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', fontWeight: 700, fontSize: 11, flexShrink: 0 }}>
             {initials}
           </div>
           <div style={{ flex: 1, minWidth: 0 }}>
-            <div style={{ color: P.text, fontSize: P.fontSize, fontWeight: '600', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', letterSpacing: P.letterSpacing }}>{seller?.full_name || 'User'}</div>
+            <div style={{ color: P.text, fontSize: P.fontSize, fontWeight: '600', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{seller?.full_name || 'User'}</div>
             <div style={{ color: P.textSubdued, fontSize: '0.6875rem', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{seller?.email || ''}</div>
           </div>
           <svg width="12" height="12" fill="none" stroke={P.textSubdued} strokeWidth="2" viewBox="0 0 24 24" style={{ flexShrink: 0, transform: profileOpen ? 'rotate(180deg)' : 'none', transition: 'transform .2s' }}>
@@ -168,18 +159,25 @@ export default function Layout({ children, title }) {
         </div>
 
         {profileOpen && (
-          <div style={{ position: 'absolute', bottom: 56, left: 8, right: 8, background: P.surface, borderRadius: 10, boxShadow: '0 -4px 24px rgba(0,0,0,0.1)', border: `1px solid ${P.border}`, overflow: 'hidden', zIndex: 500 }}>
+          <div style={{ position: 'absolute', bottom: 58, left: 6, right: 6, background: P.surface, borderRadius: 10, boxShadow: '0 -4px 24px rgba(0,0,0,0.1)', border: `1px solid ${P.border}`, overflow: 'hidden', zIndex: 600 }}>
             <div style={{ padding: '10px 12px', background: P.surfaceSecondary, borderBottom: `1px solid ${P.border}`, display: 'flex', alignItems: 'center', gap: 10 }}>
               <div style={{ width: 32, height: 32, background: P.green, borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', fontWeight: 700, fontSize: 13, flexShrink: 0 }}>{initials}</div>
               <div style={{ minWidth: 0 }}>
-                <div style={{ fontWeight: '600', fontSize: P.fontSize, color: P.text, letterSpacing: P.letterSpacing }}>{seller?.full_name}</div>
+                <div style={{ fontWeight: '600', fontSize: P.fontSize, color: P.text }}>{seller?.full_name}</div>
                 <div style={{ fontSize: '0.6875rem', color: P.textSubdued, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{seller?.email}</div>
                 <div style={{ fontSize: '0.6875rem', color: P.green, fontWeight: '600', marginTop: 1, textTransform: 'uppercase' }}>{seller?.plan || 'free'} plan</div>
               </div>
             </div>
-            {[{ label: 'Your profile', href: '/settings?section=users' }, { label: 'Store settings', href: '/settings' }, { label: 'Billing & plan', href: '/plans' }].map((item, i) => (
-              <Link key={i} href={item.href} onClick={() => setProfileOpen(false)}
-                style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '9px 12px', fontSize: P.fontSize, color: P.text, textDecoration: 'none', borderBottom: `1px solid ${P.border}`, letterSpacing: P.letterSpacing }}
+            {[
+              { label: 'Your profile', href: '/settings' },
+              { label: 'Store settings', href: '/settings' },
+              { label: 'Billing & plan', href: '/plans' },
+            ].map((item, i) => (
+              <Link key={i} href={item.href} onClick={() => setProfileOpen(false)} style={{
+                display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+                padding: '9px 12px', fontSize: P.fontSize, color: P.text, textDecoration: 'none',
+                borderBottom: `1px solid ${P.border}`,
+              }}
                 onMouseEnter={e => e.currentTarget.style.background = P.surfaceHover}
                 onMouseLeave={e => e.currentTarget.style.background = 'transparent'}
               >
@@ -187,7 +185,11 @@ export default function Layout({ children, title }) {
                 <svg width="12" height="12" fill="none" stroke={P.textSubdued} strokeWidth="2" viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg>
               </Link>
             ))}
-            <button onClick={handleLogout} style={{ width: '100%', padding: '9px 12px', background: 'none', border: 'none', textAlign: 'left', fontSize: P.fontSize, color: '#d82c0d', cursor: 'pointer', fontWeight: '500', display: 'flex', alignItems: 'center', gap: 8, fontFamily: P.fontFamily, letterSpacing: P.letterSpacing }}
+            <button onClick={handleLogout} style={{
+              width: '100%', padding: '9px 12px', background: 'none', border: 'none',
+              textAlign: 'left', fontSize: P.fontSize, color: '#d82c0d', cursor: 'pointer',
+              fontWeight: '500', display: 'flex', alignItems: 'center', gap: 8, fontFamily: P.font,
+            }}
               onMouseEnter={e => e.currentTarget.style.background = '#fff4f4'}
               onMouseLeave={e => e.currentTarget.style.background = 'transparent'}
             >
@@ -220,13 +222,14 @@ export default function Layout({ children, title }) {
           scrollbar-width: thin;
         }
         html, body {
-          font-family: ${P.fontFamily};
+          font-family: ${P.font};
           font-size: ${P.fontSize};
           line-height: ${P.lineHeight};
           font-weight: ${P.fontWeight};
           letter-spacing: ${P.letterSpacing};
           color: ${P.text};
-          background-color: #000000;
+          /* Black outer background — this is what peeks around the curved corners */
+          background: #1a1a1a;
           min-height: 100vh;
           -webkit-tap-highlight-color: rgba(0,0,0,0);
         }
@@ -237,10 +240,13 @@ export default function Layout({ children, title }) {
         .layout-wrap {
           display: flex;
           min-height: 100vh;
-          background: #000000;
+          /* Black shows at the very edges */
+          background: #1a1a1a;
         }
 
-        /* Sidebar — black background */
+        /* ── SIDEBAR ──────────────────────────────────────────────────── */
+        /* The sidebar sits on the black background
+           Its inner white card creates the curved right edge */
         .sidebar {
           width: 248px;
           flex-shrink: 0;
@@ -249,66 +255,92 @@ export default function Layout({ children, title }) {
           z-index: 400;
           display: flex;
           flex-direction: column;
-          background: #000000;
-          padding: 0 6px 0 6px;
+          /* No background — black body bg shows through */
+          background: transparent;
+          padding: 0;
         }
 
-        /* Black logo header inside sidebar */
-        .sidebar-header {
+        /* Black topbar section of sidebar — holds the wordmark */
+        .sidebar-topbar {
           height: 56px;
           display: flex;
           align-items: center;
-          padding: 0 10px;
+          padding: 0 16px;
           flex-shrink: 0;
+          /* Matches the black page background */
+          background: transparent;
         }
 
-        /* White nav card — rounded top corners = the curve */
-        .sidebar-body {
+        /* White nav card — rounded on BOTH top corners */
+        .sidebar-nav {
           flex: 1;
           background: #ffffff;
-          border-radius: 12px 12px 0 0;
+          /* Both top corners curved — right one faces the content */
+          border-radius: 14px 14px 0 0;
           overflow: hidden;
           display: flex;
           flex-direction: column;
-          border: 1px solid rgba(227,227,227,0.8);
-          border-bottom: none;
+          /* Subtle shadow to lift it off the black */
+          box-shadow: 2px 0 0 rgba(227,227,227,0.5);
         }
 
-        /* Desktop topbar — black, sits to the right of sidebar */
+        /* ── TOPBAR ───────────────────────────────────────────────────── */
         .desk-topbar {
-          display: flex; align-items: center;
-          position: fixed; top: 0; left: 248px; right: 0; height: 56px;
-          background: #000000;
+          display: flex;
+          align-items: center;
+          position: fixed;
+          top: 0; left: 248px; right: 0;
+          height: 56px;
+          /* Black — same as page background so it blends */
+          background: #1a1a1a;
           z-index: 500;
-          padding: 0 20px; gap: 0;
+          padding: 0 20px;
+          gap: 0;
         }
+
         .topbar-center {
-          flex: 1; display: flex; justify-content: center; align-items: center;
+          flex: 1;
+          display: flex;
+          justify-content: center;
+          align-items: center;
         }
+
+        /* Pill search bar */
         .topbar-search {
           width: 100%; max-width: 480px;
           display: flex; align-items: center; gap: 8px;
-          background: rgba(255,255,255,0.07);
-          border: 1px solid rgba(255,255,255,0.12);
-          border-radius: 624px; padding: 0 14px; height: 34px; cursor: text;
+          background: rgba(255,255,255,0.08);
+          border: 1px solid rgba(255,255,255,0.13);
+          border-radius: 624px;
+          padding: 0 14px; height: 34px;
+          cursor: text;
           transition: background .15s, border-color .15s;
         }
-        .topbar-search:hover { background: rgba(255,255,255,0.1); border-color: rgba(255,255,255,0.2); }
-        .topbar-right {
-          display: flex; align-items: center; justify-content: flex-end; gap: 4px;
+        .topbar-search:hover {
+          background: rgba(255,255,255,0.12);
+          border-color: rgba(255,255,255,0.2);
         }
 
-        /* Main content — light grey, rounded top-left corner */
+        .topbar-right {
+          display: flex; align-items: center;
+          justify-content: flex-end; gap: 4px;
+        }
+
+        /* ── MAIN CONTENT ─────────────────────────────────────────────── */
         .main-content {
           margin-left: 248px;
           flex: 1;
           min-height: 100vh;
           width: calc(100% - 248px);
           padding-top: 56px;
+          /* Light grey content area */
           background: #f1f1f1;
-          border-radius: 12px 0 0 0;
+          /* TOP-LEFT corner curved to match sidebar-nav's top-right curve */
+          border-radius: 14px 0 0 0;
+          /* No border — the curve against black creates the visual separation */
         }
 
+        /* ── MOBILE ───────────────────────────────────────────────────── */
         .mob-topbar { display: none; }
         .overlay { display: none; }
         a { text-decoration: none; color: inherit; }
@@ -319,17 +351,27 @@ export default function Layout({ children, title }) {
             transform: translateX(-100%);
             transition: transform .25s ease;
             width: 270px;
-            padding: 0 6px;
+            background: #1a1a1a;
           }
-          .sidebar.open { transform: translateX(0); box-shadow: 4px 0 24px rgba(0,0,0,0.5); }
-          .main-content { margin-left: 0; width: 100%; padding-top: 52px; border-radius: 0; background: #f1f1f1; }
+          .sidebar.open {
+            transform: translateX(0);
+            box-shadow: 4px 0 30px rgba(0,0,0,0.6);
+          }
+          .main-content {
+            margin-left: 0; width: 100%;
+            padding-top: 52px;
+            border-radius: 0;
+          }
           .mob-topbar {
             display: flex; align-items: center; justify-content: space-between;
             padding: 0 16px; height: 52px;
-            background: #000000;
+            background: #1a1a1a;
             position: fixed; top: 0; left: 0; right: 0; z-index: 500;
           }
-          .overlay { display: block; position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 350; }
+          .overlay {
+            display: block; position: fixed; inset: 0;
+            background: rgba(0,0,0,0.5); z-index: 350;
+          }
         }
 
         @media (min-width: 768px) and (max-width: 1024px) {
@@ -342,27 +384,32 @@ export default function Layout({ children, title }) {
       <div className="layout-wrap">
         {menuOpen && <div className="overlay" onClick={() => setMenuOpen(false)} />}
 
-        {/* SIDEBAR */}
+        {/* ── SIDEBAR ── */}
         <aside className={`sidebar${menuOpen ? ' open' : ''}`}>
-          {/* Black header with wordmark */}
-          <div className="sidebar-header">
-            <span style={{ color: '#ffffff', fontWeight: 750, fontSize: '1rem', letterSpacing: '-0.03em', fontFamily: '"Inter var","Inter",sans-serif' }}>Onshipy</span>
+          {/* Black header — wordmark on dark bg */}
+          <div className="sidebar-topbar">
+            <span style={{
+              color: '#ffffff', fontWeight: 750, fontSize: '1rem',
+              letterSpacing: '-0.03em', fontFamily: P.font,
+            }}>Onshipy</span>
           </div>
-          {/* White body with rounded top corners — creates the curved look */}
-          <div className="sidebar-body">
+          {/* White nav card with curved top corners */}
+          <div className="sidebar-nav">
             <SidebarContent />
           </div>
         </aside>
 
-        {/* DESKTOP TOPBAR */}
+        {/* ── DESKTOP TOPBAR ── */}
         <div className="desk-topbar">
           <div className="topbar-center">
             <div className="topbar-search">
-              <svg width="14" height="14" fill="none" stroke="rgba(255,255,255,0.45)" strokeWidth="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-              <span style={{ fontSize: '0.8125rem', color: 'rgba(255,255,255,0.38)', flex: 1, letterSpacing: P.letterSpacing }}>Search</span>
+              <svg width="14" height="14" fill="none" stroke="rgba(255,255,255,0.45)" strokeWidth="2" viewBox="0 0 24 24">
+                <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+              </svg>
+              <span style={{ fontSize: P.fontSize, color: 'rgba(255,255,255,0.38)', flex: 1, letterSpacing: P.letterSpacing }}>Search</span>
               <div style={{ display: 'flex', gap: 2 }}>
-                <kbd style={{ fontSize: '0.625rem', color: 'rgba(255,255,255,0.22)', background: 'rgba(255,255,255,0.07)', padding: '1px 5px', borderRadius: 3 }}>CTRL</kbd>
-                <kbd style={{ fontSize: '0.625rem', color: 'rgba(255,255,255,0.22)', background: 'rgba(255,255,255,0.07)', padding: '1px 5px', borderRadius: 3 }}>K</kbd>
+                <kbd style={{ fontSize: '0.625rem', color: 'rgba(255,255,255,0.22)', background: 'rgba(255,255,255,0.07)', padding: '1px 5px', borderRadius: 3, fontFamily: P.font }}>CTRL</kbd>
+                <kbd style={{ fontSize: '0.625rem', color: 'rgba(255,255,255,0.22)', background: 'rgba(255,255,255,0.07)', padding: '1px 5px', borderRadius: 3, fontFamily: P.font }}>K</kbd>
               </div>
             </div>
           </div>
@@ -385,23 +432,21 @@ export default function Layout({ children, title }) {
           </div>
         </div>
 
-        {/* MOBILE TOPBAR */}
+        {/* ── MOBILE TOPBAR ── */}
         <header className="mob-topbar">
-          <button onClick={() => setMenuOpen(!menuOpen)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'rgba(255,255,255,0.75)', padding: 6, display: 'flex' }}>
+          <button onClick={() => setMenuOpen(!menuOpen)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'rgba(255,255,255,0.8)', padding: 6, display: 'flex' }}>
             {menuOpen
               ? <svg width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
               : <svg width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
             }
           </button>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-            <img src="/favicon.png" alt="" style={{ width: 22, height: 22, objectFit: 'contain' }} />
-            <span style={{ color: '#fff', fontWeight: '700', fontSize: 16 }}>Onshipy</span>
+          <span style={{ color: '#fff', fontWeight: '700', fontSize: 16, letterSpacing: '-0.02em' }}>Onshipy</span>
+          <div onClick={() => router.push('/settings')} style={{ width: 30, height: 30, background: P.green, borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', fontWeight: 700, fontSize: 11, cursor: 'pointer' }}>
+            {initials}
           </div>
-          <div style={{ width: 30, height: 30, background: P.green, borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', fontWeight: 700, fontSize: 11, cursor: 'pointer' }}
-            onClick={() => router.push('/settings')}>{initials}</div>
         </header>
 
-        {/* MAIN CONTENT */}
+        {/* ── MAIN CONTENT ── */}
         <main className="main-content">{children}</main>
       </div>
     </>
