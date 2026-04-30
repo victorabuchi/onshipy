@@ -103,18 +103,19 @@ export default function Layout({ children, title }) {
       <Link href={item.href}
         style={{
           display: 'flex', alignItems: 'center', gap: 10,
-          padding: '6px 10px', borderRadius: 8, marginBottom: 1,
-          background: active ? P.surfaceTertiaryActive : 'transparent',
-          color: P.text, textDecoration: 'none',
-          fontSize: P.fontSize, fontWeight: active ? '600' : P.fontWeight,
+          padding: '7px 12px', borderRadius: 10, marginBottom: 2,
+          background: active ? 'rgba(255,255,255,0.15)' : 'transparent',
+          color: active ? '#fff' : 'rgba(255,255,255,0.75)',
+          textDecoration: 'none',
+          fontSize: P.fontSize, fontWeight: active ? '600' : '450',
           letterSpacing: P.letterSpacing,
           lineHeight: '1.5rem',
-          transition: 'background .1s',
+          transition: 'background .12s, color .12s',
         }}
-        onMouseEnter={e => { if (!active) e.currentTarget.style.background = P.surfaceHover; }}
-        onMouseLeave={e => { if (!active) e.currentTarget.style.background = active ? P.surfaceTertiaryActive : 'transparent'; }}
+        onMouseEnter={e => { if (!active) { e.currentTarget.style.background = 'rgba(255,255,255,0.08)'; e.currentTarget.style.color = '#fff'; } }}
+        onMouseLeave={e => { if (!active) { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.color = 'rgba(255,255,255,0.75)'; } }}
       >
-        <span style={{ flexShrink: 0, color: active ? P.text : 'rgba(97,97,97,1)', display: 'flex', width: 20, height: 20, alignItems: 'center', justifyContent: 'center' }}>
+        <span style={{ flexShrink: 0, display: 'flex', width: 20, height: 20, alignItems: 'center', justifyContent: 'center', color: active ? '#fff' : 'rgba(255,255,255,0.55)' }}>
           {icons[item.href]}
         </span>
         {item.label}
@@ -123,18 +124,18 @@ export default function Layout({ children, title }) {
   };
 
   const SectionLabel = ({ label }) => (
-    <div style={{ fontSize: '0.6875rem', fontWeight: '600', color: P.textSubdued, textTransform: 'uppercase', letterSpacing: '0.08em', padding: '8px 10px 4px', lineHeight: '1rem' }}>
+    <div style={{ fontSize: '0.6875rem', fontWeight: '600', color: 'rgba(255,255,255,0.4)', textTransform: 'uppercase', letterSpacing: '0.08em', padding: '8px 12px 4px', lineHeight: '1rem' }}>
       {label}
     </div>
   );
 
-  const Divider = () => <div style={{ height: 1, background: P.border, margin: '6px 8px' }} />;
+  const Divider = () => <div style={{ height: 1, background: 'rgba(255,255,255,0.1)', margin: '6px 4px' }} />;
 
   const SidebarContent = () => (
     <div style={{ display: 'flex', flexDirection: 'column', height: '100%', overflow: 'hidden' }}>
 
       {/* Navigation */}
-      <div style={{ flex: 1, overflowY: 'auto', padding: '8px 8px 0', scrollbarWidth: 'none' }}>
+      <div style={{ flex: 1, overflowY: 'auto', padding: '4px 4px 0', scrollbarWidth: 'none' }}>
         {mainNav.map(item => <NavItem key={item.href} item={item} />)}
 
         <Divider />
@@ -146,7 +147,7 @@ export default function Layout({ children, title }) {
           padding: '6px 10px', borderRadius: 8, width: '100%',
           background: 'transparent', border: `1px dashed ${P.border}`,
           color: P.textSubdued, fontSize: P.fontSize, cursor: 'pointer',
-          fontFamily: P.fontFamily, marginTop: 4, letterSpacing: P.letterSpacing,
+          fontFamily: P.font, marginTop: 4, letterSpacing: P.letterSpacing,
         }}>
           <svg width="14" height="14" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
           Add sales channel
@@ -159,21 +160,21 @@ export default function Layout({ children, title }) {
       </div>
 
       {/* Profile */}
-      <div ref={profileRef} style={{ padding: '6px 8px', borderTop: `1px solid ${P.border}`, flexShrink: 0, position: 'relative' }}>
+      <div ref={profileRef} style={{ padding: '6px 6px', borderTop: '1px solid rgba(255,255,255,0.1)', flexShrink: 0, position: 'relative' }}>
         <div
           onClick={() => setProfileOpen(!profileOpen)}
-          style={{ display: 'flex', alignItems: 'center', gap: 9, padding: '7px 10px', borderRadius: 8, cursor: 'pointer', background: profileOpen ? P.surfaceTertiaryActive : 'transparent', transition: 'background .1s' }}
-          onMouseEnter={e => { if (!profileOpen) e.currentTarget.style.background = P.surfaceHover; }}
-          onMouseLeave={e => { if (!profileOpen) e.currentTarget.style.background = profileOpen ? P.surfaceTertiaryActive : 'transparent'; }}
+          style={{ display: 'flex', alignItems: 'center', gap: 9, padding: '7px 10px', borderRadius: 10, cursor: 'pointer', background: profileOpen ? 'rgba(255,255,255,0.15)' : 'transparent', transition: 'background .12s' }}
+          onMouseEnter={e => { if (!profileOpen) e.currentTarget.style.background = 'rgba(255,255,255,0.08)'; }}
+          onMouseLeave={e => { if (!profileOpen) e.currentTarget.style.background = profileOpen ? 'rgba(255,255,255,0.15)' : 'transparent'; }}
         >
           <div style={{ width: 28, height: 28, background: P.green, borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', fontWeight: 700, fontSize: 11, flexShrink: 0 }}>
             {initials}
           </div>
           <div style={{ flex: 1, minWidth: 0 }}>
-            <div style={{ color: P.text, fontSize: P.fontSize, fontWeight: '600', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', letterSpacing: P.letterSpacing }}>{seller?.full_name || 'User'}</div>
-            <div style={{ color: P.textSubdued, fontSize: '0.6875rem', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{seller?.email || ''}</div>
+            <div style={{ color: 'rgba(255,255,255,0.9)', fontSize: P.fontSize, fontWeight: '600', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', letterSpacing: P.letterSpacing }}>{seller?.full_name || 'User'}</div>
+            <div style={{ color: 'rgba(255,255,255,0.45)', fontSize: '0.6875rem', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{seller?.email || ''}</div>
           </div>
-          <svg width="12" height="12" fill="none" stroke={P.textSubdued} strokeWidth="2" viewBox="0 0 24 24" style={{ flexShrink: 0, transform: profileOpen ? 'rotate(180deg)' : 'none', transition: 'transform .2s' }}>
+          <svg width="12" height="12" fill="none" stroke="rgba(255,255,255,0.4)" strokeWidth="2" viewBox="0 0 24 24" style={{ flexShrink: 0, transform: profileOpen ? 'rotate(180deg)' : 'none', transition: 'transform .2s' }}>
             <polyline points="18 15 12 9 6 15"/>
           </svg>
         </div>
@@ -198,7 +199,7 @@ export default function Layout({ children, title }) {
                 <svg width="12" height="12" fill="none" stroke={P.textSubdued} strokeWidth="2" viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg>
               </Link>
             ))}
-            <button onClick={handleLogout} style={{ width: '100%', padding: '9px 12px', background: 'none', border: 'none', textAlign: 'left', fontSize: P.fontSize, color: '#d82c0d', cursor: 'pointer', fontWeight: '500', display: 'flex', alignItems: 'center', gap: 8, fontFamily: P.fontFamily, letterSpacing: P.letterSpacing }}
+            <button onClick={handleLogout} style={{ width: '100%', padding: '9px 12px', background: 'none', border: 'none', textAlign: 'left', fontSize: P.fontSize, color: '#d82c0d', cursor: 'pointer', fontWeight: '500', display: 'flex', alignItems: 'center', gap: 8, fontFamily: P.font, letterSpacing: P.letterSpacing }}
               onMouseEnter={e => e.currentTarget.style.background = '#fff4f4'}
               onMouseLeave={e => e.currentTarget.style.background = 'transparent'}
             >
@@ -248,10 +249,11 @@ export default function Layout({ children, title }) {
         .layout-wrap { display: flex; min-height: 100vh; }
         .sidebar {
           width: 240px; flex-shrink: 0;
-          background: ${P.surface};
-          border-right: 1px solid ${P.border};
+          background: ${P.bgInverse};
           position: fixed; top: 56px; left: 0; bottom: 0; z-index: 400;
           display: flex; flex-direction: column;
+          padding: 4px;
+          border-right: none;
         }
         .sidebar-logo { display: none; }
         .desk-topbar {
@@ -297,9 +299,9 @@ export default function Layout({ children, title }) {
           .overlay { display: block; position: fixed; inset: 0; background: rgba(0,0,0,0.4); z-index: 350; }
         }
         @media (min-width: 768px) and (max-width: 1024px) {
-          .sidebar { width: 220px; }
-          .main-content { margin-left: 220px; width: calc(100% - 220px); }
-          .desk-topbar { left: 220px; }
+          .sidebar { width: 200px; padding: 4px; }
+          .main-content { margin-left: 200px; width: calc(100% - 200px); }
+          .desk-topbar { left: 200px; }
         }
       `}</style>
 
@@ -323,8 +325,8 @@ export default function Layout({ children, title }) {
               <svg width="14" height="14" fill="none" stroke="rgba(255,255,255,0.45)" strokeWidth="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
               <span style={{ fontSize: '0.8125rem', color: 'rgba(255,255,255,0.38)', flex: 1, letterSpacing: P.letterSpacing }}>Search</span>
               <div style={{ display: 'flex', gap: 2 }}>
-                <kbd style={{ fontSize: '0.625rem', color: 'rgba(255,255,255,0.22)', background: 'rgba(255,255,255,0.07)', padding: '1px 5px', borderRadius: 3, fontFamily: P.fontFamily }}>CTRL</kbd>
-                <kbd style={{ fontSize: '0.625rem', color: 'rgba(255,255,255,0.22)', background: 'rgba(255,255,255,0.07)', padding: '1px 5px', borderRadius: 3, fontFamily: P.fontFamily }}>K</kbd>
+                <kbd style={{ fontSize: '0.625rem', color: 'rgba(255,255,255,0.22)', background: 'rgba(255,255,255,0.07)', padding: '1px 5px', borderRadius: 3, fontFamily: P.font }}>CTRL</kbd>
+                <kbd style={{ fontSize: '0.625rem', color: 'rgba(255,255,255,0.22)', background: 'rgba(255,255,255,0.07)', padding: '1px 5px', borderRadius: 3, fontFamily: P.font }}>K</kbd>
               </div>
             </div>
           </div>
@@ -343,7 +345,7 @@ export default function Layout({ children, title }) {
               display: 'flex', alignItems: 'center', justifyContent: 'center',
               color: '#fff', fontWeight: '700', fontSize: 11, cursor: 'pointer',
               border: '2px solid rgba(255,255,255,0.15)',
-              fontFamily: P.fontFamily, letterSpacing: 0
+              fontFamily: P.font, letterSpacing: 0
             }}>
               {initials}
             </div>
