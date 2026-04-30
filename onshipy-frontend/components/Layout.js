@@ -104,18 +104,18 @@ export default function Layout({ children, title }) {
         style={{
           display: 'flex', alignItems: 'center', gap: 10,
           padding: '7px 12px', borderRadius: 10, marginBottom: 2,
-          background: active ? 'rgba(255,255,255,0.15)' : 'transparent',
-          color: active ? '#fff' : 'rgba(255,255,255,0.75)',
+          background: active ? '#e3e3e3' : 'transparent',
+          color: P.text,
           textDecoration: 'none',
-          fontSize: P.fontSize, fontWeight: active ? '600' : '450',
+          fontSize: P.fontSize, fontWeight: active ? '600' : P.fontWeight,
           letterSpacing: P.letterSpacing,
           lineHeight: '1.5rem',
-          transition: 'background .12s, color .12s',
+          transition: 'background .12s',
         }}
-        onMouseEnter={e => { if (!active) { e.currentTarget.style.background = 'rgba(255,255,255,0.08)'; e.currentTarget.style.color = '#fff'; } }}
-        onMouseLeave={e => { if (!active) { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.color = 'rgba(255,255,255,0.75)'; } }}
+        onMouseEnter={e => { if (!active) e.currentTarget.style.background = '#f7f7f7'; }}
+        onMouseLeave={e => { if (!active) e.currentTarget.style.background = 'transparent'; }}
       >
-        <span style={{ flexShrink: 0, display: 'flex', width: 20, height: 20, alignItems: 'center', justifyContent: 'center', color: active ? '#fff' : 'rgba(255,255,255,0.55)' }}>
+        <span style={{ flexShrink: 0, display: 'flex', width: 20, height: 20, alignItems: 'center', justifyContent: 'center', color: active ? P.text : 'rgba(97,97,97,1)' }}>
           {icons[item.href]}
         </span>
         {item.label}
@@ -124,12 +124,12 @@ export default function Layout({ children, title }) {
   };
 
   const SectionLabel = ({ label }) => (
-    <div style={{ fontSize: '0.6875rem', fontWeight: '600', color: 'rgba(255,255,255,0.4)', textTransform: 'uppercase', letterSpacing: '0.08em', padding: '8px 12px 4px', lineHeight: '1rem' }}>
+    <div style={{ fontSize: '0.6875rem', fontWeight: '600', color: P.textSubdued, textTransform: 'uppercase', letterSpacing: '0.08em', padding: '8px 12px 4px', lineHeight: '1rem' }}>
       {label}
     </div>
   );
 
-  const Divider = () => <div style={{ height: 1, background: 'rgba(255,255,255,0.1)', margin: '6px 4px' }} />;
+  const Divider = () => <div style={{ height: 1, background: P.border, margin: '6px 4px' }} />;
 
   const SidebarContent = () => (
     <div style={{ display: 'flex', flexDirection: 'column', height: '100%', overflow: 'hidden' }}>
@@ -160,21 +160,21 @@ export default function Layout({ children, title }) {
       </div>
 
       {/* Profile */}
-      <div ref={profileRef} style={{ padding: '6px 6px', borderTop: '1px solid rgba(255,255,255,0.1)', flexShrink: 0, position: 'relative' }}>
+      <div ref={profileRef} style={{ padding: '6px 6px', borderTop: `1px solid ${P.border}`, flexShrink: 0, position: 'relative' }}>
         <div
           onClick={() => setProfileOpen(!profileOpen)}
-          style={{ display: 'flex', alignItems: 'center', gap: 9, padding: '7px 10px', borderRadius: 10, cursor: 'pointer', background: profileOpen ? 'rgba(255,255,255,0.15)' : 'transparent', transition: 'background .12s' }}
-          onMouseEnter={e => { if (!profileOpen) e.currentTarget.style.background = 'rgba(255,255,255,0.08)'; }}
-          onMouseLeave={e => { if (!profileOpen) e.currentTarget.style.background = profileOpen ? 'rgba(255,255,255,0.15)' : 'transparent'; }}
+          style={{ display: 'flex', alignItems: 'center', gap: 9, padding: '7px 10px', borderRadius: 10, cursor: 'pointer', background: profileOpen ? '#e3e3e3' : 'transparent', transition: 'background .12s' }}
+          onMouseEnter={e => { if (!profileOpen) e.currentTarget.style.background = '#f7f7f7'; }}
+          onMouseLeave={e => { if (!profileOpen) e.currentTarget.style.background = profileOpen ? '#e3e3e3' : 'transparent'; }}
         >
           <div style={{ width: 28, height: 28, background: P.green, borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', fontWeight: 700, fontSize: 11, flexShrink: 0 }}>
             {initials}
           </div>
           <div style={{ flex: 1, minWidth: 0 }}>
-            <div style={{ color: 'rgba(255,255,255,0.9)', fontSize: P.fontSize, fontWeight: '600', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', letterSpacing: P.letterSpacing }}>{seller?.full_name || 'User'}</div>
-            <div style={{ color: 'rgba(255,255,255,0.45)', fontSize: '0.6875rem', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{seller?.email || ''}</div>
+            <div style={{ color: P.text, fontSize: P.fontSize, fontWeight: '600', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', letterSpacing: P.letterSpacing }}>{seller?.full_name || 'User'}</div>
+            <div style={{ color: P.textSubdued, fontSize: '0.6875rem', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{seller?.email || ''}</div>
           </div>
-          <svg width="12" height="12" fill="none" stroke="rgba(255,255,255,0.4)" strokeWidth="2" viewBox="0 0 24 24" style={{ flexShrink: 0, transform: profileOpen ? 'rotate(180deg)' : 'none', transition: 'transform .2s' }}>
+          <svg width="12" height="12" fill="none" stroke={P.textSubdued} strokeWidth="2" viewBox="0 0 24 24" style={{ flexShrink: 0, transform: profileOpen ? 'rotate(180deg)' : 'none', transition: 'transform .2s' }}>
             <polyline points="18 15 12 9 6 15"/>
           </svg>
         </div>
@@ -249,17 +249,17 @@ export default function Layout({ children, title }) {
         .layout-wrap { display: flex; min-height: 100vh; }
         .sidebar {
           width: 240px; flex-shrink: 0;
-          background: ${P.bgInverse};
+          background: ${P.surface};
           position: fixed; top: 56px; left: 0; bottom: 0; z-index: 400;
           display: flex; flex-direction: column;
           padding: 4px;
-          border-right: none;
+          border-right: 1px solid rgba(227,227,227,1);
         }
         .sidebar-logo { display: none; }
         .desk-topbar {
           display: flex; align-items: center;
           position: fixed; top: 0; left: 0; right: 0; height: 56px;
-          background: ${P.bgInverse}; z-index: 500;
+          background: ${P.surface}; z-index: 500;
           padding: 0 20px; gap: 0;
         }
         .topbar-logo {
@@ -295,7 +295,7 @@ export default function Layout({ children, title }) {
           .sidebar { transform: translateX(-100%); transition: transform .25s ease; width: 260px; }
           .sidebar.open { transform: translateX(0); box-shadow: 4px 0 20px rgba(0,0,0,0.15); }
           .main-content { margin-left: 0; width: 100%; padding-top: 52px; }
-          .mob-topbar { display: flex; align-items: center; justify-content: space-between; padding: 0 16px; height: 52px; background: ${P.bgInverse}; position: fixed; top: 0; left: 0; right: 0; z-index: 300; }
+          .mob-topbar { display: flex; align-items: center; justify-content: space-between; padding: 0 16px; height: 52px; background: ${P.surface}; position: fixed; top: 0; left: 0; right: 0; z-index: 300; }
           .overlay { display: block; position: fixed; inset: 0; background: rgba(0,0,0,0.4); z-index: 350; }
         }
         @media (min-width: 768px) and (max-width: 1024px) {

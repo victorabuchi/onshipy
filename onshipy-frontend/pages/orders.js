@@ -144,11 +144,11 @@ export default function Orders() {
         <div style={{ flex: 1, overflowY: 'auto', background: P.bg, minWidth: 0 }}>
 
           {/* ── Page header ── */}
-          <div style={{ background: P.surface, borderBottom: `1px solid ${P.border}` }}>
+          <div style={{ background: P.surface }}>
 
             {/* Analytics bar — Shopify style horizontal KPI strip */}
             {showAnalytics && (
-              <div style={{ borderBottom: `1px solid ${P.border}`, overflowX: 'auto', scrollbarWidth: 'none' }}>
+              <div style={{ margin: '0 0 0 0', overflowX: 'auto', scrollbarWidth: 'none', borderBottom: `1px solid ${P.border}` }}>
                 <div style={{ display: 'flex', minWidth: 'max-content' }}>
                   {/* Date pill */}
                   <div style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '10px 16px', borderRight: `1px solid ${P.border}`, flexShrink: 0 }}>
