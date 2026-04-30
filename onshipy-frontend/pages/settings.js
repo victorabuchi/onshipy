@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/router';
-import Layout from '../components/Layout';
+import Head from 'next/head';
 
 const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000';
 
@@ -161,7 +161,24 @@ export default function Settings() {
   const initials = seller?.full_name?.split(' ').map(w => w[0]).join('').toUpperCase().slice(0, 2) || 'U';
 
   return (
-    <Layout title="Settings">
+    <>
+      <Head>
+        <title>Settings — Onshipy</title>
+        <link rel="icon" type="image/png" href="/favicon.png"/>
+        <link rel="preconnect" href="https://fonts.googleapis.com"/>
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous"/>
+        <link href="https://fonts.googleapis.com/css2?family=Inter:wght@100..900&display=swap" rel="stylesheet"/>
+      </Head>
+      <style>{`
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+        html, body {
+          font-family: "Inter var","Inter",-apple-system,BlinkMacSystemFont,sans-serif;
+          font-size: 0.8125rem; font-weight: 450; letter-spacing: -0.00833em;
+          color: rgba(48,48,48,1); background: #1a1a1a; min-height: 100vh;
+          -webkit-font-smoothing: antialiased;
+        }
+      `}</style>
+      <div style={{ display: 'flex', minHeight: '100vh', background: '#1a1a1a' }}>
       <style>{`
         .s-nav-btn { display: flex; align-items: center; justify-content: space-between; padding: 8px 16px; font-size: ${P.fontSize}; color: ${P.textSubdued}; cursor: pointer; border: none; background: none; width: 100%; text-align: left; font-family: ${P.font}; letter-spacing: ${P.letterSpacing}; border-radius: 8px; transition: background .1s, color .1s; font-weight: ${P.fontWeight}; }
         .s-nav-btn:hover { background: #f0f0f0; color: ${P.text}; }
@@ -176,13 +193,20 @@ export default function Settings() {
       )}
 
       {/* Full-width settings layout — overrides normal page padding */}
-      <div style={{ display: 'flex', height: 'calc(100vh - 56px)', fontFamily: P.font, fontSize: P.fontSize, letterSpacing: P.letterSpacing, color: P.text }}>
+      <div style={{ display: 'flex', minHeight: '100vh', fontFamily: P.font, fontSize: P.fontSize, letterSpacing: P.letterSpacing, color: P.text }}>
 
         {/* ── Settings left nav ── */}
         <div style={{ width: 280, flexShrink: 0, background: P.surface, borderRight: `1px solid ${P.border}`, display: 'flex', flexDirection: 'column', overflowY: 'auto' }}>
 
-          {/* Store avatar + info */}
-          <div style={{ padding: '16px', borderBottom: `1px solid ${P.border}` }}>
+          {/* Back to main app + store info */}
+          <div style={{ padding: '12px 16px', borderBottom: `1px solid ${P.border}` }}>
+            <button onClick={() => router.push('/dashboard')} style={{ display: 'flex', alignItems: 'center', gap: 6, background: 'none', border: 'none', cursor: 'pointer', color: P.textSubdued, fontSize: P.fontSize, fontFamily: P.font, padding: '4px 6px', borderRadius: 6, marginBottom: 10, width: '100%' }}
+              onMouseEnter={e => e.currentTarget.style.background = '#f0f0f0'}
+              onMouseLeave={e => e.currentTarget.style.background = 'none'}
+            >
+              <svg width="14" height="14" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg>
+              Back to Onshipy
+            </button>
             <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
               <div style={{ width: 36, height: 36, background: P.green, borderRadius: 8, display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', fontWeight: 700, fontSize: 14, flexShrink: 0 }}>
                 {seller?.store_name?.[0]?.toUpperCase() || 'N'}
@@ -517,6 +541,7 @@ export default function Settings() {
           {active === 'languages' && <ComingSoon title="Languages"/>}
         </div>
       </div>
-    </Layout>
+      </div>
+    </>
   );
 }
