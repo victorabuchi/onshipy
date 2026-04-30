@@ -4,87 +4,48 @@ import Layout from '../components/Layout';
 
 const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000';
 
-// ── Small reusable components ──────────────────────────────────────────────
-const Badge = ({ children, color = '#008060' }) => (
-  <span style={{
-    display: 'inline-flex', alignItems: 'center', gap: 4,
-    padding: '2px 10px', borderRadius: 20, fontSize: 12, fontWeight: 600,
-    background: color + '18', color
-  }}>{children}</span>
-);
+const P = {
+  bg: '#f1f1f1', surface: '#fff', border: 'rgba(227,227,227,1)',
+  text: 'rgba(48,48,48,1)', textSubdued: 'rgba(97,97,97,1)',
+  green: '#008060', font: '"Inter var","Inter",-apple-system,BlinkMacSystemFont,sans-serif',
+  fontSize: '0.8125rem', fontWeight: '450', letterSpacing: '-0.00833em',
+};
 
-const Card = ({ children, style = {} }) => (
-  <div style={{
-    background: '#fff', borderRadius: 10,
-    border: '1px solid #e1e3e5', overflow: 'hidden', ...style
-  }}>{children}</div>
-);
-
-const CardHeader = ({ title, subtitle }) => (
-  <div style={{ padding: '14px 20px', borderBottom: '1px solid #f1f1f1' }}>
-    <div style={{ fontWeight: 600, fontSize: 14, color: '#111' }}>{title}</div>
-    {subtitle && <div style={{ fontSize: 13, color: '#6d7175', marginTop: 2 }}>{subtitle}</div>}
-  </div>
-);
-
-const Btn = ({ children, onClick, disabled, variant = 'primary', style = {} }) => {
-  const base = {
-    padding: '10px 20px', borderRadius: 8, fontSize: 14, fontWeight: 600,
-    cursor: disabled ? 'not-allowed' : 'pointer', border: 'none',
-    fontFamily: 'inherit', transition: 'opacity .15s', ...style
-  };
-  const variants = {
-    primary: { background: disabled ? '#c9cccf' : '#1a1a1a', color: '#fff' },
-    secondary: { background: '#f6f6f7', border: '1px solid #e1e3e5', color: '#1a1a1a' },
-    danger: { background: '#fff0f0', border: '1px solid #ffc0c0', color: '#cc0000' },
-    green: { background: disabled ? '#c9cccf' : '#008060', color: '#fff' },
+const Btn = ({ children, onClick, variant = 'secondary', disabled, style = {} }) => {
+  const s = {
+    primary:  { background: P.text,    color: '#fff', border: 'none' },
+    secondary:{ background: P.surface, color: P.text, border: `1px solid ${P.border}` },
+    green:    { background: P.green,   color: '#fff', border: 'none' },
+    danger:   { background: P.surface, color: '#d82c0d', border: '1px solid rgba(216,44,13,0.3)' },
   };
   return (
-    <button onClick={onClick} disabled={disabled} style={{ ...base, ...variants[variant] }}>
-      {children}
-    </button>
+    <button onClick={onClick} disabled={disabled} style={{
+      ...s[variant], padding: '7px 16px', borderRadius: 8,
+      fontSize: P.fontSize, fontWeight: 500, cursor: disabled ? 'not-allowed' : 'pointer',
+      fontFamily: P.font, letterSpacing: P.letterSpacing,
+      opacity: disabled ? 0.5 : 1, whiteSpace: 'nowrap', ...style
+    }}>{children}</button>
   );
 };
 
-const Input = ({ label, value, onChange, placeholder, type = 'text', hint }) => (
-  <div style={{ marginBottom: 16 }}>
-    {label && <label style={{ display: 'block', fontSize: 13, fontWeight: 500, color: '#111', marginBottom: 5 }}>{label}</label>}
-    <input
-      type={type}
-      value={value}
-      onChange={onChange}
-      placeholder={placeholder}
-      style={{
-        width: '100%', padding: '9px 12px', border: '1px solid #c9cccf',
-        borderRadius: 8, fontSize: 14, outline: 'none', color: '#111',
-        boxSizing: 'border-box', fontFamily: 'inherit'
-      }}
-    />
-    {hint && <div style={{ fontSize: 12, color: '#6d7175', marginTop: 4 }}>{hint}</div>}
-  </div>
-);
+const SUB_PAGES = ['channels', 'themes', 'pages', 'preferences'];
 
-// ── Main page ──────────────────────────────────────────────────────────────
 export default function OnlineStore() {
   const router = useRouter();
   const tokenRef = useRef('');
   const [seller, setSeller] = useState(null);
-  const [tab, setTab] = useState('connect');
-  const [shopifyStatus, setShopifyStatus] = useState(null); // null | { connected, shop }
+  const [section, setSection] = useState('channels');
+  const [shopifyStatus, setShopifyStatus] = useState(null);
   const [listings, setListings] = useState([]);
   const [pushing, setPushing] = useState({});
-  const [pushResults, setPushResults] = useState({});
   const [pushingAll, setPushingAll] = useState(false);
   const [toast, setToast] = useState(null);
-  const [loading, setLoading] = useState(false);
-
-  // Connect form
-  const [shopUrl, setShopUrl] = useState('');
-  const [accessToken, setAccessToken] = useState('');
+  const [shopInput, setShopInput] = useState('');
   const [connecting, setConnecting] = useState(false);
+  const [loading, setLoading] = useState(true);
 
-  const showToast = (msg, error = false) => {
-    setToast({ msg, error });
+  const showToast = (msg, err = false) => {
+    setToast({ msg, err });
     setTimeout(() => setToast(null), 4000);
   };
 
@@ -93,315 +54,315 @@ export default function OnlineStore() {
     const s = localStorage.getItem('onshipy_seller');
     if (!t) { router.push('/login'); return; }
     tokenRef.current = t;
-    if (s) setSeller(JSON.parse(s));
-    checkShopifyStatus();
-    fetchListings();
-  }, []);
+    if (s) { try { setSeller(JSON.parse(s)); } catch {} }
 
-  const authHeaders = () => ({
-    'Content-Type': 'application/json',
-    Authorization: `Bearer ${tokenRef.current}`
-  });
+    const { shopify, shop, error, section: sec } = router.query;
+    if (shopify === 'connected') {
+      showToast(`✓ Connected to ${decodeURIComponent(shop || 'your store')}!`);
+      router.replace('/online-store', undefined, { shallow: true });
+    }
+    if (error) {
+      showToast('Shopify connection failed: ' + error, true);
+      router.replace('/online-store', undefined, { shallow: true });
+    }
+    if (sec && SUB_PAGES.includes(sec)) setSection(sec);
 
-  const checkShopifyStatus = async () => {
+    checkStatus(t);
+    fetchListings(t);
+  }, [router.query]);
+
+  const authH = () => ({ 'Content-Type': 'application/json', Authorization: `Bearer ${tokenRef.current}` });
+
+  const checkStatus = async (t) => {
     try {
-      const res = await fetch(`${API_BASE}/api/stores/shopify/status`, {
-        headers: { Authorization: `Bearer ${localStorage.getItem('onshipy_token')}` }
-      });
+      const res = await fetch(`${API_BASE}/api/stores/shopify/status`, { headers: { Authorization: `Bearer ${t || tokenRef.current}` } });
       const data = await res.json();
       setShopifyStatus(data);
-      if (data.connected) setTab('push');
-    } catch {}
-  };
-
-  const fetchListings = async () => {
-    setLoading(true);
-    try {
-      const res = await fetch(`${API_BASE}/api/products/listings/all`, {
-        headers: { Authorization: `Bearer ${localStorage.getItem('onshipy_token')}` }
-      });
-      const data = await res.json();
-      if (data.listings) setListings(data.listings);
     } catch {}
     setLoading(false);
   };
 
+  const fetchListings = async (t) => {
+    try {
+      const res = await fetch(`${API_BASE}/api/products/listings/all`, { headers: { Authorization: `Bearer ${t || tokenRef.current}` } });
+      const data = await res.json();
+      if (data.listings) setListings(data.listings);
+    } catch {}
+  };
+
   const connectShopify = async () => {
-    if (!shopUrl.trim() || !accessToken.trim()) {
-      showToast('Please fill in both fields', true); return;
-    }
+    if (!shopInput.trim()) { showToast('Enter your store name', true); return; }
     setConnecting(true);
     try {
-      const res = await fetch(`${API_BASE}/api/stores/shopify/connect`, {
-        method: 'POST',
-        headers: authHeaders(),
-        body: JSON.stringify({ shop_url: shopUrl.trim(), access_token: accessToken.trim() })
+      const shop = shopInput.trim().replace('.myshopify.com', '').replace('https://', '').replace(/\/$/, '');
+      const res = await fetch(`${API_BASE}/api/stores/shopify/install?shop=${encodeURIComponent(shop + '.myshopify.com')}`, {
+        headers: { Authorization: `Bearer ${tokenRef.current}` }
       });
       const data = await res.json();
-      if (!res.ok) { showToast(data.error || 'Connection failed', true); return; }
-      setShopifyStatus({ connected: true, shop: data.shop });
-      showToast(`✓ Connected to ${data.shop.name}`);
-      setTab('push');
-    } catch (err) {
-      showToast('Connection error: ' + err.message, true);
-    }
-    setConnecting(false);
+      if (!res.ok || !data.install_url) { showToast(data.error || 'Could not connect', true); setConnecting(false); return; }
+      window.location.href = data.install_url;
+    } catch (err) { showToast('Error: ' + err.message, true); setConnecting(false); }
   };
 
   const disconnectShopify = async () => {
-    if (!confirm('Disconnect your Shopify store?')) return;
-    await fetch(`${API_BASE}/api/stores/shopify/disconnect`, {
-      method: 'DELETE', headers: authHeaders()
-    });
+    if (!confirm('Disconnect Shopify store?')) return;
+    await fetch(`${API_BASE}/api/stores/shopify/disconnect`, { method: 'DELETE', headers: authH() });
     setShopifyStatus({ connected: false });
-    setTab('connect');
     showToast('Store disconnected');
   };
 
-  const pushListing = async (listingId) => {
-    setPushing(p => ({ ...p, [listingId]: true }));
-    setPushResults(r => ({ ...r, [listingId]: null }));
+  const pushListing = async (id) => {
+    setPushing(p => ({ ...p, [id]: true }));
     try {
       const res = await fetch(`${API_BASE}/api/stores/shopify/push`, {
-        method: 'POST',
-        headers: authHeaders(),
-        body: JSON.stringify({ listing_id: listingId })
+        method: 'POST', headers: authH(), body: JSON.stringify({ listing_id: id })
       });
       const data = await res.json();
-      if (!res.ok) {
-        setPushResults(r => ({ ...r, [listingId]: { error: data.error } }));
-        showToast(data.error || 'Push failed', true);
-      } else {
-        setPushResults(r => ({ ...r, [listingId]: { success: true, url: data.product_url } }));
-        showToast('✓ Product pushed to Shopify!');
-      }
-    } catch (err) {
-      setPushResults(r => ({ ...r, [listingId]: { error: err.message } }));
-    }
-    setPushing(p => ({ ...p, [listingId]: false }));
+      if (!res.ok) showToast(data.error || 'Push failed', true);
+      else { showToast('✓ Pushed to Shopify!'); fetchListings(); }
+    } catch (err) { showToast(err.message, true); }
+    setPushing(p => ({ ...p, [id]: false }));
   };
 
   const pushAll = async () => {
     setPushingAll(true);
     try {
-      const res = await fetch(`${API_BASE}/api/stores/shopify/push-all`, {
-        method: 'POST', headers: authHeaders()
-      });
+      const res = await fetch(`${API_BASE}/api/stores/shopify/push-all`, { method: 'POST', headers: authH() });
       const data = await res.json();
-      showToast(`✓ Pushed ${data.pushed} products. ${data.failed > 0 ? `${data.failed} failed.` : ''}`);
+      showToast(`✓ Pushed ${data.pushed} products${data.failed > 0 ? `, ${data.failed} failed` : ''}`);
       fetchListings();
-    } catch (err) {
-      showToast('Push all failed: ' + err.message, true);
-    }
+    } catch (err) { showToast(err.message, true); }
     setPushingAll(false);
   };
 
   const getImages = (images) => {
-    try {
-      if (!images) return [];
-      if (typeof images === 'string') return JSON.parse(images);
-      if (Array.isArray(images)) return images;
-      return [];
-    } catch { return []; }
+    try { return typeof images === 'string' ? JSON.parse(images) : (Array.isArray(images) ? images : []); }
+    catch { return []; }
   };
 
-  const unpushedListings = listings.filter(l => !l.shopify_product_id);
-  const pushedListings = listings.filter(l => l.shopify_product_id);
+  const unpushed = listings.filter(l => !l.shopify_product_id);
+  const pushed = listings.filter(l => l.shopify_product_id);
 
-  const TABS = [
-    { id: 'connect', label: 'Connect store' },
-    { id: 'push', label: `Push products${unpushedListings.length > 0 ? ` (${unpushedListings.length})` : ''}` },
-    { id: 'webhook', label: 'Webhook' },
+  const subNav = [
+    { id: 'channels', label: 'Sales channels' },
+    { id: 'themes', label: 'Themes' },
+    { id: 'pages', label: 'Pages' },
+    { id: 'preferences', label: 'Preferences' },
   ];
 
   return (
-    <Layout>
+    <Layout title="Online Store">
       <style>{`
-        .store-tab { padding: 10px 20px; background: none; border: none; border-bottom: 2px solid transparent; color: #6d7175; font-weight: 400; font-size: 14px; cursor: pointer; margin-bottom: -1px; font-family: inherit; }
-        .store-tab.active { color: #1a1a1a; font-weight: 600; border-bottom-color: #1a1a1a; }
-        .store-tab:hover { color: #1a1a1a; }
-        .step { display: flex; gap: 12px; margin-bottom: 18px; }
-        .step-num { width: 26px; height: 26px; border-radius: 50%; background: #1a1a1a; color: #fff; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 700; flex-shrink: 0; margin-top: 2px; }
-        .step-body { flex: 1; }
-        .step-title { font-weight: 600; font-size: 14px; color: #111; margin-bottom: 4px; }
-        .step-desc { font-size: 13px; color: #6d7175; line-height: 1.6; }
-        code { background: #f0f0f0; border-radius: 4px; padding: '2px 6px'; font-size: 12px; }
-        .listing-row:hover { background: #fafafa !important; }
+        .sub-tab { padding: 6px 14px; background: none; border: none; border-radius: 6px; font-size: ${P.fontSize}; color: ${P.textSubdued}; cursor: pointer; font-family: ${P.font}; letter-spacing: ${P.letterSpacing}; font-weight: ${P.fontWeight}; white-space: nowrap; transition: background .1s, color .1s; }
+        .sub-tab:hover { background: rgba(0,0,0,0.05); color: ${P.text}; }
+        .sub-tab.active { background: rgba(0,0,0,0.07); color: ${P.text}; font-weight: 600; }
+        .push-row:hover { background: #fafafa !important; }
+        .platform-card { background: ${P.surface}; border: 1px solid ${P.border}; border-radius: 10px; padding: 16px; cursor: pointer; transition: box-shadow .15s; }
+        .platform-card:hover { box-shadow: 0 2px 8px rgba(0,0,0,0.08); }
       `}</style>
 
-      {/* Toast */}
       {toast && (
-        <div style={{
-          position: 'fixed', top: 20, right: 20, zIndex: 9999,
-          background: toast.error ? '#cc0000' : '#1a1a1a',
-          color: '#fff', padding: '12px 20px', borderRadius: 8,
-          fontSize: 14, fontWeight: 500, boxShadow: '0 4px 20px rgba(0,0,0,.2)',
-          maxWidth: 360
-        }}>{toast.msg}</div>
+        <div style={{ position: 'fixed', top: 20, right: 20, zIndex: 9999, background: toast.err ? '#d82c0d' : P.text, color: '#fff', padding: '10px 18px', borderRadius: 8, fontSize: P.fontSize, fontWeight: 500, fontFamily: P.font, boxShadow: '0 4px 16px rgba(0,0,0,0.2)' }}>
+          {toast.msg}
+        </div>
       )}
 
-      <div style={{ fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif' }}>
+      <div style={{ fontFamily: P.font, fontSize: P.fontSize, letterSpacing: P.letterSpacing, color: P.text }}>
 
         {/* Header */}
-        <div style={{ padding: '24px 28px 0', borderBottom: '1px solid #e1e3e5' }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 16 }}>
-            <div>
-              <h1 style={{ fontSize: 20, fontWeight: 600, color: '#1a1a1a', margin: 0 }}>Online Store</h1>
-              <p style={{ color: '#6d7175', fontSize: 13, margin: '4px 0 0' }}>
-                {shopifyStatus?.connected
-                  ? `Connected to ${shopifyStatus.shop?.name}`
-                  : 'Connect your store to start selling'}
-              </p>
+        <div style={{ background: P.surface, borderBottom: `1px solid ${P.border}`, padding: '14px 20px 0' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+              <span style={{ fontSize: 20 }}>🛍️</span>
+              <h1 style={{ fontSize: '1.125rem', fontWeight: 650, color: P.text, margin: 0, letterSpacing: '-0.02em' }}>Online Store</h1>
+              {shopifyStatus?.connected && (
+                <span style={{ fontSize: '0.6875rem', padding: '2px 8px', borderRadius: 20, background: '#cdfed4', color: '#006847', fontWeight: 600 }}>
+                  ● Connected
+                </span>
+              )}
             </div>
-            {shopifyStatus?.connected && (
-              <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-                <Badge color="#008060">● Connected</Badge>
-                <Btn variant="danger" onClick={disconnectShopify} style={{ padding: '6px 14px', fontSize: 13 }}>
-                  Disconnect
-                </Btn>
-              </div>
-            )}
+            <div style={{ display: 'flex', gap: 8 }}>
+              {shopifyStatus?.connected && (
+                <Btn variant="danger" onClick={disconnectShopify} style={{ fontSize: '0.75rem', padding: '5px 12px' }}>Disconnect</Btn>
+              )}
+            </div>
           </div>
 
-          {/* Tabs */}
-          <div style={{ display: 'flex' }}>
-            {TABS.map(t => (
-              <button key={t.id} className={`store-tab${tab === t.id ? ' active' : ''}`}
-                onClick={() => setTab(t.id)}>{t.label}</button>
+          {/* Sub nav — Shopify style left sidebar-like tabs */}
+          <div style={{ display: 'flex', gap: 4 }}>
+            {subNav.map(t => (
+              <button key={t.id} className={`sub-tab${section === t.id ? ' active' : ''}`} onClick={() => setSection(t.id)}>
+                {t.label}
+              </button>
             ))}
           </div>
         </div>
 
-        {/* Content */}
-        <div style={{ padding: '28px', background: '#f6f6f7', minHeight: 'calc(100vh - 160px)' }}>
+        <div style={{ padding: '20px', background: P.bg, minHeight: 'calc(100vh - 108px)' }}>
 
-          {/* ── CONNECT TAB ─────────────────────────────────────────────── */}
-          {tab === 'connect' && (
-            <div style={{ maxWidth: 560 }}>
+          {/* ── SALES CHANNELS ─────────────────────────────────────────── */}
+          {section === 'channels' && (
+            <div style={{ maxWidth: 900, margin: '0 auto' }}>
 
-              {shopifyStatus?.connected && (
-                <div style={{
-                  background: '#f0fdf6', border: '1px solid #bbf7d0', borderRadius: 10,
-                  padding: '14px 18px', marginBottom: 20, display: 'flex',
-                  justifyContent: 'space-between', alignItems: 'center'
-                }}>
-                  <div>
-                    <div style={{ fontWeight: 600, fontSize: 14, color: '#008060' }}>
-                      ✓ {shopifyStatus.shop?.name} is connected
+              {/* Shopify connect card */}
+              <div style={{ background: P.surface, borderRadius: 12, border: `1px solid ${P.border}`, overflow: 'hidden', marginBottom: 16 }}>
+                <div style={{ padding: '16px 20px', borderBottom: `1px solid ${P.border}`, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+                    <div style={{ width: 40, height: 40, background: '#95BF47', borderRadius: 10, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                      <svg viewBox="0 0 24 24" width="22" height="22" fill="white"><path d="M15.337 23.979l7.301-1.644S19.974 7.823 19.953 7.679c-.02-.144-.145-.24-.27-.24s-2.513-.173-2.513-.173-.144-.019-.24-.106l-1.593-10.16z"/></svg>
                     </div>
-                    <div style={{ fontSize: 13, color: '#6d7175', marginTop: 2 }}>
-                      {shopifyStatus.shop?.url}
+                    <div>
+                      <div style={{ fontWeight: 650, fontSize: '0.9375rem', color: P.text }}>Shopify</div>
+                      <div style={{ fontSize: P.fontSize, color: P.textSubdued, marginTop: 1 }}>
+                        {shopifyStatus?.connected
+                          ? `Connected to ${shopifyStatus.shop?.name} · ${shopifyStatus.shop?.url}`
+                          : 'Sell directly on your Shopify store'}
+                      </div>
                     </div>
                   </div>
-                  <Btn variant="secondary" onClick={() => setTab('push')} style={{ fontSize: 13 }}>
-                    Push products →
-                  </Btn>
+                  {shopifyStatus?.connected ? (
+                    <span style={{ fontSize: '0.75rem', padding: '4px 10px', borderRadius: 20, background: '#cdfed4', color: '#006847', fontWeight: 600 }}>Active</span>
+                  ) : null}
                 </div>
-              )}
 
-              <Card>
-                <CardHeader
-                  title="Connect Shopify"
-                  subtitle="Push products directly to your Shopify store with one click"
-                />
-                <div style={{ padding: '20px' }}>
-
-                  {/* Step-by-step guide */}
-                  <div style={{
-                    background: '#f6f6f7', borderRadius: 8, padding: '16px 18px', marginBottom: 20
-                  }}>
-                    <div style={{ fontSize: 13, fontWeight: 600, color: '#111', marginBottom: 12 }}>
-                      How to get your access token (2 minutes)
-                    </div>
-
-                    {[
-                      {
-                        n: 1, title: 'Open your Shopify Admin',
-                        desc: <>Go to <strong>Settings → Apps and sales channels → Develop apps</strong></>
-                      },
-                      {
-                        n: 2, title: 'Create a custom app',
-                        desc: 'Click "Create an app", give it any name (e.g. "Onshipy")'
-                      },
-                      {
-                        n: 3, title: 'Configure API permissions',
-                        desc: <>Click <strong>Configure Admin API scopes</strong> and enable: <br />
-                          <code style={{ background: '#e5e7eb', padding: '2px 6px', borderRadius: 4, fontSize: 11 }}>
-                            read_products, write_products, read_orders, write_orders
-                          </code>
-                        </>
-                      },
-                      {
-                        n: 4, title: 'Install and copy token',
-                        desc: 'Click Install app → go to API credentials → copy the Admin API access token (starts with shpat_)'
-                      },
-                    ].map(step => (
-                      <div key={step.n} className="step">
-                        <div className="step-num">{step.n}</div>
-                        <div className="step-body">
-                          <div className="step-title">{step.title}</div>
-                          <div className="step-desc">{step.desc}</div>
+                {shopifyStatus?.connected ? (
+                  /* Connected state — push products */
+                  <div style={{ padding: '16px 20px' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 14 }}>
+                      <div style={{ display: 'flex', gap: 12 }}>
+                        <div style={{ textAlign: 'center' }}>
+                          <div style={{ fontSize: '1.125rem', fontWeight: 650, color: P.text }}>{listings.length}</div>
+                          <div style={{ fontSize: '0.75rem', color: P.textSubdued }}>Total listings</div>
+                        </div>
+                        <div style={{ width: 1, background: P.border }}/>
+                        <div style={{ textAlign: 'center' }}>
+                          <div style={{ fontSize: '1.125rem', fontWeight: 650, color: P.green }}>{pushed.length}</div>
+                          <div style={{ fontSize: '0.75rem', color: P.textSubdued }}>Pushed</div>
+                        </div>
+                        <div style={{ width: 1, background: P.border }}/>
+                        <div style={{ textAlign: 'center' }}>
+                          <div style={{ fontSize: '1.125rem', fontWeight: 650, color: '#f59e0b' }}>{unpushed.length}</div>
+                          <div style={{ fontSize: '0.75rem', color: P.textSubdued }}>Pending</div>
                         </div>
                       </div>
-                    ))}
+                      {unpushed.length > 0 && (
+                        <Btn variant="green" onClick={pushAll} disabled={pushingAll}>
+                          {pushingAll ? 'Pushing...' : `Push ${unpushed.length} to Shopify →`}
+                        </Btn>
+                      )}
+                    </div>
+
+                    {/* Progress bar */}
+                    {listings.length > 0 && (
+                      <div style={{ marginBottom: 14 }}>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 5 }}>
+                          <span style={{ fontSize: '0.75rem', color: P.textSubdued }}>Push progress</span>
+                          <span style={{ fontSize: '0.75rem', fontWeight: 600, color: P.green }}>{listings.length > 0 ? Math.round((pushed.length / listings.length) * 100) : 0}%</span>
+                        </div>
+                        <div style={{ height: 4, background: P.bg, borderRadius: 2, overflow: 'hidden' }}>
+                          <div style={{ height: '100%', width: `${listings.length > 0 ? (pushed.length / listings.length) * 100 : 0}%`, background: P.green, borderRadius: 2, transition: 'width .4s' }}/>
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Listings table */}
+                    {listings.length === 0 ? (
+                      <div style={{ textAlign: 'center', padding: '32px', color: P.textSubdued, fontSize: P.fontSize }}>
+                        No listings yet. <button onClick={() => router.push('/products')} style={{ background: 'none', border: 'none', color: P.green, cursor: 'pointer', fontWeight: 600, fontFamily: P.font, fontSize: P.fontSize }}>Import a product →</button>
+                      </div>
+                    ) : (
+                      <div style={{ borderRadius: 8, border: `1px solid ${P.border}`, overflow: 'hidden' }}>
+                        <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+                          <thead>
+                            <tr style={{ background: '#fafafa' }}>
+                              {['', 'Product', 'Price', 'Shopify', ''].map((h, i) => (
+                                <th key={i} style={{ padding: '7px 12px', fontSize: '0.6875rem', fontWeight: 600, color: P.textSubdued, textTransform: 'uppercase', letterSpacing: '0.06em', textAlign: 'left', borderBottom: `1px solid ${P.border}` }}>{h}</th>
+                              ))}
+                            </tr>
+                          </thead>
+                          <tbody>
+                            {listings.map(l => {
+                              const imgs = getImages(l.images);
+                              const isPushed = !!l.shopify_product_id;
+                              return (
+                                <tr key={l.id} className="push-row" style={{ background: P.surface }}>
+                                  <td style={{ padding: '9px 12px', width: 40 }}>
+                                    {imgs[0]
+                                      ? <img src={imgs[0]} alt="" style={{ width: 30, height: 30, objectFit: 'cover', borderRadius: 6, border: `1px solid ${P.border}`, display: 'block' }} onError={e => e.target.style.display = 'none'} />
+                                      : <div style={{ width: 30, height: 30, background: P.bg, borderRadius: 6 }}/>}
+                                  </td>
+                                  <td style={{ padding: '9px 12px' }}>
+                                    <div style={{ fontWeight: 500, fontSize: P.fontSize, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', maxWidth: 280 }}>{l.custom_title || l.original_title}</div>
+                                    <div style={{ fontSize: '0.75rem', color: P.textSubdued, marginTop: 1 }}>{l.source_domain}</div>
+                                  </td>
+                                  <td style={{ padding: '9px 12px', fontWeight: 600, fontSize: P.fontSize }}>${parseFloat(l.selling_price).toFixed(2)}</td>
+                                  <td style={{ padding: '9px 12px' }}>
+                                    {isPushed
+                                      ? <span style={{ fontSize: '0.6875rem', padding: '2px 7px', borderRadius: 20, background: '#cdfed4', color: '#006847', fontWeight: 600 }}>✓ Live</span>
+                                      : <span style={{ fontSize: '0.6875rem', padding: '2px 7px', borderRadius: 20, background: P.bg, color: P.textSubdued, fontWeight: 500 }}>Not pushed</span>}
+                                  </td>
+                                  <td style={{ padding: '9px 12px', textAlign: 'right' }}>
+                                    <Btn onClick={() => pushListing(l.id)} disabled={pushing[l.id]} variant={isPushed ? 'secondary' : 'primary'} style={{ padding: '4px 10px', fontSize: '0.75rem' }}>
+                                      {pushing[l.id] ? '...' : isPushed ? 'Re-push' : 'Push'}
+                                    </Btn>
+                                  </td>
+                                </tr>
+                              );
+                            })}
+                          </tbody>
+                        </table>
+                      </div>
+                    )}
                   </div>
-
-                  <Input
-                    label="Shopify store URL"
-                    value={shopUrl}
-                    onChange={e => setShopUrl(e.target.value)}
-                    placeholder="your-store.myshopify.com"
-                    hint="Just the domain — no https:// needed"
-                  />
-                  <Input
-                    label="Admin API access token"
-                    value={accessToken}
-                    onChange={e => setAccessToken(e.target.value)}
-                    placeholder="shpat_xxxxxxxxxxxxxxxxxxxx"
-                    type="password"
-                    hint="Starts with shpat_ — keep this secret"
-                  />
-
-                  <div style={{ display: 'flex', gap: 10, marginTop: 4 }}>
-                    <Btn
-                      onClick={connectShopify}
-                      disabled={connecting || !shopUrl || !accessToken}
-                      style={{ flex: 1 }}
-                    >
-                      {connecting ? 'Connecting...' : 'Connect Shopify'}
-                    </Btn>
+                ) : (
+                  /* Not connected — ONE click connect */
+                  <div style={{ padding: '24px 20px' }}>
+                    <div style={{ maxWidth: 460 }}>
+                      <div style={{ fontSize: P.fontSize, color: P.textSubdued, marginBottom: 16, lineHeight: 1.6 }}>
+                        Connect your Shopify store to push products directly. You'll be redirected to Shopify to approve — no tokens, no copying.
+                      </div>
+                      <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+                        <div style={{ position: 'relative', flex: 1, maxWidth: 280 }}>
+                          <input
+                            value={shopInput}
+                            onChange={e => setShopInput(e.target.value)}
+                            onKeyDown={e => e.key === 'Enter' && !connecting && connectShopify()}
+                            placeholder="your-store"
+                            style={{ width: '100%', padding: '8px 120px 8px 12px', border: `1px solid ${P.border}`, borderRadius: 8, fontSize: P.fontSize, outline: 'none', fontFamily: P.font, letterSpacing: P.letterSpacing, color: P.text, boxSizing: 'border-box' }}
+                          />
+                          <span style={{ position: 'absolute', right: 10, top: '50%', transform: 'translateY(-50%)', fontSize: '0.75rem', color: P.textSubdued, pointerEvents: 'none' }}>.myshopify.com</span>
+                        </div>
+                        <Btn variant="green" onClick={connectShopify} disabled={connecting || !shopInput.trim()} style={{ padding: '8px 18px' }}>
+                          {connecting ? 'Connecting...' : 'Connect Shopify →'}
+                        </Btn>
+                      </div>
+                      <div style={{ fontSize: '0.75rem', color: P.textSubdued, marginTop: 8 }}>
+                        Enter just your store name — e.g. if your store is <strong>mystore.myshopify.com</strong> enter <strong>mystore</strong>
+                      </div>
+                    </div>
                   </div>
-                </div>
-              </Card>
+                )}
+              </div>
 
-              {/* Other platforms */}
-              <div style={{ marginTop: 20 }}>
-                <div style={{ fontSize: 13, fontWeight: 600, color: '#6d7175', marginBottom: 12, textTransform: 'uppercase', letterSpacing: '0.05em' }}>
-                  Other platforms
-                </div>
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
+              {/* Other channels */}
+              <div style={{ marginBottom: 10 }}>
+                <div style={{ fontSize: '0.6875rem', fontWeight: 600, color: P.textSubdued, textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: 10 }}>More sales channels</div>
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))', gap: 10 }}>
                   {[
-                    { name: 'WooCommerce', color: '#7F54B3', status: 'Coming soon' },
-                    { name: 'Etsy', color: '#F45800', status: 'Coming soon' },
-                    { name: 'Amazon', color: '#FF9900', status: 'Coming soon' },
-                    { name: 'Custom / Webhook', color: '#1a1a2e', status: 'Available', action: () => setTab('webhook') },
+                    { name: 'WooCommerce', desc: 'Push to WordPress stores', color: '#7F54B3', status: 'Coming soon' },
+                    { name: 'Etsy', desc: 'Sell on Etsy marketplace', color: '#F45800', status: 'Coming soon' },
+                    { name: 'Amazon', desc: 'List on Amazon', color: '#FF9900', status: 'Coming soon' },
+                    { name: 'Webhook', desc: 'Custom store integration', color: '#1a1a2e', status: 'Available', action: () => setSection('preferences') },
                   ].map((p, i) => (
-                    <div
-                      key={i}
-                      onClick={p.action}
-                      style={{
-                        background: '#fff', borderRadius: 8, border: '1px solid #e1e3e5',
-                        padding: '14px 16px', display: 'flex', justifyContent: 'space-between',
-                        alignItems: 'center', cursor: p.action ? 'pointer' : 'default'
-                      }}
-                    >
-                      <div>
-                        <div style={{ fontWeight: 600, fontSize: 13, color: '#111' }}>{p.name}</div>
-                        <div style={{ fontSize: 12, color: p.status === 'Available' ? '#008060' : '#9ca3af', marginTop: 2 }}>
-                          {p.status}
+                    <div key={i} className="platform-card" onClick={p.action}>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
+                        <div style={{ width: 32, height: 32, borderRadius: 8, background: p.color, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                          <span style={{ color: '#fff', fontWeight: 700, fontSize: 13 }}>{p.name[0]}</span>
                         </div>
+                        <span style={{ fontSize: '0.6875rem', padding: '2px 7px', borderRadius: 20, background: p.status === 'Available' ? '#cdfed4' : P.bg, color: p.status === 'Available' ? '#006847' : P.textSubdued, fontWeight: 600 }}>{p.status}</span>
                       </div>
-                      <div style={{ width: 10, height: 10, borderRadius: '50%', background: p.color }} />
+                      <div style={{ fontWeight: 600, fontSize: P.fontSize, color: P.text, marginBottom: 2 }}>{p.name}</div>
+                      <div style={{ fontSize: '0.75rem', color: P.textSubdued }}>{p.desc}</div>
                     </div>
                   ))}
                 </div>
@@ -409,212 +370,160 @@ export default function OnlineStore() {
             </div>
           )}
 
-          {/* ── PUSH TAB ────────────────────────────────────────────────── */}
-          {tab === 'push' && (
-            <div>
-              {!shopifyStatus?.connected && (
-                <div style={{
-                  background: '#fff3cd', border: '1px solid #ffc107', borderRadius: 10,
-                  padding: '14px 20px', marginBottom: 20, display: 'flex',
-                  justifyContent: 'space-between', alignItems: 'center'
-                }}>
-                  <div style={{ fontSize: 14, color: '#856404' }}>
-                    Connect your Shopify store first to push products.
+          {/* ── THEMES ────────────────────────────────────────────────── */}
+          {section === 'themes' && (
+            <div style={{ maxWidth: 900, margin: '0 auto' }}>
+              <div style={{ background: P.surface, borderRadius: 12, border: `1px solid ${P.border}`, overflow: 'hidden', marginBottom: 16 }}>
+                <div style={{ padding: '16px 20px', borderBottom: `1px solid ${P.border}`, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                  <div>
+                    <div style={{ fontWeight: 650, fontSize: '0.9375rem', color: P.text }}>Current theme</div>
+                    <div style={{ fontSize: P.fontSize, color: P.textSubdued, marginTop: 1 }}>Onshipy Default · Version 1.0</div>
                   </div>
-                  <Btn onClick={() => setTab('connect')} variant="primary" style={{ padding: '7px 16px', fontSize: 13 }}>
-                    Connect →
-                  </Btn>
+                  <Btn variant="primary">Customize</Btn>
                 </div>
-              )}
-
-              {listings.length === 0 && !loading && (
-                <Card>
-                  <div style={{ padding: '60px', textAlign: 'center' }}>
-                    <div style={{ fontSize: 32, marginBottom: 12 }}>📦</div>
-                    <div style={{ fontWeight: 600, fontSize: 15, marginBottom: 6 }}>No listings yet</div>
-                    <div style={{ color: '#6d7175', fontSize: 14, marginBottom: 20 }}>
-                      Import a product and set a price before pushing to your store
-                    </div>
-                    <Btn onClick={() => router.push('/products')}>Go to Products</Btn>
+                <div style={{ padding: '24px 20px', display: 'flex', gap: 20, alignItems: 'center' }}>
+                  <div style={{ width: 200, height: 130, background: 'linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%)', borderRadius: 8, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                    <span style={{ color: '#fff', fontWeight: 700, fontSize: '1.125rem', letterSpacing: '-0.02em' }}>Onshipy</span>
                   </div>
-                </Card>
-              )}
-
-              {listings.length > 0 && (
-                <>
-                  {/* Summary bar */}
-                  <div style={{
-                    display: 'flex', justifyContent: 'space-between', alignItems: 'center',
-                    marginBottom: 16
-                  }}>
-                    <div style={{ display: 'flex', gap: 12 }}>
-                      <Badge color="#6d7175">{listings.length} listings total</Badge>
-                      <Badge color="#008060">{pushedListings.length} pushed</Badge>
-                      {unpushedListings.length > 0 && <Badge color="#856404">{unpushedListings.length} pending</Badge>}
+                  <div>
+                    <div style={{ fontWeight: 600, fontSize: '0.9375rem', color: P.text, marginBottom: 4 }}>Onshipy Default</div>
+                    <div style={{ fontSize: P.fontSize, color: P.textSubdued, lineHeight: 1.6, marginBottom: 12 }}>Your current storefront theme. Clean, fast, and optimized for product imports from any source.</div>
+                    <div style={{ display: 'flex', gap: 8 }}>
+                      <Btn>Preview</Btn>
+                      <Btn variant="primary">Edit theme</Btn>
                     </div>
-                    {shopifyStatus?.connected && unpushedListings.length > 0 && (
-                      <Btn
-                        variant="green"
-                        onClick={pushAll}
-                        disabled={pushingAll}
-                        style={{ padding: '8px 18px', fontSize: 13 }}
-                      >
-                        {pushingAll ? 'Pushing all...' : `Push all ${unpushedListings.length} →`}
-                      </Btn>
-                    )}
                   </div>
+                </div>
+              </div>
 
-                  <Card>
-                    <table style={{ width: '100%', borderCollapse: 'collapse' }}>
-                      <thead>
-                        <tr style={{ background: '#f9fafb' }}>
-                          {['', 'Product', 'Price', 'Profit', 'Status', 'Action'].map((h, i) => (
-                            <th key={i} style={{
-                              padding: '9px 16px', fontSize: 11, fontWeight: 600,
-                              color: '#6d7175', textTransform: 'uppercase', letterSpacing: '0.06em',
-                              textAlign: 'left', borderBottom: '1px solid #e1e3e5'
-                            }}>{h}</th>
-                          ))}
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {listings.map(l => {
-                          const imgs = getImages(l.images);
-                          const profit = (parseFloat(l.selling_price) - parseFloat(l.source_price_at_listing)).toFixed(2);
-                          const isPushing = pushing[l.id];
-                          const result = pushResults[l.id];
-                          const alreadyPushed = !!l.shopify_product_id;
-
-                          return (
-                            <tr key={l.id} className="listing-row" style={{ borderBottom: '1px solid #f1f1f1', background: '#fff' }}>
-                              <td style={{ padding: '12px 16px', width: 52 }}>
-                                {imgs[0]
-                                  ? <img src={imgs[0]} alt="" style={{ width: 36, height: 36, objectFit: 'cover', borderRadius: 6, border: '1px solid #e1e3e5', display: 'block' }} onError={e => e.target.style.display = 'none'} />
-                                  : <div style={{ width: 36, height: 36, background: '#f1f1f1', borderRadius: 6 }} />
-                                }
-                              </td>
-                              <td style={{ padding: '12px 16px' }}>
-                                <div style={{ fontWeight: 500, fontSize: 14, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', maxWidth: 280 }}>
-                                  {l.custom_title || l.original_title}
-                                </div>
-                                <div style={{ fontSize: 12, color: '#6d7175', marginTop: 2 }}>{l.source_domain}</div>
-                                {result?.url && (
-                                  <a href={result.url} target="_blank" rel="noreferrer"
-                                    style={{ fontSize: 12, color: '#008060', textDecoration: 'none' }}>
-                                    View on Shopify ↗
-                                  </a>
-                                )}
-                                {result?.error && (
-                                  <div style={{ fontSize: 12, color: '#cc0000' }}>{result.error}</div>
-                                )}
-                              </td>
-                              <td style={{ padding: '12px 16px', fontWeight: 600, fontSize: 14 }}>
-                                ${parseFloat(l.selling_price).toFixed(2)}
-                              </td>
-                              <td style={{ padding: '12px 16px', color: '#008060', fontWeight: 600 }}>
-                                +${profit}
-                              </td>
-                              <td style={{ padding: '12px 16px' }}>
-                                {alreadyPushed
-                                  ? <Badge color="#008060">Pushed</Badge>
-                                  : <Badge color="#6d7175">Not pushed</Badge>
-                                }
-                              </td>
-                              <td style={{ padding: '12px 16px' }}>
-                                {shopifyStatus?.connected ? (
-                                  <Btn
-                                    onClick={() => pushListing(l.id)}
-                                    disabled={isPushing}
-                                    variant={alreadyPushed ? 'secondary' : 'primary'}
-                                    style={{ padding: '6px 14px', fontSize: 13 }}
-                                  >
-                                    {isPushing ? 'Pushing...' : alreadyPushed ? 'Re-push' : 'Push'}
-                                  </Btn>
-                                ) : (
-                                  <span style={{ fontSize: 13, color: '#9ca3af' }}>Connect store first</span>
-                                )}
-                              </td>
-                            </tr>
-                          );
-                        })}
-                      </tbody>
-                    </table>
-                  </Card>
-                </>
-              )}
+              <div style={{ marginBottom: 10 }}>
+                <div style={{ fontSize: '0.6875rem', fontWeight: 600, color: P.textSubdued, textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: 10 }}>Popular free themes</div>
+                <div style={{ background: P.surface, borderRadius: 12, border: `1px solid ${P.border}`, padding: '20px' }}>
+                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(180px, 1fr))', gap: 12 }}>
+                    {[
+                      { name: 'Horizon', by: 'Onshipy', color: '#2d3436' },
+                      { name: 'Minimal', by: 'Onshipy', color: '#636e72' },
+                      { name: 'Bold', by: 'Onshipy', color: '#d63031' },
+                      { name: 'Elegant', by: 'Onshipy', color: '#6c5ce7' },
+                      { name: 'Fresh', by: 'Onshipy', color: '#00b894' },
+                      { name: 'Classic', by: 'Onshipy', color: '#fdcb6e' },
+                    ].map((t, i) => (
+                      <div key={i} style={{ border: `1px solid ${P.border}`, borderRadius: 8, overflow: 'hidden', cursor: 'pointer' }}
+                        onMouseEnter={e => e.currentTarget.style.boxShadow = '0 2px 8px rgba(0,0,0,0.1)'}
+                        onMouseLeave={e => e.currentTarget.style.boxShadow = 'none'}>
+                        <div style={{ height: 100, background: `linear-gradient(135deg, ${t.color}, ${t.color}99)`, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                          <span style={{ color: '#fff', fontWeight: 700, fontSize: '0.875rem' }}>{t.name}</span>
+                        </div>
+                        <div style={{ padding: '10px 12px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                          <div>
+                            <div style={{ fontWeight: 500, fontSize: P.fontSize, color: P.text }}>{t.name}</div>
+                            <div style={{ fontSize: '0.75rem', color: P.textSubdued }}>by {t.by}</div>
+                          </div>
+                          <button style={{ padding: '4px 10px', background: P.surface, border: `1px solid ${P.border}`, borderRadius: 6, fontSize: '0.75rem', cursor: 'pointer', fontFamily: P.font }}>Add</button>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
             </div>
           )}
 
-          {/* ── WEBHOOK TAB ─────────────────────────────────────────────── */}
-          {tab === 'webhook' && (
-            <div style={{ maxWidth: 600 }}>
-              <Card>
-                <CardHeader
-                  title="Webhook — receive orders from any store"
-                  subtitle="Point your store's order webhook to this URL"
-                />
-                <div style={{ padding: 20 }}>
-                  <div style={{ marginBottom: 16 }}>
-                    <label style={{ display: 'block', fontSize: 13, fontWeight: 500, marginBottom: 5 }}>
-                      Your webhook URL
-                    </label>
-                    <div style={{ display: 'flex', gap: 8 }}>
-                      <input
-                        readOnly
-                        value={`${API_BASE}/api/webhook/${seller?.webhook_secret || '...'}`}
-                        style={{
-                          flex: 1, padding: '9px 12px', border: '1px solid #e1e3e5',
-                          borderRadius: 8, fontSize: 13, color: '#6d7175',
-                          background: '#f6f6f7', fontFamily: 'monospace'
-                        }}
-                      />
-                      <Btn variant="secondary" style={{ padding: '9px 14px', fontSize: 13 }}
-                        onClick={() => {
-                          navigator.clipboard.writeText(`${API_BASE}/api/webhook/${seller?.webhook_secret}`);
-                          showToast('Copied!');
-                        }}>Copy</Btn>
-                    </div>
-                  </div>
+          {/* ── PAGES ─────────────────────────────────────────────────── */}
+          {section === 'pages' && (
+            <div style={{ maxWidth: 900, margin: '0 auto' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 14 }}>
+                <h2 style={{ fontSize: '0.9375rem', fontWeight: 650, margin: 0, color: P.text }}>Pages</h2>
+                <Btn variant="primary">Add page</Btn>
+              </div>
+              <div style={{ background: P.surface, borderRadius: 12, border: `1px solid ${P.border}`, overflow: 'hidden' }}>
+                <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+                  <thead>
+                    <tr style={{ background: '#fafafa' }}>
+                      {['Title', 'Visibility', 'Updated'].map((h, i) => (
+                        <th key={i} style={{ padding: '8px 16px', fontSize: '0.6875rem', fontWeight: 600, color: P.textSubdued, textTransform: 'uppercase', letterSpacing: '0.06em', textAlign: 'left', borderBottom: `1px solid ${P.border}` }}>{h}</th>
+                      ))}
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {[
+                      { title: 'About Onshipy', visibility: 'Visible', updated: 'Today' },
+                      { title: 'Privacy Policy', visibility: 'Visible', updated: '2 days ago' },
+                      { title: 'Terms of Service', visibility: 'Visible', updated: '2 days ago' },
+                      { title: 'Contact', visibility: 'Visible', updated: '2 days ago' },
+                    ].map((p, i) => (
+                      <tr key={i} className="push-row" style={{ background: P.surface }}>
+                        <td style={{ padding: '11px 16px', fontSize: P.fontSize, borderBottom: `1px solid ${P.border}`, color: '#2b6cb0', cursor: 'pointer', fontWeight: 500 }}>{p.title}</td>
+                        <td style={{ padding: '11px 16px', fontSize: P.fontSize, borderBottom: `1px solid ${P.border}` }}>
+                          <span style={{ fontSize: '0.6875rem', padding: '2px 7px', borderRadius: 20, background: '#cdfed4', color: '#006847', fontWeight: 600 }}>{p.visibility}</span>
+                        </td>
+                        <td style={{ padding: '11px 16px', fontSize: P.fontSize, color: P.textSubdued, borderBottom: `1px solid ${P.border}` }}>{p.updated}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+                <div style={{ padding: '12px 16px', textAlign: 'center', borderTop: `1px solid ${P.border}`, fontSize: P.fontSize, color: P.textSubdued }}>
+                  <span style={{ color: '#2b6cb0', cursor: 'pointer' }}>Learn more about pages</span>
+                </div>
+              </div>
+            </div>
+          )}
 
-                  <div style={{ marginBottom: 20 }}>
-                    <label style={{ display: 'block', fontSize: 13, fontWeight: 500, marginBottom: 5 }}>
-                      Webhook secret
-                    </label>
-                    <div style={{ display: 'flex', gap: 8 }}>
-                      <input
-                        readOnly
-                        value={seller?.webhook_secret || '...'}
-                        style={{
-                          flex: 1, padding: '9px 12px', border: '1px solid #e1e3e5',
-                          borderRadius: 8, fontSize: 13, color: '#6d7175',
-                          background: '#f6f6f7', fontFamily: 'monospace'
-                        }}
-                      />
-                      <Btn variant="secondary" style={{ padding: '9px 14px', fontSize: 13 }}
-                        onClick={() => { navigator.clipboard.writeText(seller?.webhook_secret); showToast('Copied!'); }}>
-                        Copy
-                      </Btn>
+          {/* ── PREFERENCES ───────────────────────────────────────────── */}
+          {section === 'preferences' && (
+            <div style={{ maxWidth: 700, margin: '0 auto' }}>
+              {/* Webhook */}
+              <div style={{ background: P.surface, borderRadius: 12, border: `1px solid ${P.border}`, overflow: 'hidden', marginBottom: 16 }}>
+                <div style={{ padding: '14px 20px', borderBottom: `1px solid ${P.border}` }}>
+                  <div style={{ fontWeight: 600, fontSize: P.fontSize, color: P.text }}>Webhook</div>
+                  <div style={{ fontSize: P.fontSize, color: P.textSubdued, marginTop: 2 }}>Receive orders from any custom store</div>
+                </div>
+                <div style={{ padding: '16px 20px' }}>
+                  {[
+                    { label: 'Webhook URL', value: `${API_BASE}/api/webhook/${seller?.webhook_secret || '...'}` },
+                    { label: 'Secret key', value: seller?.webhook_secret || '...' },
+                  ].map((item, i) => (
+                    <div key={i} style={{ marginBottom: 14 }}>
+                      <label style={{ display: 'block', fontSize: '0.6875rem', fontWeight: 600, color: P.textSubdued, textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: 6 }}>{item.label}</label>
+                      <div style={{ display: 'flex', gap: 8 }}>
+                        <input readOnly value={item.value} style={{ flex: 1, padding: '7px 12px', border: `1px solid ${P.border}`, borderRadius: 8, fontSize: P.fontSize, background: P.bg, color: P.textSubdued, fontFamily: 'monospace', outline: 'none' }}/>
+                        <Btn onClick={() => { navigator.clipboard.writeText(item.value); showToast('Copied!'); }}>Copy</Btn>
+                      </div>
                     </div>
-                  </div>
-
-                  <div style={{
-                    background: '#f0f7ff', border: '1px solid #b5d4f4',
-                    borderRadius: 8, padding: '14px 16px', fontSize: 13,
-                    color: '#0C447C', lineHeight: 1.7
-                  }}>
-                    <strong>Expected payload format:</strong><br />
-                    <code style={{ background: 'rgba(0,0,0,.06)', padding: '2px 6px', borderRadius: 4, fontSize: 11 }}>
-                      {'{ order_id, customer_name, customer_email, shipping_address, product_url, quantity, total, currency }'}
+                  ))}
+                  <div style={{ background: '#eaf4ff', border: '1px solid #b5d4f4', borderRadius: 8, padding: '12px 14px', fontSize: P.fontSize, color: '#0C447C', lineHeight: 1.7 }}>
+                    Send a <strong>POST</strong> request with JSON to receive orders automatically.<br/>
+                    <code style={{ fontSize: '0.75rem', background: 'rgba(0,0,0,0.06)', padding: '1px 5px', borderRadius: 4 }}>
+                      {'{ order_id, customer_name, customer_email, shipping_address, product_url, quantity, total }'}
                     </code>
-                    <br /><br />
-                    Send a <strong>POST</strong> request with <strong>Content-Type: application/json</strong>.
-                    Orders will appear in your dashboard automatically.
                   </div>
                 </div>
-              </Card>
+              </div>
+
+              {/* Store settings */}
+              <div style={{ background: P.surface, borderRadius: 12, border: `1px solid ${P.border}`, overflow: 'hidden' }}>
+                <div style={{ padding: '14px 20px', borderBottom: `1px solid ${P.border}` }}>
+                  <div style={{ fontWeight: 600, fontSize: P.fontSize, color: P.text }}>Store preferences</div>
+                </div>
+                <div style={{ padding: '16px 20px' }}>
+                  {[
+                    { label: 'Password protection', desc: 'Restrict access to visitors with a password', enabled: false },
+                    { label: 'Automatic redirection', desc: 'Redirect customers based on their location', enabled: true },
+                  ].map((s, i) => (
+                    <div key={i} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '12px 0', borderBottom: i === 0 ? `1px solid ${P.border}` : 'none' }}>
+                      <div>
+                        <div style={{ fontWeight: 500, fontSize: P.fontSize, color: P.text }}>{s.label}</div>
+                        <div style={{ fontSize: '0.75rem', color: P.textSubdued, marginTop: 2 }}>{s.desc}</div>
+                      </div>
+                      <div style={{ width: 36, height: 20, borderRadius: 10, background: s.enabled ? P.green : P.border, position: 'relative', cursor: 'pointer', flexShrink: 0 }}>
+                        <div style={{ width: 16, height: 16, borderRadius: '50%', background: '#fff', position: 'absolute', top: 2, left: s.enabled ? 18 : 2, transition: 'left .2s', boxShadow: '0 1px 3px rgba(0,0,0,0.2)' }}/>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
             </div>
           )}
-
         </div>
       </div>
     </Layout>
