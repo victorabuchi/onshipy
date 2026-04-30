@@ -49,9 +49,19 @@ export default function Layout({ children, title }) {
 
   const mainNav = [
     { href: '/dashboard', label: 'Home' },
-    { href: '/orders',    label: 'Orders' },
-    { href: '/products',  label: 'Products' },
-    { href: '/customers', label: 'Customers' },
+    { href: '/orders',    label: 'Orders', sub: [
+      { href: '/orders?tab=drafts', label: 'Drafts' },
+      { href: '/orders?tab=abandoned', label: 'Abandoned checkouts' },
+    ]},
+    { href: '/products',  label: 'Products', sub: [
+      { href: '/products?section=inventory', label: 'Inventory' },
+      { href: '/products?section=purchase_orders', label: 'Purchase orders' },
+      { href: '/products?section=transfers', label: 'Transfers' },
+      { href: '/products?section=gift_cards', label: 'Gift cards' },
+    ]},
+    { href: '/customers', label: 'Customers', sub: [
+      { href: '/customers?segment=segments', label: 'Segments' },
+    ]},
     { href: '/listings',  label: 'Listings' },
     { href: '/analytics', label: 'Analytics' },
     { href: '/browse',    label: 'Browse' },
@@ -84,24 +94,47 @@ export default function Layout({ children, title }) {
   const NavItem = ({ item }) => {
     const active = router.pathname === item.href ||
       (item.href !== '/dashboard' && router.pathname.startsWith(item.href));
+    const showSub = active && item.sub?.length > 0;
     return (
-      <Link href={item.href} style={{
-        display: 'flex', alignItems: 'center', gap: 10,
-        padding: '7px 12px', borderRadius: 10, marginBottom: 2,
-        background: active ? '#e8e8e8' : 'transparent',
-        color: P.text, textDecoration: 'none',
-        fontSize: P.fontSize, fontWeight: active ? '600' : P.fontWeight,
-        letterSpacing: P.letterSpacing, lineHeight: '1.5rem',
-        transition: 'background .12s',
-      }}
-        onMouseEnter={e => { if (!active) e.currentTarget.style.background = '#f0f0f0'; }}
-        onMouseLeave={e => { if (!active) e.currentTarget.style.background = 'transparent'; }}
-      >
-        <span style={{ flexShrink: 0, display: 'flex', width: 20, height: 20, alignItems: 'center', justifyContent: 'center', color: active ? P.text : P.textSubdued }}>
-          {icons[item.href]}
-        </span>
-        {item.label}
-      </Link>
+      <div style={{ marginBottom: 2 }}>
+        <Link href={item.href} style={{
+          display: 'flex', alignItems: 'center', gap: 10,
+          padding: '7px 12px', borderRadius: 10,
+          background: active ? '#e8e8e8' : 'transparent',
+          color: P.text, textDecoration: 'none',
+          fontSize: P.fontSize, fontWeight: active ? '600' : P.fontWeight,
+          letterSpacing: P.letterSpacing, lineHeight: '1.5rem',
+          transition: 'background .12s',
+        }}
+          onMouseEnter={e => { if (!active) e.currentTarget.style.background = '#f0f0f0'; }}
+          onMouseLeave={e => { if (!active) e.currentTarget.style.background = active ? '#e8e8e8' : 'transparent'; }}
+        >
+          <span style={{ flexShrink: 0, display: 'flex', width: 20, height: 20, alignItems: 'center', justifyContent: 'center', color: active ? P.text : P.textSubdued }}>
+            {icons[item.href]}
+          </span>
+          {item.label}
+        </Link>
+        {showSub && (
+          <div style={{ marginLeft: 32, marginTop: 2 }}>
+            {item.sub.map(s => {
+              const subActive = router.asPath === s.href || router.query[Object.keys(router.query)[0]] === s.href.split('=')[1];
+              return (
+                <Link key={s.href} href={s.href} style={{
+                  display: 'block', padding: '4px 10px', borderRadius: 6, marginBottom: 1,
+                  fontSize: P.fontSize, color: subActive ? P.text : P.textSubdued,
+                  fontWeight: subActive ? '600' : P.fontWeight,
+                  textDecoration: 'none', letterSpacing: P.letterSpacing,
+                  background: subActive ? '#e8e8e8' : 'transparent',
+                  transition: 'background .1s, color .1s',
+                }}
+                  onMouseEnter={e => { if (!subActive) { e.currentTarget.style.background = '#f0f0f0'; e.currentTarget.style.color = P.text; }}}
+                  onMouseLeave={e => { if (!subActive) { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.color = P.textSubdued; }}}
+                >{s.label}</Link>
+              );
+            })}
+          </div>
+        )}
+      </div>
     );
   };
 

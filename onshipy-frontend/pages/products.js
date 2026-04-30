@@ -39,7 +39,7 @@ const SUB_SECTIONS = [
 export default function Products() {
   const router = useRouter();
   const tokenRef = useRef('');
-  const [section, setSection] = useState('products');
+  const section = router.query.section || 'products';
   const [products, setProducts] = useState([]);
   const [listings, setListings] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -208,7 +208,7 @@ export default function Products() {
   // Sub-section empty states
   const EmptyState = ({ icon, title, desc, actions }) => (
     <div style={{ background: P.surface, borderRadius: 12, border: `1px solid ${P.border}`, padding: '80px 40px', textAlign: 'center' }}>
-      <div style={{ fontSize: 64, marginBottom: 16 }}>{icon}</div>
+      {icon && <div style={{ fontSize: 48, marginBottom: 16 }}>{icon}</div>}
       <div style={{ fontWeight: 650, fontSize: '1rem', color: P.text, marginBottom: 8 }}>{title}</div>
       <div style={{ fontSize: P.fontSize, color: P.textSubdued, marginBottom: 20, maxWidth: 400, margin: '0 auto 20px' }}>{desc}</div>
       <div style={{ display: 'flex', gap: 8, justifyContent: 'center' }}>{actions}</div>
@@ -242,22 +242,6 @@ export default function Products() {
       )}
 
       <div style={{ fontFamily: P.font, fontSize: P.fontSize, letterSpacing: P.letterSpacing, color: P.text, display: 'flex', height: 'calc(100vh - 56px)' }}>
-
-        {/* ── Left sub-nav (Shopify style indented under Products) ── */}
-        <div style={{ width: 200, flexShrink: 0, background: P.surface, borderRight: `1px solid ${P.border}`, padding: '12px 8px', overflowY: 'auto' }}>
-          <div style={{ fontSize: '0.6875rem', fontWeight: 600, color: P.textSubdued, textTransform: 'uppercase', letterSpacing: '0.08em', padding: '4px 10px 8px' }}>Products</div>
-          {[
-            { id: 'products', label: 'All products' },
-            { id: 'inventory', label: 'Inventory' },
-            { id: 'purchase_orders', label: 'Purchase orders' },
-            { id: 'transfers', label: 'Transfers' },
-            { id: 'gift_cards', label: 'Gift cards' },
-          ].map(s => (
-            <div key={s.id} className={`sub-link${section === s.id ? ' active' : ''}`} onClick={() => { setSection(s.id); setSelected(null); }}>
-              {s.label}
-            </div>
-          ))}
-        </div>
 
         {/* ── Main content ── */}
         <div style={{ flex: 1, overflowY: 'auto', background: P.bg, minWidth: 0 }}>
@@ -323,8 +307,10 @@ export default function Products() {
                       </div>
                       {/* Product illustration grid */}
                       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8, flexShrink: 0 }}>
-                        {['👟', '👜', '⌚', '🧴'].map((e, i) => (
-                          <div key={i} style={{ width: 80, height: 80, background: P.bg, borderRadius: 10, border: `1px solid ${P.border}`, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 32 }}>{e}</div>
+                        {[0,1,2,3].map(i => (
+                          <div key={i} style={{ width: 80, height: 80, background: P.bg, borderRadius: 10, border: `1px solid ${P.border}`, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                            <svg width="32" height="32" viewBox="0 0 20 20" fill={P.border}><path d="M10.4 2.143a1 1 0 0 0-.8 0l-7 3.11A1 1 0 0 0 2 6.167V13.833a1 1 0 0 0 .6.924l7 3.11a1 1 0 0 0 .8 0l7-3.11A1 1 0 0 0 18 13.833V6.167a1 1 0 0 0-.6-.924l-7-3.11Z"/></svg>
+                          </div>
                         ))}
                       </div>
                     </div>
@@ -427,10 +413,10 @@ export default function Products() {
             <div style={{ padding: '20px' }}>
               <h1 style={{ fontSize: '1.125rem', fontWeight: 650, color: P.text, marginBottom: 16, letterSpacing: '-0.02em' }}>Inventory</h1>
               <EmptyState
-                icon="🎒"
+                icon={null}
                 title="Keep track of your inventory"
                 desc="When you enable inventory tracking on your products, you can view and adjust their inventory counts here."
-                actions={<Btn variant="primary" onClick={() => setSection('products')}>Go to products</Btn>}
+                actions={<Btn variant="primary" onClick={() => router.push('/products')}>Go to products</Btn>}
               />
               <div style={{ textAlign: 'center', marginTop: 16, fontSize: P.fontSize }}>
                 <span style={{ color: '#2b6cb0', cursor: 'pointer' }}>Learn more about managing inventory</span>
@@ -443,7 +429,7 @@ export default function Products() {
             <div style={{ padding: '20px' }}>
               <h1 style={{ fontSize: '1.125rem', fontWeight: 650, color: P.text, marginBottom: 16, letterSpacing: '-0.02em' }}>Purchase orders</h1>
               <EmptyState
-                icon="📋"
+                icon={null}
                 title="Manage your purchase orders"
                 desc="Track and receive inventory ordered from suppliers."
                 actions={<Btn variant="primary">Create purchase order</Btn>}
@@ -462,7 +448,7 @@ export default function Products() {
                 <Btn>Transfers report</Btn>
               </div>
               <EmptyState
-                icon="↔️"
+                icon={null}
                 title="Move inventory between locations"
                 desc="Move and track inventory between your business locations."
                 actions={<Btn variant="primary">Create transfer</Btn>}
@@ -481,7 +467,7 @@ export default function Products() {
                 <Btn>Export</Btn>
               </div>
               <EmptyState
-                icon="🎁"
+                icon={null}
                 title="Start selling gift cards"
                 desc="Add gift card products to sell or create gift cards and send them directly to your customers."
                 actions={[
