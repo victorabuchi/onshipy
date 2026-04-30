@@ -276,7 +276,7 @@ export default function Layout({ children, title }) {
           flex: 1;
           background: #ffffff;
           /* Both top corners curved — right one faces the content */
-          border-radius: 14px 14px 0 0;
+          border-radius: 0 14px 0 0;
           overflow: hidden;
           display: flex;
           flex-direction: column;
