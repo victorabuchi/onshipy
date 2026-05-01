@@ -49,19 +49,14 @@ export default function Layout({ children, title }) {
 
   const mainNav = [
     { href: '/dashboard', label: 'Home' },
-    { href: '/orders',    label: 'Orders', sub: [
-      { href: '/orders?tab=drafts', label: 'Drafts' },
-      { href: '/orders?tab=abandoned', label: 'Abandoned checkouts' },
-    ]},
+    { href: '/orders',    label: 'Orders' },
     { href: '/products',  label: 'Products', sub: [
       { href: '/products?section=inventory', label: 'Inventory' },
       { href: '/products?section=purchase_orders', label: 'Purchase orders' },
       { href: '/products?section=transfers', label: 'Transfers' },
       { href: '/products?section=gift_cards', label: 'Gift cards' },
     ]},
-    { href: '/customers', label: 'Customers', sub: [
-      { href: '/customers?segment=segments', label: 'Segments' },
-    ]},
+    { href: '/customers', label: 'Customers' },
     { href: '/listings',  label: 'Listings' },
     { href: '/analytics', label: 'Analytics' },
     { href: '/browse',    label: 'Browse' },
@@ -69,7 +64,6 @@ export default function Layout({ children, title }) {
   const salesNav   = [{ href: '/online-store', label: 'Online Store' }];
   const accountNav = [
     { href: '/wallet',   label: 'Wallet' },
-    { href: '/plans',    label: 'Onshipy Plans' },
     { href: '/settings', label: 'Settings' },
   ];
 
@@ -153,16 +147,7 @@ export default function Layout({ children, title }) {
         <Divider />
         <SectionLabel label="Sales channels" />
         {salesNav.map(item => <NavItem key={item.href} item={item} />)}
-        <button onClick={() => router.push('/online-store')} style={{
-          display: 'flex', alignItems: 'center', gap: 8,
-          padding: '6px 12px', borderRadius: 10, width: '100%',
-          background: 'transparent', border: `1px dashed ${P.border}`,
-          color: P.textSubdued, fontSize: P.fontSize, cursor: 'pointer',
-          fontFamily: P.font, marginTop: 4, letterSpacing: P.letterSpacing,
-        }}>
-          <svg width="14" height="14" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-          Add sales channel
-        </button>
+
         <Divider />
         <SectionLabel label="Account" />
         {accountNav.map(item => <NavItem key={item.href} item={item} />)}
