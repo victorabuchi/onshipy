@@ -171,10 +171,9 @@ export default function Orders() {
             )}
           </div>
 
-          {/* ── THE ONLY CHANGE FROM YOUR ORIGINAL: padding wraps the orders card
-              so gray bg (#f1f1f1) shows on left, right and bottom — same as Shopify ── */}
-          <div style={{ padding: '16px 20px 60px' }}>
-            <div style={{ background: P.surface, borderRadius: 12, border: `1px solid ${P.border}`, overflow: 'hidden' }}>
+          {/* padding: top gives the red-marked gap, sides give curved card edges, bottom gives space below ── */}
+          <div style={{ padding: '16px 20px 40px' }}>
+            <div style={{ background: P.surface, borderRadius: 12, border: `1px solid ${P.border}` }}>
 
               {/* Title + actions */}
               <div style={{ padding: '14px 20px 0', display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
@@ -363,11 +362,12 @@ export default function Orders() {
                     )}
                   </>
                 )}
-              </div>
-            </div>
 
-            <div style={{ textAlign: 'center', marginTop: 20, fontSize: P.fontSize }}>
-              <span style={{ color: '#2b6cb0', cursor: 'pointer' }}>Learn more about orders</span>
+                {/* Learn more — INSIDE the card at bottom, exactly where Shopify has it (yellow mark) */}
+                <div style={{ textAlign: 'center', marginTop: 24, paddingTop: 16, borderTop: `1px solid ${P.border}` }}>
+                  <span style={{ color: '#2b6cb0', cursor: 'pointer', fontSize: P.fontSize }}>Learn more about orders</span>
+                </div>
+              </div>
             </div>
           </div>
         </div>
