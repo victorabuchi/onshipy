@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/router';
-import Head from 'next/head';
+import Layout from '../components/Layout';
 
 const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000';
 
@@ -11,577 +11,435 @@ const P = {
   fontSize: '0.8125rem', fontWeight: '450', letterSpacing: '-0.00833em',
 };
 
-const NAV = [
-  { id: 'general',           label: 'General',               icon: '🏪' },
-  { id: 'plan',              label: 'Plan',                  icon: '📋' },
-  { id: 'billing',           label: 'Billing',               icon: '💳' },
-  { id: 'users',             label: 'Users',                 icon: '👤' },
-  { id: 'payments',          label: 'Payments',              icon: '💰' },
-  { id: 'checkout',          label: 'Checkout',              icon: '🛒' },
-  { id: 'customer-accounts', label: 'Customer accounts',     icon: '👥' },
-  { id: 'shipping',          label: 'Shipping and delivery', icon: '🚚' },
-  { id: 'taxes',             label: 'Taxes and duties',      icon: '🧾' },
-  { id: 'locations',         label: 'Locations',             icon: '📍' },
-  { id: 'notifications',     label: 'Notifications',         icon: '🔔' },
-  { id: 'domains',           label: 'Domains',               icon: '🌐' },
-  { id: 'languages',         label: 'Languages',             icon: '🗣️' },
-  { id: 'policies',          label: 'Policies',              icon: '📄' },
-  { id: 'security',          label: 'Security',              icon: '🔒' },
+const Sparkline = ({ color = '#2fb3eb', up = false }) => (
+  <svg width="64" height="20" viewBox="0 0 64 20">
+    <polyline points={up ? "0,16 12,12 24,8 36,10 48,4 64,2" : "0,14 16,14 28,14 40,14 56,14 64,14"}
+      fill="none" stroke={color} strokeWidth="1.5" opacity="0.7"/>
+  </svg>
+);
+
+const STATUS_COLORS = {
+  pending:    { bg: '#fff8db', color: '#7c5a00' },
+  processing: { bg: '#eaf4ff', color: '#1d4ed8' },
+  shipped:    { bg: '#f0f2ff', color: '#4338ca' },
+  delivered:  { bg: '#cdfed4', color: '#006847' },
+  cancelled:  { bg: '#fee8eb', color: '#d82c0d' },
+  failed:     { bg: '#fee8eb', color: '#d82c0d' },
+};
+
+const Badge = ({ status }) => {
+  const s = STATUS_COLORS[status] || { bg: P.bg, color: P.textSubdued };
+  return (
+    <span style={{ fontSize: '0.6875rem', padding: '2px 8px', borderRadius: 20, background: s.bg, color: s.color, fontWeight: 600, textTransform: 'capitalize' }}>
+      {status}
+    </span>
+  );
+};
+
+const TABS = [
+  { id: 'all',         label: 'All' },
+  { id: 'unfulfilled', label: 'Unfulfilled' },
+  { id: 'drafts',      label: 'Drafts' },
+  { id: 'abandoned',   label: 'Abandoned checkouts' },
 ];
 
-const Card = ({ children, style = {} }) => (
-  <div style={{ background: P.surface, borderRadius: 12, border: `1px solid ${P.border}`, overflow: 'hidden', marginBottom: 16, ...style }}>
-    {children}
-  </div>
-);
-
-const CardHead = ({ title, subtitle }) => (
-  <div style={{ padding: '14px 20px', borderBottom: `1px solid ${P.border}` }}>
-    <div style={{ fontWeight: 600, fontSize: P.fontSize, color: P.text }}>{title}</div>
-    {subtitle && <div style={{ fontSize: P.fontSize, color: P.textSubdued, marginTop: 2 }}>{subtitle}</div>}
-  </div>
-);
-
-const Inp = ({ label, value, onChange, type = 'text', placeholder, prefix, readOnly }) => (
-  <div>
-    {label && <label style={{ display: 'block', fontSize: P.fontSize, fontWeight: 500, color: P.text, marginBottom: 5 }}>{label}</label>}
-    {prefix ? (
-      <div style={{ display: 'flex', border: `1px solid ${P.border}`, borderRadius: 8, overflow: 'hidden' }}>
-        <span style={{ padding: '7px 12px', background: P.bg, fontSize: P.fontSize, color: P.textSubdued, borderRight: `1px solid ${P.border}`, whiteSpace: 'nowrap' }}>{prefix}</span>
-        <input value={value} onChange={onChange} placeholder={placeholder} readOnly={readOnly}
-          style={{ flex: 1, padding: '7px 12px', border: 'none', outline: 'none', fontSize: P.fontSize, fontFamily: P.font, color: P.text, background: readOnly ? P.bg : P.surface }}/>
-      </div>
-    ) : (
-      <input type={type} value={value} onChange={onChange} placeholder={placeholder} readOnly={readOnly}
-        style={{ width: '100%', padding: '7px 12px', border: `1px solid ${P.border}`, borderRadius: 8, fontSize: P.fontSize, outline: 'none', fontFamily: P.font, color: P.text, background: readOnly ? P.bg : P.surface, boxSizing: 'border-box' }}/>
-    )}
-  </div>
-);
-
-const SaveBtn = ({ onClick, saving, label = 'Save' }) => (
-  <button onClick={onClick} disabled={saving} style={{
-    padding: '7px 18px', background: saving ? P.bg : P.text, color: saving ? P.textSubdued : '#fff',
-    border: `1px solid ${P.border}`, borderRadius: 8, fontSize: P.fontSize, fontWeight: 500,
-    cursor: saving ? 'not-allowed' : 'pointer', fontFamily: P.font,
-  }}>{saving ? 'Saving...' : label}</button>
-);
-
-const Toggle = ({ on, onChange }) => (
-  <div onClick={onChange} style={{ width: 36, height: 20, background: on ? P.green : P.border, borderRadius: 10, cursor: 'pointer', position: 'relative', transition: 'background .2s', flexShrink: 0 }}>
-    <div style={{ position: 'absolute', top: 2, left: on ? 18 : 2, width: 16, height: 16, background: '#fff', borderRadius: '50%', transition: 'left .2s', boxShadow: '0 1px 3px rgba(0,0,0,0.2)' }}/>
-  </div>
-);
-
-const ComingSoon = ({ title }) => (
-  <div>
-    <h1 style={{ fontSize: '1.125rem', fontWeight: 650, color: P.text, margin: '0 0 16px', letterSpacing: '-0.02em' }}>{title}</h1>
-    <Card>
-      <div style={{ padding: '60px 40px', textAlign: 'center' }}>
-        <div style={{ fontSize: '28px', marginBottom: 12 }}>🔧</div>
-        <div style={{ fontWeight: 600, fontSize: '0.9375rem', color: P.text, marginBottom: 6 }}>{title} settings</div>
-        <div style={{ fontSize: P.fontSize, color: P.textSubdued }}>This section is coming soon.</div>
-      </div>
-    </Card>
-  </div>
-);
-
-export default function Settings() {
+export default function Orders() {
   const router = useRouter();
-  const active = router.query.section || null; // null = show nav list on mobile
   const tokenRef = useRef('');
-  const [seller, setSeller] = useState(null);
-  const [form, setForm] = useState({ full_name: '', email: '', store_name: '', store_url: '' });
-  const [pwForm, setPwForm] = useState({ current_password: '', new_password: '', confirm_password: '' });
-  const [saving, setSaving] = useState(false);
-  const [toast, setToast] = useState(null);
-  const [notifs, setNotifs] = useState({
-    new_order: true, order_shipped: true, price_change: true,
-    out_of_stock: true, auto_buy_failed: true, weekly_summary: false, marketing: false
-  });
+  const [orders, setOrders] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [tab, setTab] = useState('all');
+  const [search, setSearch] = useState('');
+  const [selected, setSelected] = useState(null);
+  const [sortBy, setSortBy] = useState('date');
+  const [sortDir, setSortDir] = useState('desc');
+  const [showAnalytics, setShowAnalytics] = useState(true);
 
   useEffect(() => {
     const t = localStorage.getItem('onshipy_token');
-    const s = localStorage.getItem('onshipy_seller');
     if (!t) { router.push('/login'); return; }
     tokenRef.current = t;
-    if (s) {
-      try {
-        const sd = JSON.parse(s);
-        setSeller(sd);
-        setForm({ full_name: sd.full_name || '', email: sd.email || '', store_name: sd.store_name || '', store_url: sd.store_url || '' });
-      } catch {}
-    }
+    fetch(`${API_BASE}/api/orders`, { headers: { Authorization: `Bearer ${t}` } })
+      .then(r => r.json())
+      .then(data => { if (data.orders) setOrders(data.orders); })
+      .catch(console.error)
+      .finally(() => setLoading(false));
   }, []);
 
-  const showToast = (msg, err = false) => {
-    setToast({ msg, err });
-    setTimeout(() => setToast(null), 4000);
+  const toggleSort = (col) => {
+    if (sortBy === col) setSortDir(d => d === 'asc' ? 'desc' : 'asc');
+    else { setSortBy(col); setSortDir('desc'); }
   };
 
-  const handleSave = async (body) => {
-    setSaving(true);
-    try {
-      const res = await fetch(`${API_BASE}/api/sellers/profile`, {
-        method: 'PATCH',
-        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${tokenRef.current}` },
-        body: JSON.stringify(body)
-      });
-      const data = await res.json();
-      if (!res.ok) { showToast(data.error || 'Save failed', true); return; }
-      const updated = { ...seller, ...data.seller };
-      setSeller(updated);
-      localStorage.setItem('onshipy_seller', JSON.stringify(updated));
-      showToast('Changes saved');
-    } catch { showToast('Connection error', true); }
-    setSaving(false);
+  const SortArrow = ({ col }) => sortBy !== col ? null : (
+    <svg width="10" height="10" viewBox="0 0 10 10" fill={P.textSubdued} style={{ marginLeft: 3 }}>
+      {sortDir === 'asc' ? <path d="M5 2L8 7H2Z"/> : <path d="M5 8L2 3H8Z"/>}
+    </svg>
+  );
+
+  const tabFiltered = orders.filter(o => {
+    if (tab === 'unfulfilled') return ['pending','processing'].includes(o.status);
+    if (tab === 'drafts') return o.status === 'draft';
+    if (tab === 'abandoned') return o.status === 'abandoned';
+    return true;
+  });
+
+  const searched = search
+    ? tabFiltered.filter(o =>
+        (o.customer_name || '').toLowerCase().includes(search.toLowerCase()) ||
+        (o.customer_email || '').toLowerCase().includes(search.toLowerCase()) ||
+        (o.storefront_order_id || o.id || '').toLowerCase().includes(search.toLowerCase())
+      )
+    : tabFiltered;
+
+  const sorted = [...searched].sort((a, b) => {
+    let av, bv;
+    if (sortBy === 'date') { av = new Date(a.created_at); bv = new Date(b.created_at); }
+    else if (sortBy === 'amount') { av = parseFloat(a.amount_paid || 0); bv = parseFloat(b.amount_paid || 0); }
+    else if (sortBy === 'customer') { av = a.customer_name || ''; bv = b.customer_name || ''; return sortDir === 'asc' ? av.localeCompare(bv) : bv.localeCompare(av); }
+    else return 0;
+    return sortDir === 'asc' ? av - bv : bv - av;
+  });
+
+  const today = new Date(); today.setHours(0,0,0,0);
+  const todayOrders = orders.filter(o => new Date(o.created_at) >= today);
+  const totalRevenue = orders.reduce((s, o) => s + parseFloat(o.amount_paid || 0), 0);
+  const fulfilled = orders.filter(o => o.status === 'delivered').length;
+  const returned = orders.filter(o => o.status === 'cancelled').length;
+  const avgOrderVal = orders.length > 0 ? (totalRevenue / orders.length).toFixed(2) : '0.00';
+
+  const kpis = [
+    { label: 'Orders',           value: orders.length, sub: `${todayOrders.length} today`, spark: true },
+    { label: 'Items ordered',    value: orders.reduce((s, o) => s + (o.quantity || 1), 0), sub: '—', spark: false },
+    { label: 'Returns',          value: `€${returned > 0 ? (returned * 50).toFixed(2) : '0'}`, sub: '—', spark: false },
+    { label: 'Orders fulfilled', value: fulfilled, sub: '—', spark: true },
+    { label: 'Orders delivered', value: fulfilled, sub: '—', spark: true },
+    { label: 'Avg order value',  value: `$${avgOrderVal}`, sub: '—', spark: false },
+  ];
+
+  const th = {
+    padding: '8px 14px', fontSize: '0.6875rem', fontWeight: 600, color: P.textSubdued,
+    textTransform: 'uppercase', letterSpacing: '0.06em', textAlign: 'left',
+    borderBottom: `1px solid ${P.border}`, background: '#fafafa',
+    cursor: 'pointer', userSelect: 'none', fontFamily: P.font,
   };
-
-  const handlePassword = async () => {
-    if (pwForm.new_password !== pwForm.confirm_password) { showToast('Passwords do not match', true); return; }
-    if (pwForm.new_password.length < 8) { showToast('Min 8 characters', true); return; }
-    setSaving(true);
-    try {
-      const res = await fetch(`${API_BASE}/api/sellers/password`, {
-        method: 'PATCH',
-        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${tokenRef.current}` },
-        body: JSON.stringify({ current_password: pwForm.current_password, new_password: pwForm.new_password })
-      });
-      const data = await res.json();
-      if (!res.ok) { showToast(data.error || 'Failed', true); return; }
-      setPwForm({ current_password: '', new_password: '', confirm_password: '' });
-      showToast('Password updated');
-    } catch { showToast('Connection error', true); }
-    setSaving(false);
-  };
-
-  const goSection = (id) => router.push(`/settings?section=${id}`, undefined, { shallow: true });
-  const goBack    = () => router.push('/settings', undefined, { shallow: true });
-  const initials  = seller?.full_name?.split(' ').map(w => w[0]).join('').toUpperCase().slice(0, 2) || 'U';
-  const activeNav = NAV.find(n => n.id === active);
-
-  const SectionContent = () => {
-    if (active === 'general') return (
-      <div style={{ maxWidth: 700 }}>
-        <h1 style={{ fontSize: '1.125rem', fontWeight: 650, color: P.text, margin: '0 0 16px', letterSpacing: '-0.02em' }}>General</h1>
-        <Card>
-          <CardHead title="Store contact details" subtitle="Used for customer communications"/>
-          <div style={{ padding: '18px 20px', display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: 14 }}>
-            <Inp label="Store name" value={form.store_name} onChange={e => setForm({ ...form, store_name: e.target.value })} placeholder="My Store"/>
-            <Inp label="Contact email" value={form.email} onChange={e => setForm({ ...form, email: e.target.value })} type="email"/>
-            <div style={{ gridColumn: '1 / -1' }}>
-              <Inp label="Store URL" value={form.store_url} onChange={e => setForm({ ...form, store_url: e.target.value })} prefix="onshipy.com/store/" placeholder="my-store"/>
-            </div>
-          </div>
-          <div style={{ padding: '0 20px 18px', display: 'flex', justifyContent: 'flex-end' }}>
-            <SaveBtn onClick={() => handleSave(form)} saving={saving}/>
-          </div>
-        </Card>
-        <Card>
-          <CardHead title="Store defaults"/>
-          <div style={{ padding: '18px 20px' }}>
-            <div style={{ maxWidth: 240 }}>
-              <label style={{ display: 'block', fontSize: P.fontSize, fontWeight: 500, color: P.text, marginBottom: 5 }}>Default currency</label>
-              <select style={{ width: '100%', padding: '7px 12px', border: `1px solid ${P.border}`, borderRadius: 8, fontSize: P.fontSize, outline: 'none', fontFamily: P.font, color: P.text, background: P.surface }}>
-                <option>USD — US Dollar</option><option>EUR — Euro</option><option>GBP — British Pound</option>
-                <option>NGN — Nigerian Naira</option><option>CAD — Canadian Dollar</option><option>AUD — Australian Dollar</option>
-              </select>
-            </div>
-          </div>
-          <div style={{ padding: '0 20px 18px', display: 'flex', justifyContent: 'flex-end' }}>
-            <SaveBtn onClick={() => showToast('Saved')} saving={saving}/>
-          </div>
-        </Card>
-      </div>
-    );
-
-    if (active === 'plan') return (
-      <div style={{ maxWidth: 880 }}>
-        <h1 style={{ fontSize: '1.125rem', fontWeight: 650, color: P.text, margin: '0 0 16px', letterSpacing: '-0.02em' }}>Plan</h1>
-        <Card>
-          <div style={{ padding: '14px 20px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-            <div>
-              <div style={{ fontWeight: 600, fontSize: '0.9375rem', color: P.text }}>Onshipy {seller?.plan ? seller.plan.charAt(0).toUpperCase() + seller.plan.slice(1) : 'Free'}</div>
-              <div style={{ fontSize: P.fontSize, color: P.textSubdued, marginTop: 2 }}>Your current plan</div>
-            </div>
-            <span style={{ padding: '3px 12px', background: '#cdfed4', color: '#006847', borderRadius: 20, fontSize: '0.6875rem', fontWeight: 600, textTransform: 'capitalize' }}>{seller?.plan || 'free'}</span>
-          </div>
-        </Card>
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: 12 }}>
-          {[
-            { id: 'free', name: 'Free', price: '$0', period: 'forever', color: P.textSubdued, features: ['5 product imports', '1 connected store', 'Basic scraper', 'Email support'] },
-            { id: 'pro', name: 'Pro', price: '$29', period: 'per month', color: P.green, popular: true, features: ['Unlimited imports', '3 stores', 'Auto-buy engine', 'Analytics', 'Priority support'] },
-            { id: 'enterprise', name: 'Enterprise', price: '$99', period: 'per month', color: '#7c3aed', features: ['Everything in Pro', '10 stores', 'API access', 'White label', 'Dedicated manager'] },
-          ].map((plan) => {
-            const isCurrent = (seller?.plan || 'free') === plan.id;
-            return (
-              <div key={plan.id} style={{ background: P.surface, borderRadius: 12, border: isCurrent ? `2px solid ${plan.color}` : `1px solid ${P.border}`, padding: 20, position: 'relative' }}>
-                {isCurrent && <div style={{ position: 'absolute', top: -10, left: 14, background: plan.color, color: '#fff', padding: '2px 10px', borderRadius: 20, fontSize: '0.625rem', fontWeight: 700, textTransform: 'uppercase' }}>CURRENT</div>}
-                {plan.popular && !isCurrent && <div style={{ position: 'absolute', top: -10, right: 14, background: P.green, color: '#fff', padding: '2px 10px', borderRadius: 20, fontSize: '0.625rem', fontWeight: 700, textTransform: 'uppercase' }}>POPULAR</div>}
-                <div style={{ fontWeight: 700, fontSize: '0.9375rem', color: P.text, marginBottom: 2 }}>{plan.name}</div>
-                <div style={{ display: 'flex', alignItems: 'baseline', gap: 4, marginBottom: 14 }}>
-                  <span style={{ fontSize: '1.75rem', fontWeight: 800, color: plan.color, letterSpacing: '-0.03em' }}>{plan.price}</span>
-                  <span style={{ fontSize: P.fontSize, color: P.textSubdued }}>{plan.period}</span>
-                </div>
-                {plan.features.map((f, i) => (
-                  <div key={i} style={{ display: 'flex', gap: 8, marginBottom: 6, fontSize: P.fontSize, color: P.textSubdued }}>
-                    <span style={{ color: P.green }}>✓</span>{f}
-                  </div>
-                ))}
-                {!isCurrent ? (
-                  <button onClick={() => router.push('/plans')} style={{ width: '100%', marginTop: 14, padding: 8, background: plan.color, color: '#fff', border: 'none', borderRadius: 8, cursor: 'pointer', fontWeight: 600, fontSize: P.fontSize, fontFamily: P.font }}>
-                    Upgrade to {plan.name}
-                  </button>
-                ) : (
-                  <button disabled style={{ width: '100%', marginTop: 14, padding: 8, background: P.bg, color: P.textSubdued, border: `1px solid ${P.border}`, borderRadius: 8, cursor: 'not-allowed', fontWeight: 500, fontSize: P.fontSize, fontFamily: P.font }}>Current plan</button>
-                )}
-              </div>
-            );
-          })}
-        </div>
-      </div>
-    );
-
-    if (active === 'billing') return (
-      <div style={{ maxWidth: 700 }}>
-        <h1 style={{ fontSize: '1.125rem', fontWeight: 650, color: P.text, margin: '0 0 16px', letterSpacing: '-0.02em' }}>Billing</h1>
-        <Card>
-          <CardHead title="Payment method"/>
-          <div style={{ padding: '18px 20px' }}>
-            <div style={{ border: `1px solid ${P.border}`, borderRadius: 8, padding: '14px 16px', marginBottom: 14, fontSize: P.fontSize, color: P.textSubdued }}>No payment method added yet</div>
-            <button onClick={() => router.push('/plans')} style={{ padding: '7px 16px', background: P.text, color: '#fff', border: 'none', borderRadius: 8, cursor: 'pointer', fontSize: P.fontSize, fontWeight: 500, fontFamily: P.font }}>Add payment method</button>
-          </div>
-        </Card>
-        <Card>
-          <CardHead title="Billing history"/>
-          <div style={{ padding: '48px 40px', textAlign: 'center', color: P.textSubdued, fontSize: P.fontSize }}>No billing history yet</div>
-        </Card>
-      </div>
-    );
-
-    if (active === 'users') return (
-      <div style={{ maxWidth: 700 }}>
-        <h1 style={{ fontSize: '1.125rem', fontWeight: 650, color: P.text, margin: '0 0 16px', letterSpacing: '-0.02em' }}>Users</h1>
-        <Card>
-          <CardHead title="Store owner" subtitle="Manage your account details"/>
-          <div style={{ padding: '18px 20px' }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 14, marginBottom: 20, paddingBottom: 18, borderBottom: `1px solid ${P.border}` }}>
-              <div style={{ width: 50, height: 50, background: P.green, borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', fontSize: '1.125rem', fontWeight: 700, flexShrink: 0 }}>{initials}</div>
-              <div>
-                <div style={{ fontWeight: 650, fontSize: '0.9375rem', color: P.text }}>{seller?.full_name}</div>
-                <div style={{ fontSize: P.fontSize, color: P.textSubdued }}>{seller?.email}</div>
-                <span style={{ fontSize: '0.6875rem', padding: '2px 8px', background: '#cdfed4', color: '#006847', borderRadius: 20, fontWeight: 600, textTransform: 'uppercase', display: 'inline-block', marginTop: 4 }}>{seller?.plan || 'free'} plan</span>
-              </div>
-            </div>
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: 14, marginBottom: 16 }}>
-              <Inp label="Full name" value={form.full_name} onChange={e => setForm({ ...form, full_name: e.target.value })}/>
-              <Inp label="Email address" value={form.email} onChange={e => setForm({ ...form, email: e.target.value })} type="email"/>
-            </div>
-            <SaveBtn onClick={() => handleSave({ full_name: form.full_name, email: form.email, store_name: form.store_name })} saving={saving} label="Save changes"/>
-          </div>
-        </Card>
-      </div>
-    );
-
-    if (active === 'payments') return (
-      <div style={{ maxWidth: 700 }}>
-        <h1 style={{ fontSize: '1.125rem', fontWeight: 650, color: P.text, margin: '0 0 16px', letterSpacing: '-0.02em' }}>Payments</h1>
-        <Card>
-          <CardHead title="Payment providers" subtitle="Accept payments from your customers"/>
-          {[
-            { name: 'Stripe', desc: 'Credit cards, Apple Pay, Google Pay worldwide' },
-            { name: 'PayPal', desc: 'PayPal and Venmo payments' },
-            { name: 'Paystack', desc: 'Cards, bank transfer, USSD across Africa' },
-          ].map((p, i, arr) => (
-            <div key={i} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '14px 20px', borderBottom: i < arr.length - 1 ? `1px solid ${P.border}` : 'none', background: P.surface }}>
-              <div>
-                <div style={{ fontWeight: 500, fontSize: P.fontSize, color: P.text }}>{p.name}</div>
-                <div style={{ fontSize: '0.75rem', color: P.textSubdued, marginTop: 2 }}>{p.desc}</div>
-              </div>
-              <button style={{ padding: '6px 14px', background: P.surface, border: `1px solid ${P.border}`, borderRadius: 8, cursor: 'pointer', fontSize: P.fontSize, fontWeight: 500, fontFamily: P.font, color: P.text }}>Connect</button>
-            </div>
-          ))}
-        </Card>
-      </div>
-    );
-
-    if (active === 'notifications') return (
-      <div style={{ maxWidth: 700 }}>
-        <h1 style={{ fontSize: '1.125rem', fontWeight: 650, color: P.text, margin: '0 0 16px', letterSpacing: '-0.02em' }}>Notifications</h1>
-        <Card>
-          <CardHead title="Email notifications" subtitle="Choose which events trigger an email"/>
-          {[
-            { key: 'new_order', label: 'New order received', desc: 'When a customer places an order' },
-            { key: 'order_shipped', label: 'Order shipped', desc: 'When tracking is added to an order' },
-            { key: 'price_change', label: 'Price change alert', desc: 'When source price changes' },
-            { key: 'out_of_stock', label: 'Out of stock alert', desc: 'When a source product goes out of stock' },
-            { key: 'auto_buy_failed', label: 'Auto-buy failed', desc: 'When automatic purchase fails' },
-            { key: 'weekly_summary', label: 'Weekly summary', desc: 'Weekly performance report' },
-            { key: 'marketing', label: 'Marketing emails', desc: 'Tips, updates and new features' },
-          ].map((n, i, arr) => (
-            <div key={n.key} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '13px 20px', borderBottom: i < arr.length - 1 ? `1px solid ${P.border}` : 'none', background: P.surface }}>
-              <div>
-                <div style={{ fontSize: P.fontSize, fontWeight: 500, color: P.text }}>{n.label}</div>
-                <div style={{ fontSize: '0.75rem', color: P.textSubdued, marginTop: 2 }}>{n.desc}</div>
-              </div>
-              <Toggle on={notifs[n.key]} onChange={() => setNotifs(prev => ({ ...prev, [n.key]: !prev[n.key] }))}/>
-            </div>
-          ))}
-        </Card>
-      </div>
-    );
-
-    if (active === 'domains') return (
-      <div style={{ maxWidth: 700 }}>
-        <h1 style={{ fontSize: '1.125rem', fontWeight: 650, color: P.text, margin: '0 0 16px', letterSpacing: '-0.02em' }}>Domains</h1>
-        <Card>
-          <CardHead title="Your domains"/>
-          <div style={{ padding: '18px 20px' }}>
-            {[
-              { domain: 'onshipy.com', type: 'Primary domain' },
-              { domain: 'api.onshipy.com', type: 'API subdomain' },
-              { domain: 'www.onshipy.com', type: 'Redirect' },
-            ].map((d, i) => (
-              <div key={i} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '12px 14px', background: P.bg, borderRadius: 8, marginBottom: 8, border: `1px solid ${P.border}` }}>
-                <div>
-                  <div style={{ fontWeight: 500, fontSize: P.fontSize, color: P.text }}>{d.domain}</div>
-                  <div style={{ fontSize: '0.75rem', color: P.textSubdued }}>{d.type}</div>
-                </div>
-                <span style={{ fontSize: '0.6875rem', padding: '2px 8px', borderRadius: 20, background: '#cdfed4', color: '#006847', fontWeight: 600 }}>Active</span>
-              </div>
-            ))}
-            <button style={{ marginTop: 8, padding: '7px 16px', background: P.text, color: '#fff', border: 'none', borderRadius: 8, cursor: 'pointer', fontSize: P.fontSize, fontWeight: 500, fontFamily: P.font }}>
-              Connect existing domain
-            </button>
-          </div>
-        </Card>
-      </div>
-    );
-
-    if (active === 'policies') return (
-      <div style={{ maxWidth: 700 }}>
-        <h1 style={{ fontSize: '1.125rem', fontWeight: 650, color: P.text, margin: '0 0 16px', letterSpacing: '-0.02em' }}>Policies</h1>
-        <Card>
-          <CardHead title="Store policies" subtitle="Build trust with your customers"/>
-          {['Refund policy', 'Privacy policy', 'Terms of service', 'Shipping policy', 'Contact information'].map((policy, i, arr) => (
-            <div key={i} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '13px 20px', borderBottom: i < arr.length - 1 ? `1px solid ${P.border}` : 'none', cursor: 'pointer', background: P.surface }}>
-              <div style={{ fontSize: P.fontSize, fontWeight: 500, color: P.text }}>{policy}</div>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                <span style={{ fontSize: P.fontSize, color: P.textSubdued }}>Not created</span>
-                <svg width="12" height="12" fill="none" stroke={P.textSubdued} strokeWidth="2" viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg>
-              </div>
-            </div>
-          ))}
-        </Card>
-      </div>
-    );
-
-    if (active === 'security') return (
-      <div style={{ maxWidth: 700 }}>
-        <h1 style={{ fontSize: '1.125rem', fontWeight: 650, color: P.text, margin: '0 0 16px', letterSpacing: '-0.02em' }}>Security</h1>
-        <Card>
-          <CardHead title="Change password" subtitle="Use a strong password of at least 8 characters"/>
-          <div style={{ padding: '18px 20px', maxWidth: 400 }}>
-            {[{ label: 'Current password', key: 'current_password' }, { label: 'New password', key: 'new_password' }, { label: 'Confirm new password', key: 'confirm_password' }].map(f => (
-              <div key={f.key} style={{ marginBottom: 12 }}>
-                <Inp label={f.label} type="password" value={pwForm[f.key]} onChange={e => setPwForm({ ...pwForm, [f.key]: e.target.value })} placeholder="••••••••"/>
-              </div>
-            ))}
-            <SaveBtn onClick={handlePassword} saving={saving} label="Update password"/>
-          </div>
-        </Card>
-        <Card>
-          <CardHead title="Login sessions" subtitle="Manage where you're logged in"/>
-          <div style={{ padding: '14px 20px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-            <div>
-              <div style={{ fontSize: P.fontSize, fontWeight: 500, color: P.text }}>Current session</div>
-              <div style={{ fontSize: '0.75rem', color: P.textSubdued, marginTop: 2 }}>Active now</div>
-            </div>
-            <span style={{ fontSize: '0.6875rem', padding: '2px 8px', borderRadius: 20, background: '#cdfed4', color: '#006847', fontWeight: 600 }}>Active</span>
-          </div>
-        </Card>
-      </div>
-    );
-
-    return <ComingSoon title={activeNav?.label || 'Settings'}/>;
+  const td = {
+    padding: '11px 14px', fontSize: P.fontSize, borderBottom: `1px solid ${P.border}`,
+    verticalAlign: 'middle', color: P.text, letterSpacing: P.letterSpacing,
   };
 
   return (
-    <>
-      <Head>
-        <title>Settings — Onshipy</title>
-        <link rel="icon" type="image/png" href="/favicon.png"/>
-        <link rel="preconnect" href="https://fonts.googleapis.com"/>
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous"/>
-        <link href="https://fonts.googleapis.com/css2?family=Inter:wght@100..900&display=swap" rel="stylesheet"/>
-      </Head>
-
+    <Layout title="Orders">
       <style>{`
-        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-        html, body {
-          font-family: "Inter var","Inter",-apple-system,BlinkMacSystemFont,sans-serif;
-          font-size: 0.8125rem; font-weight: 450; letter-spacing: -0.00833em;
-          color: rgba(48,48,48,1); background: #f1f1f1;
-          -webkit-font-smoothing: antialiased;
+        .ord-row:hover { background: #fafafa !important; }
+        .ord-tab {
+          padding: 8px 14px; background: none; border: none;
+          border-bottom: 2px solid transparent;
+          font-size: ${P.fontSize}; color: ${P.textSubdued};
+          cursor: pointer; font-family: ${P.font};
+          letter-spacing: ${P.letterSpacing}; font-weight: ${P.fontWeight};
+          white-space: nowrap; transition: color .1s;
         }
-        .row-hover:hover { background: #f7f7f7; }
-
-        /* ── TOPBAR ── */
-        .st-topbar {
-          position: fixed; top: 0; left: 0; right: 0; height: 56px;
-          background: #1a1a1a; z-index: 500;
-          display: flex; align-items: center; padding: 0 16px; gap: 12px;
-        }
-
-        /* ── DESKTOP: side by side ── */
-        .st-shell {
-          display: flex; min-height: 100vh; padding-top: 56px;
-        }
-        .st-nav {
-          width: 260px; flex-shrink: 0; background: #fff;
-          border-right: 1px solid rgba(227,227,227,1);
-          min-height: calc(100vh - 56px); overflow-y: auto;
-          position: sticky; top: 56px; align-self: flex-start;
-          height: calc(100vh - 56px);
-        }
-        .st-content {
-          flex: 1; padding: 24px 28px 60px; min-width: 0; background: #f1f1f1;
-        }
-
-        /* ── MOBILE: full-screen list then full-screen content ── */
-        @media (max-width: 767px) {
-          .st-shell { flex-direction: column; }
-          /* Nav takes full screen on mobile when no section selected */
-          .st-nav {
-            width: 100%; min-height: auto; height: auto;
-            position: static; border-right: none;
-            border-bottom: 1px solid rgba(227,227,227,1);
-          }
-          .st-nav.mob-hidden { display: none; }
-          .st-content { padding: 0 0 40px; }
-          .st-content.mob-hidden { display: none; }
-        }
+        .ord-tab.active { color: ${P.text}; font-weight: 600; border-bottom-color: ${P.text}; }
+        .ord-tab:hover:not(.active) { color: ${P.text}; }
+        @keyframes fadeIn { from { opacity:0; transform:translateY(4px); } to { opacity:1; transform:translateY(0); } }
       `}</style>
 
-      {toast && (
-        <div style={{ position: 'fixed', top: 72, right: 16, background: toast.err ? '#d82c0d' : P.text, color: '#fff', padding: '10px 16px', borderRadius: 8, fontSize: P.fontSize, fontWeight: 500, zIndex: 9999, boxShadow: '0 4px 16px rgba(0,0,0,0.2)', fontFamily: P.font }}>
-          {toast.err ? '' : '✓ '}{toast.msg}
-        </div>
-      )}
+      {/*
+        EXACT SHOPIFY STRUCTURE:
+        - Outer = white (#fff), full width, no card/border/radius
+        - Analytics bar: edge to edge, white bg, border-bottom only
+        - Content: white, padded 20px sides
+        - "Learn more": in the GRAY area below, not inside white content
+      */}
+      <div style={{ fontFamily: P.font, fontSize: P.fontSize, letterSpacing: P.letterSpacing, color: P.text, display: 'flex', minHeight: 'calc(100vh - 56px)' }}>
+        <div style={{ flex: 1, minWidth: 0, display: 'flex', flexDirection: 'column', overflowX: 'hidden' }}>
 
-      {/* ── TOPBAR ── */}
-      <div className="st-topbar">
-        <button
-          onClick={() => active ? goBack() : router.push('/dashboard')}
-          style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'rgba(255,255,255,0.7)', display: 'flex', padding: 6, borderRadius: 6 }}
-        >
-          <svg width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
-            <line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/>
-          </svg>
-        </button>
-        <div style={{ flex: 1, display: 'flex', justifyContent: 'center' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 8, background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.13)', borderRadius: 624, padding: '0 14px', height: 34, maxWidth: 480, width: '100%' }}>
-            <svg width="14" height="14" fill="none" stroke="rgba(255,255,255,0.45)" strokeWidth="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-            <span style={{ fontSize: P.fontSize, color: 'rgba(255,255,255,0.35)', flex: 1 }}>Search</span>
-          </div>
-        </div>
-        <div style={{ width: 30, height: 30, background: P.green, borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', fontWeight: 700, fontSize: 11, cursor: 'pointer' }}>
-          {initials}
-        </div>
-      </div>
+          {/* ── 1. WHITE CONTENT AREA (no card, no border, no radius — exactly Shopify) ── */}
+          <div style={{ background: P.surface, flex: '0 0 auto' }}>
 
-      {/* ── MAIN SHELL ── */}
-      <div className="st-shell">
-
-        {/* ── LEFT NAV — hidden on mobile when a section is active ── */}
-        <div className={`st-nav${active ? ' mob-hidden' : ''}`}>
-          {/* Header */}
-          <div style={{ padding: '14px 16px', borderBottom: `1px solid ${P.border}` }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 12 }}>
-              <svg width="20" height="20" viewBox="0 0 20 20" fill={P.textSubdued}><path d="M11.013 2.513a1.75 1.75 0 0 0-2.027 0l-1.5 1.134a1.75 1.75 0 0 1-.59.28l-1.84.44a1.75 1.75 0 0 0-1.433 1.79l.065 1.9a1.75 1.75 0 0 1-.165.67l-.8 1.7a1.75 1.75 0 0 0 .492 2.21l1.49 1.147a1.75 1.75 0 0 1 .485.572l.84 1.716a1.75 1.75 0 0 0 2.127.817l1.78-.608a1.75 1.75 0 0 1 1.13 0l1.78.608a1.75 1.75 0 0 0 2.127-.817l.84-1.716a1.75 1.75 0 0 1 .485-.572l1.49-1.147a1.75 1.75 0 0 0 .492-2.21l-.8-1.7a1.75 1.75 0 0 1-.165-.67l.065-1.9a1.75 1.75 0 0 0-1.434-1.79l-1.84-.44a1.75 1.75 0 0 1-.59-.28l-1.499-1.134Z"/></svg>
-              <span style={{ fontWeight: 650, fontSize: '1rem', color: P.text }}>Settings</span>
-            </div>
-            {/* Store pill */}
-            <div style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '8px 10px', background: P.bg, borderRadius: 8, border: `1px solid ${P.border}` }}>
-              <div style={{ width: 32, height: 32, background: P.green, borderRadius: 8, display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', fontWeight: 700, fontSize: 13, flexShrink: 0 }}>
-                {seller?.store_name?.[0]?.toUpperCase() || 'O'}
+            {/* Analytics bar — edge to edge, white, border-bottom */}
+            {showAnalytics && (
+              <div style={{ borderBottom: `1px solid ${P.border}`, overflowX: 'auto', scrollbarWidth: 'none' }}>
+                <div style={{ display: 'flex', minWidth: 'max-content' }}>
+                  {/* Today pill */}
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '10px 16px', borderRight: `1px solid ${P.border}`, flexShrink: 0 }}>
+                    <svg width="14" height="14" viewBox="0 0 20 20" fill={P.textSubdued}>
+                      <path d="M5.75 2a.75.75 0 0 1 .75.75V4h7V2.75a.75.75 0 0 1 1.5 0V4H16a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h1V2.75A.75.75 0 0 1 5.75 2ZM3.5 8v8a.5.5 0 0 0 .5.5h12a.5.5 0 0 0 .5-.5V8h-13Z"/>
+                    </svg>
+                    <span style={{ fontSize: P.fontSize, color: P.text, fontWeight: 500 }}>Today</span>
+                  </div>
+                  {kpis.map((kpi, i) => (
+                    <div key={i} style={{ padding: '10px 20px', borderRight: `1px solid ${P.border}`, flexShrink: 0, minWidth: 140 }}>
+                      <div style={{ fontSize: '0.75rem', color: P.textSubdued, marginBottom: 2 }}>{kpi.label}</div>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                        <span style={{ fontSize: '1rem', fontWeight: 650, color: P.text, letterSpacing: '-0.02em' }}>{kpi.value}</span>
+                        <span style={{ fontSize: P.fontSize, color: P.textSubdued }}>{kpi.sub}</span>
+                      </div>
+                      <Sparkline color="#2fb3eb" up={kpi.spark && kpi.value > 0} />
+                    </div>
+                  ))}
+                  {/* Hide analytics button */}
+                  <div style={{ padding: '10px 14px', display: 'flex', alignItems: 'flex-start', flexShrink: 0 }}>
+                    <button
+                      onClick={() => setShowAnalytics(false)}
+                      style={{ display: 'flex', alignItems: 'center', gap: 5, background: 'none', border: 'none', cursor: 'pointer', fontSize: P.fontSize, color: P.textSubdued, fontFamily: P.font, padding: '2px 6px', borderRadius: 6, whiteSpace: 'nowrap' }}
+                    >
+                      <svg width="12" height="12" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                        <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/>
+                        <line x1="1" y1="1" x2="23" y2="23"/>
+                      </svg>
+                      Hide analytics bar
+                    </button>
+                  </div>
+                </div>
               </div>
-              <div style={{ minWidth: 0 }}>
-                <div style={{ fontWeight: 600, fontSize: P.fontSize, color: P.text, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{seller?.store_name || 'My Store'}</div>
-                <div style={{ fontSize: '0.75rem', color: P.textSubdued }}>onshipy.com</div>
+            )}
+
+            {/* Orders title row */}
+            <div style={{ padding: '16px 20px 0', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                <svg width="20" height="20" viewBox="0 0 20 20" fill={P.textSubdued}>
+                  <path d="M7.5 3.5a.75.75 0 0 0-1.5 0v.75H4.5a1 1 0 0 0-1 1v11a1 1 0 0 0 1 1h11a1 1 0 0 0 1-1v-11a1 1 0 0 0-1-1H14V3.5a.75.75 0 0 0-1.5 0v.75h-5V3.5Z"/>
+                </svg>
+                <h1 style={{ fontSize: '1.125rem', fontWeight: 650, color: P.text, margin: 0, letterSpacing: '-0.02em' }}>Orders</h1>
+                {!showAnalytics && (
+                  <button onClick={() => setShowAnalytics(true)} style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: P.fontSize, color: P.textSubdued, fontFamily: P.font, padding: '3px 8px', borderRadius: 6 }}>
+                    Show analytics
+                  </button>
+                )}
+              </div>
+              <div style={{ display: 'flex', gap: 8 }}>
+                <button style={{ display: 'flex', alignItems: 'center', gap: 5, padding: '6px 14px', background: P.surface, border: `1px solid ${P.border}`, borderRadius: 8, fontSize: P.fontSize, cursor: 'pointer', fontFamily: P.font, color: P.text }}>
+                  More actions
+                  <svg width="12" height="12" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg>
+                </button>
+                <button onClick={() => router.push('/products')} style={{ padding: '6px 14px', background: P.text, color: '#fff', border: 'none', borderRadius: 8, fontSize: P.fontSize, fontWeight: 500, cursor: 'pointer', fontFamily: P.font }}>
+                  Create order
+                </button>
+              </div>
+            </div>
+
+            {/* Tabs — border-bottom creates the line, active tab has 2px colored bottom */}
+            <div style={{ display: 'flex', padding: '0 20px', borderBottom: `1px solid ${P.border}`, marginTop: 8, overflowX: 'auto', scrollbarWidth: 'none' }}>
+              {TABS.map(t => (
+                <button key={t.id} className={`ord-tab${tab === t.id ? ' active' : ''}`}
+                  onClick={() => { setTab(t.id); setSelected(null); }}>
+                  {t.label}
+                  {t.id === 'all' && (
+                    <span style={{ marginLeft: 5, fontSize: '0.625rem', background: P.bg, color: P.textSubdued, padding: '1px 6px', borderRadius: 20, fontWeight: 600 }}>
+                      {orders.length}
+                    </span>
+                  )}
+                  {t.id === 'unfulfilled' && (
+                    <span style={{ marginLeft: 5, fontSize: '0.625rem', background: '#fff8db', color: '#7c5a00', padding: '1px 6px', borderRadius: 20, fontWeight: 600 }}>
+                      {orders.filter(o => ['pending','processing'].includes(o.status)).length}
+                    </span>
+                  )}
+                </button>
+              ))}
+            </div>
+
+            {/* Tab content — still on white, padded */}
+            <div style={{ padding: '16px 20px 32px', minHeight: 400 }}>
+
+              {/* DRAFTS */}
+              {tab === 'drafts' && (
+                <div style={{ textAlign: 'center', padding: '64px 40px', animation: 'fadeIn .3s ease' }}>
+                  <div style={{ width: 80, height: 80, margin: '0 auto 16px', background: 'linear-gradient(135deg, #00b894, #008060)', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                    <svg width="36" height="36" viewBox="0 0 20 20" fill="white"><path d="M7.5 3.5a.75.75 0 0 0-1.5 0v.75H4.5a1 1 0 0 0-1 1v11a1 1 0 0 0 1 1h11a1 1 0 0 0 1-1v-11a1 1 0 0 0-1-1H14V3.5a.75.75 0 0 0-1.5 0v.75h-5V3.5ZM5 8.5h10v9H5v-9Zm5 2a.75.75 0 0 1 .75.75v1.75h1.75a.75.75 0 0 1 0 1.5H10.75V16.5a.75.75 0 0 1-1.5 0v-1.75H7.5a.75.75 0 0 1 0-1.5h1.75V11.25A.75.75 0 0 1 10 10.5Z"/></svg>
+                  </div>
+                  <div style={{ fontWeight: 650, fontSize: '1rem', color: P.text, marginBottom: 6 }}>Manually create orders and invoices</div>
+                  <div style={{ fontSize: P.fontSize, color: P.textSubdued, maxWidth: 360, margin: '0 auto 20px' }}>
+                    Use draft orders to take orders over the phone, email invoices to customers, and collect payments.
+                  </div>
+                  <button style={{ padding: '8px 20px', background: P.text, color: '#fff', border: 'none', borderRadius: 8, fontSize: P.fontSize, fontWeight: 500, cursor: 'pointer', fontFamily: P.font }}>
+                    Create draft order
+                  </button>
+                </div>
+              )}
+
+              {/* ABANDONED CHECKOUTS */}
+              {tab === 'abandoned' && (
+                <div style={{ display: 'flex', gap: 40, alignItems: 'center', flexWrap: 'wrap', padding: '24px 0', animation: 'fadeIn .3s ease' }}>
+                  <div style={{ flex: 1, minWidth: 280 }}>
+                    <div style={{ fontWeight: 650, fontSize: '1rem', color: P.text, marginBottom: 8 }}>Abandoned checkouts will show here</div>
+                    <div style={{ fontSize: P.fontSize, color: P.textSubdued, lineHeight: 1.6, marginBottom: 20 }}>
+                      See when customers put an item in their cart but don't check out.
+                    </div>
+                    <div style={{ background: P.bg, borderRadius: 10, border: `1px solid ${P.border}`, padding: '14px 16px', marginBottom: 16 }}>
+                      <div style={{ fontWeight: 600, fontSize: P.fontSize, color: P.text, marginBottom: 4 }}>Recover sales with abandoned checkout email</div>
+                      <div style={{ fontSize: '0.75rem', color: P.textSubdued, lineHeight: 1.6 }}>An automated email is already created for you. Review and adjust as needed.</div>
+                      <button style={{ marginTop: 10, padding: '6px 14px', background: P.surface, border: `1px solid ${P.border}`, borderRadius: 8, fontSize: P.fontSize, cursor: 'pointer', fontFamily: P.font, color: P.text }}>Review email</button>
+                    </div>
+                  </div>
+                  <div style={{ width: 120, height: 120, flexShrink: 0, background: 'linear-gradient(135deg, #00b894, #00cec9)', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', position: 'relative' }}>
+                    <svg width="54" height="54" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="1.5">
+                      <circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/>
+                      <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/>
+                    </svg>
+                    <div style={{ position: 'absolute', top: 8, right: 8, width: 24, height: 24, background: '#d82c0d', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                      <svg width="12" height="12" fill="none" stroke="white" strokeWidth="2.5" viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* ALL / UNFULFILLED */}
+              {(tab === 'all' || tab === 'unfulfilled') && (
+                <>
+                  {/* Search */}
+                  <div style={{ position: 'relative', marginBottom: 14, maxWidth: 360 }}>
+                    <svg width="14" height="14" fill="none" stroke={P.textSubdued} strokeWidth="2" viewBox="0 0 24 24"
+                      style={{ position: 'absolute', left: 10, top: '50%', transform: 'translateY(-50%)', pointerEvents: 'none' }}>
+                      <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+                    </svg>
+                    <input type="text" value={search} onChange={e => setSearch(e.target.value)}
+                      placeholder="Search orders..."
+                      style={{ width: '100%', padding: '7px 12px 7px 32px', border: `1px solid ${P.border}`, borderRadius: 8, fontSize: P.fontSize, outline: 'none', fontFamily: P.font, color: P.text, background: P.surface, boxSizing: 'border-box' }}/>
+                  </div>
+
+                  {/* Empty state */}
+                  {!loading && orders.length === 0 && (
+                    <div style={{ textAlign: 'center', padding: '48px 40px', animation: 'fadeIn .3s ease' }}>
+                      <div style={{ width: 80, height: 80, margin: '0 auto 16px', background: 'linear-gradient(135deg, #00b894, #008060)', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                        <svg width="36" height="36" viewBox="0 0 20 20" fill="white"><path d="M7.5 3.5a.75.75 0 0 0-1.5 0v.75H4.5a1 1 0 0 0-1 1v11a1 1 0 0 0 1 1h11a1 1 0 0 0 1-1v-11a1 1 0 0 0-1-1H14V3.5a.75.75 0 0 0-1.5 0v.75h-5V3.5Z"/></svg>
+                      </div>
+                      <div style={{ fontWeight: 650, fontSize: '1rem', color: P.text, marginBottom: 6 }}>Your orders will show here</div>
+                      <div style={{ fontSize: P.fontSize, color: P.textSubdued, marginBottom: 20 }}>
+                        This is where you'll fulfill orders, collect payments, and track order progress.
+                      </div>
+                      <button onClick={() => router.push('/products')} style={{ padding: '8px 20px', background: P.text, color: '#fff', border: 'none', borderRadius: 8, fontSize: P.fontSize, fontWeight: 500, cursor: 'pointer', fontFamily: P.font }}>
+                        Create order
+                      </button>
+                    </div>
+                  )}
+
+                  {/* Orders table */}
+                  {(loading || sorted.length > 0) && (
+                    <div style={{ border: `1px solid ${P.border}`, borderRadius: 10, overflow: 'hidden' }}>
+                      {loading ? (
+                        <div style={{ padding: '60px', textAlign: 'center', color: P.textSubdued }}>Loading orders...</div>
+                      ) : (
+                        <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+                          <thead>
+                            <tr>
+                              <th style={{ ...th, width: 40, paddingRight: 0 }}>
+                                <input type="checkbox" style={{ accentColor: P.green }}/>
+                              </th>
+                              {[
+                                { label: 'Order', col: null },
+                                { label: 'Date', col: 'date' },
+                                { label: 'Customer', col: 'customer' },
+                                { label: 'Channel', col: null },
+                                { label: 'Total', col: 'amount' },
+                                { label: 'Payment', col: null },
+                                { label: 'Fulfillment', col: null },
+                                { label: 'Items', col: null },
+                              ].map(({ label, col }) => (
+                                <th key={label} style={th} onClick={() => col && toggleSort(col)}>
+                                  {label}<SortArrow col={col}/>
+                                </th>
+                              ))}
+                            </tr>
+                          </thead>
+                          <tbody>
+                            {sorted.map(o => (
+                              <tr key={o.id} className="ord-row"
+                                onClick={() => setSelected(selected?.id === o.id ? null : o)}
+                                style={{ cursor: 'pointer', background: selected?.id === o.id ? '#f0fdf6' : P.surface }}>
+                                <td style={{ ...td, width: 40, paddingRight: 0 }} onClick={e => e.stopPropagation()}>
+                                  <input type="checkbox" style={{ accentColor: P.green }}/>
+                                </td>
+                                <td style={td}><span style={{ fontWeight: 500, color: '#2b6cb0' }}>#{o.storefront_order_id || o.id.slice(0, 8).toUpperCase()}</span></td>
+                                <td style={{ ...td, color: P.textSubdued }}>{new Date(o.created_at).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })}</td>
+                                <td style={td}>
+                                  <div style={{ fontWeight: 500 }}>{o.customer_name || '—'}</div>
+                                  {o.customer_email && <div style={{ fontSize: '0.75rem', color: P.textSubdued }}>{o.customer_email}</div>}
+                                </td>
+                                <td style={{ ...td, color: P.textSubdued, fontSize: '0.75rem' }}>{o.source_channel || 'Online Store'}</td>
+                                <td style={{ ...td, fontWeight: 600 }}>${parseFloat(o.amount_paid || 0).toFixed(2)}</td>
+                                <td style={td}><span style={{ fontSize: '0.6875rem', padding: '2px 8px', borderRadius: 20, background: '#cdfed4', color: '#006847', fontWeight: 600 }}>Paid</span></td>
+                                <td style={td}><Badge status={o.status}/></td>
+                                <td style={{ ...td, color: P.textSubdued }}>{o.quantity || 1}</td>
+                              </tr>
+                            ))}
+                          </tbody>
+                        </table>
+                      )}
+                    </div>
+                  )}
+
+                  {!loading && sorted.length === 0 && orders.length > 0 && (
+                    <div style={{ textAlign: 'center', padding: 32 }}>
+                      <div style={{ fontWeight: 500, color: P.text, marginBottom: 4 }}>No orders match your filter</div>
+                      <div style={{ fontSize: P.fontSize, color: P.textSubdued }}>Try a different search or tab</div>
+                    </div>
+                  )}
+                </>
+              )}
+            </div>
+          </div>
+
+          {/* ── 2. GRAY AREA — "Learn more" sits here, below the white content ── */}
+          <div style={{ background: P.bg, flex: 1, padding: '20px', textAlign: 'center' }}>
+            <span style={{ color: '#2b6cb0', cursor: 'pointer', fontSize: P.fontSize }}>Learn more about orders</span>
+          </div>
+
+        </div>
+
+        {/* ── Order detail panel ── */}
+        {selected && (
+          <div style={{ width: 320, flexShrink: 0, background: P.surface, borderLeft: `1px solid ${P.border}`, overflowY: 'auto' }}>
+            <div style={{ padding: '12px 16px', borderBottom: `1px solid ${P.border}`, display: 'flex', justifyContent: 'space-between', alignItems: 'center', position: 'sticky', top: 0, background: P.surface, zIndex: 10 }}>
+              <span style={{ fontWeight: 600, fontSize: P.fontSize, color: P.text }}>Order #{selected.storefront_order_id || selected.id.slice(0, 8).toUpperCase()}</span>
+              <button onClick={() => setSelected(null)} style={{ background: 'none', border: 'none', fontSize: 18, cursor: 'pointer', color: P.textSubdued, lineHeight: 1 }}>×</button>
+            </div>
+            <div style={{ padding: '16px' }}>
+              <div style={{ display: 'flex', gap: 8, marginBottom: 16, flexWrap: 'wrap' }}>
+                <Badge status={selected.status}/>
+                <span style={{ fontSize: '0.6875rem', padding: '2px 8px', borderRadius: 20, background: '#cdfed4', color: '#006847', fontWeight: 600 }}>Paid</span>
+              </div>
+              <div style={{ background: P.bg, borderRadius: 8, border: `1px solid ${P.border}`, padding: '12px', marginBottom: 12 }}>
+                <div style={{ fontSize: '0.6875rem', fontWeight: 600, color: P.textSubdued, textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: 8 }}>Customer</div>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 6 }}>
+                  <div style={{ width: 28, height: 28, borderRadius: '50%', background: P.green, display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', fontSize: '0.6875rem', fontWeight: 700, flexShrink: 0 }}>
+                    {selected.customer_name?.[0]?.toUpperCase() || '?'}
+                  </div>
+                  <div>
+                    <div style={{ fontWeight: 500, fontSize: P.fontSize }}>{selected.customer_name || '—'}</div>
+                    <div style={{ fontSize: '0.75rem', color: P.textSubdued }}>{selected.customer_email}</div>
+                  </div>
+                </div>
+                {selected.shipping_address && <div style={{ fontSize: '0.75rem', color: P.textSubdued, lineHeight: 1.6 }}>{selected.shipping_address}</div>}
+              </div>
+              <div style={{ background: P.bg, borderRadius: 8, border: `1px solid ${P.border}`, overflow: 'hidden', marginBottom: 12 }}>
+                <div style={{ padding: '10px 12px', borderBottom: `1px solid ${P.border}` }}>
+                  <div style={{ fontSize: '0.6875rem', fontWeight: 600, color: P.textSubdued, textTransform: 'uppercase', letterSpacing: '0.08em' }}>Order summary</div>
+                </div>
+                {[
+                  { label: 'Order date', value: new Date(selected.created_at).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' }) },
+                  { label: 'Items', value: selected.quantity || 1 },
+                  { label: 'Subtotal', value: `$${parseFloat(selected.amount_paid || 0).toFixed(2)}` },
+                  { label: 'Shipping', value: '$0.00' },
+                  { label: 'Total', value: `$${parseFloat(selected.amount_paid || 0).toFixed(2)}`, bold: true },
+                ].map((r, i) => (
+                  <div key={i} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '8px 12px', borderBottom: i < 4 ? `1px solid ${P.border}` : 'none', background: i === 4 ? '#f0fdf6' : 'transparent' }}>
+                    <span style={{ fontSize: P.fontSize, color: P.textSubdued }}>{r.label}</span>
+                    <span style={{ fontSize: P.fontSize, fontWeight: r.bold ? 650 : 500, color: r.bold ? P.green : P.text }}>{r.value}</span>
+                  </div>
+                ))}
+              </div>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+                {selected.status === 'pending' && (
+                  <button style={{ padding: '8px', background: P.green, color: '#fff', border: 'none', borderRadius: 8, fontSize: P.fontSize, fontWeight: 500, cursor: 'pointer', fontFamily: P.font }}>Fulfill order</button>
+                )}
+                <button style={{ padding: '8px', background: P.surface, border: `1px solid ${P.border}`, borderRadius: 8, fontSize: P.fontSize, cursor: 'pointer', fontFamily: P.font, color: P.text }}>View full order</button>
               </div>
             </div>
           </div>
-
-          {/* Search */}
-          <div style={{ padding: '8px 12px', borderBottom: `1px solid ${P.border}` }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 8, background: P.bg, border: `1px solid ${P.border}`, borderRadius: 8, padding: '6px 10px' }}>
-              <svg width="13" height="13" fill="none" stroke={P.textSubdued} strokeWidth="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-              <input placeholder="Search settings" style={{ border: 'none', background: 'none', outline: 'none', fontSize: P.fontSize, color: P.text, flex: 1, fontFamily: P.font }}/>
-            </div>
-          </div>
-
-          {/* Nav list — bigger items on mobile like Shopify */}
-          <div style={{ padding: '6px 0' }}>
-            {NAV.map(item => (
-              <button
-                key={item.id}
-                onClick={() => goSection(item.id)}
-                style={{
-                  display: 'flex', alignItems: 'center', width: '100%', padding: '12px 16px',
-                  background: active === item.id ? '#f0f0f0' : 'none',
-                  border: 'none', borderBottom: `1px solid ${P.border}`,
-                  cursor: 'pointer', fontFamily: P.font, gap: 12,
-                  color: active === item.id ? P.text : P.text,
-                  textAlign: 'left',
-                }}
-              >
-                <span style={{ fontSize: '18px', flexShrink: 0 }}>{item.icon}</span>
-                <span style={{ flex: 1, fontSize: '0.9375rem', fontWeight: active === item.id ? 600 : 450, letterSpacing: P.letterSpacing }}>{item.label}</span>
-                <svg width="14" height="14" fill="none" stroke={P.textSubdued} strokeWidth="2" viewBox="0 0 24 24" style={{ flexShrink: 0 }}><polyline points="9 18 15 12 9 6"/></svg>
-              </button>
-            ))}
-          </div>
-
-          {/* Back to app */}
-          <div style={{ padding: '12px 16px', borderTop: `1px solid ${P.border}` }}>
-            <button
-              onClick={() => router.push('/dashboard')}
-              style={{ display: 'flex', alignItems: 'center', gap: 8, background: 'none', border: 'none', cursor: 'pointer', color: P.textSubdued, fontSize: P.fontSize, fontFamily: P.font, padding: '6px 0', width: '100%' }}
-            >
-              <svg width="14" height="14" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg>
-              Back to Onshipy
-            </button>
-          </div>
-        </div>
-
-        {/* ── CONTENT — hidden on mobile when no section selected ── */}
-        <div className={`st-content${!active ? ' mob-hidden' : ''}`}>
-          {/* Mobile back button */}
-          {active && (
-            <div style={{ display: 'none' }} className="mob-section-back">
-              <button
-                onClick={goBack}
-                style={{ display: 'flex', alignItems: 'center', gap: 8, width: '100%', padding: '14px 16px', background: P.surface, border: 'none', borderBottom: `1px solid ${P.border}`, cursor: 'pointer', fontSize: P.fontSize, fontFamily: P.font, color: P.textSubdued }}
-              >
-                <svg width="14" height="14" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg>
-                Settings
-              </button>
-            </div>
-          )}
-          <div style={{ padding: 0 }}>
-            <SectionContent/>
-          </div>
-        </div>
+        )}
       </div>
-
-      {/* Mobile: show back button inside content on small screens */}
-      <style>{`
-        @media (max-width: 767px) {
-          .mob-section-back { display: block !important; }
-          .st-content { padding: 0 !important; }
-          .st-content > div { padding: 16px; }
-        }
-      `}</style>
-    </>
+    </Layout>
   );
 }
