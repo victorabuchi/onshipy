@@ -152,8 +152,8 @@ export default function Orders() {
         - Content: white, padded 20px sides
         - "Learn more": in the GRAY area below, not inside white content
       */}
-      <div style={{ fontFamily: P.font, fontSize: P.fontSize, letterSpacing: P.letterSpacing, color: P.text, display: 'flex', height: 'calc(100vh - 56px)' }}>
-        <div style={{ flex: 1, overflowY: 'auto', minWidth: 0, display: 'flex', flexDirection: 'column' }}>
+      <div style={{ fontFamily: P.font, fontSize: P.fontSize, letterSpacing: P.letterSpacing, color: P.text, display: 'flex', minHeight: 'calc(100vh - 56px)' }}>
+        <div style={{ flex: 1, minWidth: 0, display: 'flex', flexDirection: 'column', overflowX: 'hidden' }}>
 
           {/* ── 1. WHITE CONTENT AREA (no card, no border, no radius — exactly Shopify) ── */}
           <div style={{ background: P.surface, flex: '0 0 auto' }}>

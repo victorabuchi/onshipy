@@ -96,6 +96,7 @@ export default function Settings() {
   const [pwForm, setPwForm] = useState({ current_password: '', new_password: '', confirm_password: '' });
   const [saving, setSaving] = useState(false);
   const [toast, setToast] = useState(null);
+  const [mobShowContent, setMobShowContent] = useState(false);
   const [notifs, setNotifs] = useState({
     new_order: true, order_shipped: true, price_change: true,
     out_of_stock: true, auto_buy_failed: true, weekly_summary: false, marketing: false
@@ -203,16 +204,13 @@ export default function Settings() {
         </div>
       )}
 
-      {/* Full page — no Layout wrapper, settings is its own shell */}
-      <div style={{ display: 'flex', height: '100vh', width: '100vw', overflow: 'hidden', background: P.bg }}>
+      {/* Full page — settings is its own shell */}
+      <div className="settings-shell">
 
         {/* ── Left nav ── */}
-        <div className="settings-nav" style={{
-          width: 260, flexShrink: 0, background: P.surface,
-          borderRight: `1px solid ${P.border}`,
-          display: 'flex', flexDirection: 'column', overflowY: 'auto',
-          height: '100vh',
-        }}>
+        <div className={`settings-nav-panel${active !== 'general' && typeof window !== 'undefined' && window.innerWidth <= 767 ? '' : ''}`}
+          className={`settings-nav-panel${mobShowContent ? " mob-hidden" : ""}`}
+        >
           {/* Back button + store info */}
           <div style={{ padding: '12px 12px 10px', borderBottom: `1px solid ${P.border}` }}>
             <button
@@ -247,7 +245,7 @@ export default function Settings() {
           <div style={{ padding: '6px 8px', flex: 1, overflowY: 'auto' }}>
             {NAV.map(item => (
               <button key={item.id}
-                onClick={() => router.push(`/settings?section=${item.id}`, undefined, { shallow: true })}
+                onClick={() => { router.push(`/settings?section=${item.id}`, undefined, { shallow: true }); setMobShowContent(true); }}
                 className={`s-nav-btn${active === item.id ? ' active' : ''}`}
               >
                 {item.label}
@@ -258,13 +256,12 @@ export default function Settings() {
         </div>
 
         {/* ── Content ── */}
-        <div className="settings-content" style={{
-          flex: 1,
-          overflowY: 'auto',
-          background: P.bg,
-          padding: '28px 32px 60px',
-          height: '100vh',
-        }}>
+        <div className={`settings-content-panel${!mobShowContent ? ' mob-hidden' : ''}`}>
+          {/* Mobile back button */}
+          <button className="mob-back-btn" onClick={() => setMobShowContent(false)}>
+            <svg width="14" height="14" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg>
+            Settings
+          </button>
 
           {/* GENERAL */}
           {active === 'general' && (
