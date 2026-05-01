@@ -26,6 +26,47 @@ export default function Layout({ children, title }) {
   const [menuOpen, setMenuOpen] = useState(false);
   const [profileOpen, setProfile] = useState(false);
   const profileRef = useRef(null);
+  const searchRef = useRef(null);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [searchOpen, setSearchOpen] = useState(false);
+
+  // All searchable pages/sections
+  const SEARCH_ITEMS = [
+    { label: 'Home', desc: 'Dashboard overview', href: '/dashboard', icon: '🏠' },
+    { label: 'Orders', desc: 'Manage your orders', href: '/orders', icon: '📦' },
+    { label: 'Products', desc: 'Import and manage products', href: '/products', icon: '🛍️' },
+    { label: 'Inventory', desc: 'Track product inventory', href: '/products?section=inventory', icon: '📋' },
+    { label: 'Customers', desc: 'View customer accounts', href: '/customers', icon: '👤' },
+    { label: 'Listings', desc: 'Your priced product listings', href: '/listings', icon: '📄' },
+    { label: 'Analytics', desc: 'Sales and performance data', href: '/analytics', icon: '📊' },
+    { label: 'Browse', desc: 'Discover brands to resell', href: '/browse', icon: '🔍' },
+    { label: 'Online Store', desc: 'Connect your Shopify store', href: '/online-store', icon: '🏪' },
+    { label: 'Wallet', desc: 'Billing and payments', href: '/wallet', icon: '💳' },
+    { label: 'Settings', desc: 'Store settings', href: '/settings', icon: '⚙️' },
+    { label: 'General settings', desc: 'Store name, email, URL', href: '/settings?section=general', icon: '⚙️' },
+    { label: 'Plan & billing', desc: 'Upgrade your plan', href: '/settings?section=plan', icon: '💳' },
+    { label: 'Domains', desc: 'Manage your domains', href: '/settings?section=domains', icon: '🌐' },
+    { label: 'Notifications', desc: 'Email notification settings', href: '/settings?section=notifications', icon: '🔔' },
+    { label: 'Security', desc: 'Password and sessions', href: '/settings?section=security', icon: '🔒' },
+    { label: 'Payments', desc: 'Payment providers', href: '/settings?section=payments', icon: '💰' },
+    { label: 'Users', desc: 'Your profile', href: '/settings?section=users', icon: '👤' },
+    { label: 'Policies', desc: 'Store policies', href: '/settings?section=policies', icon: '📄' },
+  ];
+
+  const searchResults = searchQuery.length > 0
+    ? SEARCH_ITEMS.filter(item =>
+        item.label.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        item.desc.toLowerCase().includes(searchQuery.toLowerCase())
+      ).slice(0, 6)
+    : [];
+
+  useEffect(() => {
+    const fn = e => {
+      if (searchRef.current && !searchRef.current.contains(e.target)) setSearchOpen(false);
+    };
+    document.addEventListener('mousedown', fn);
+    return () => document.removeEventListener('mousedown', fn);
+  }, []);
 
   useEffect(() => {
     const s = localStorage.getItem('onshipy_seller');
@@ -222,18 +263,7 @@ export default function Layout({ children, title }) {
         <div style={{ height: 8 }} />
       </div>
 
-      {/* User info at bottom of sidebar — just display, no button, like Shopify image 4 */}
-      <div style={{ padding: '10px 12px', borderTop: `1px solid ${P.border}`, flexShrink: 0 }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 9 }}>
-          <div style={{ width: 28, height: 28, background: P.green, borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', fontWeight: 700, fontSize: 11, flexShrink: 0 }}>
-            {initials}
-          </div>
-          <div style={{ flex: 1, minWidth: 0 }}>
-            <div style={{ color: P.text, fontSize: P.fontSize, fontWeight: '600', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{seller?.full_name || 'User'}</div>
-            <div style={{ color: P.textSubdued, fontSize: '0.6875rem', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{seller?.email || ''}</div>
-          </div>
-        </div>
-      </div>
+
     </div>
   );
 
@@ -337,15 +367,49 @@ export default function Layout({ children, title }) {
         <div className="topbar-logo" onClick={() => router.push('/dashboard')} style={{ cursor: 'pointer' }}>
           <span style={{ color: '#fff', fontWeight: 750, fontSize: '1rem', letterSpacing: '-0.03em', fontFamily: P.font }}>Onshipy</span>
         </div>
-        <div className="topbar-search-wrap">
-          <div className="topbar-search">
+        <div className="topbar-search-wrap" ref={searchRef} style={{ position: 'relative' }}>
+          <div className="topbar-search" onClick={() => setSearchOpen(true)}>
             <svg width="14" height="14" fill="none" stroke="rgba(255,255,255,0.45)" strokeWidth="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-            <span style={{ fontSize: P.fontSize, color: 'rgba(255,255,255,0.35)', flex: 1 }}>Search</span>
-            <div style={{ display: 'flex', gap: 2 }}>
+            <input
+              value={searchQuery}
+              onChange={e => { setSearchQuery(e.target.value); setSearchOpen(true); }}
+              onFocus={() => setSearchOpen(true)}
+              placeholder="Search pages, settings..."
+              style={{ flex: 1, background: 'none', border: 'none', outline: 'none', fontSize: P.fontSize, color: '#fff', fontFamily: P.font, letterSpacing: P.letterSpacing }}
+            />
+            {searchQuery && (
+              <button onClick={() => { setSearchQuery(''); setSearchOpen(false); }} style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'rgba(255,255,255,0.4)', padding: 2, display: 'flex' }}>
+                <svg width="12" height="12" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+              </button>
+            )}
+            {!searchQuery && <div style={{ display: 'flex', gap: 2 }}>
               <kbd style={{ fontSize: '0.625rem', color: 'rgba(255,255,255,0.22)', background: 'rgba(255,255,255,0.07)', padding: '1px 5px', borderRadius: 3, fontFamily: P.font }}>CTRL</kbd>
               <kbd style={{ fontSize: '0.625rem', color: 'rgba(255,255,255,0.22)', background: 'rgba(255,255,255,0.07)', padding: '1px 5px', borderRadius: 3, fontFamily: P.font }}>K</kbd>
-            </div>
+            </div>}
           </div>
+          {/* Search results dropdown */}
+          {searchOpen && searchResults.length > 0 && (
+            <div style={{ position: 'absolute', top: '100%', left: 0, right: 0, marginTop: 6, background: P.surface, borderRadius: 10, boxShadow: '0 8px 30px rgba(0,0,0,0.15)', border: `1px solid ${P.border}`, overflow: 'hidden', zIndex: 800 }}>
+              {searchResults.map((item, i) => (
+                <div key={i} onClick={() => { router.push(item.href); setSearchQuery(''); setSearchOpen(false); }}
+                  style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '10px 14px', cursor: 'pointer', borderBottom: i < searchResults.length - 1 ? `1px solid ${P.border}` : 'none' }}
+                  onMouseEnter={e => e.currentTarget.style.background = '#f7f7f7'}
+                  onMouseLeave={e => e.currentTarget.style.background = 'transparent'}
+                >
+                  <span style={{ fontSize: 16, flexShrink: 0 }}>{item.icon}</span>
+                  <div>
+                    <div style={{ fontSize: P.fontSize, fontWeight: 500, color: P.text }}>{item.label}</div>
+                    <div style={{ fontSize: '0.75rem', color: P.textSubdued }}>{item.desc}</div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+          {searchOpen && searchQuery && searchResults.length === 0 && (
+            <div style={{ position: 'absolute', top: '100%', left: 0, right: 0, marginTop: 6, background: P.surface, borderRadius: 10, boxShadow: '0 8px 30px rgba(0,0,0,0.15)', border: `1px solid ${P.border}`, padding: '16px 14px', zIndex: 800, fontSize: P.fontSize, color: P.textSubdued }}>
+              No results for "{searchQuery}"
+            </div>
+          )}
         </div>
         {/* Actions — notification + profile avatar (profile dropdown top-right) */}
         <div className="topbar-actions">

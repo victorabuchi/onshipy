@@ -106,6 +106,10 @@ export default function Settings() {
   const [saving, setSaving] = useState(false);
   const [toast, setToast] = useState(null);
   const [notifs, setNotifs] = useState({ new_order: true, order_shipped: true, price_change: true, out_of_stock: true, auto_buy_failed: true, weekly_summary: false, marketing: false });
+  const [settingsSearch, setSettingsSearch] = useState('');
+  const filteredNav = settingsSearch
+    ? NAV.filter(n => n.label.toLowerCase().includes(settingsSearch.toLowerCase()))
+    : NAV;
 
   useEffect(() => {
     const t = localStorage.getItem('onshipy_token');
@@ -379,6 +383,21 @@ export default function Settings() {
               <span style={{ color: P.textSubdued }}>{ICONS.security}</span>
               <span style={{ fontWeight: 650, fontSize: '1rem', color: P.text }}>Settings</span>
             </div>
+            {/* Store pill — clicking onshipy.com opens Domains */}
+            <div
+              onClick={() => goSection('domains')}
+              style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '8px 10px', background: P.bg, borderRadius: 8, border: `1px solid ${P.border}`, cursor: 'pointer', transition: 'background .1s' }}
+              onMouseEnter={e => e.currentTarget.style.background = '#e8e8e8'}
+              onMouseLeave={e => e.currentTarget.style.background = P.bg}
+            >
+              <div style={{ width: 32, height: 32, background: P.green, borderRadius: 8, display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', fontWeight: 700, fontSize: 13, flexShrink: 0 }}>
+                {seller?.store_name?.[0]?.toUpperCase() || 'O'}
+              </div>
+              <div style={{ minWidth: 0 }}>
+                <div style={{ fontWeight: 600, fontSize: P.fontSize, color: P.text, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{seller?.store_name || 'My Store'}</div>
+                <div style={{ fontSize: '0.75rem', color: P.green, textDecoration: 'underline' }}>onshipy.com →</div>
+              </div>
+            </div>
             <div style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '8px 10px', background: P.bg, borderRadius: 8, border: `1px solid ${P.border}` }}>
               <div style={{ width: 32, height: 32, background: P.green, borderRadius: 8, display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', fontWeight: 700, fontSize: 13, flexShrink: 0 }}>
                 {seller?.store_name?.[0]?.toUpperCase() || 'O'}
@@ -394,13 +413,18 @@ export default function Settings() {
           <div style={{ padding: '8px 12px', borderBottom: `1px solid ${P.border}` }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 8, background: P.bg, border: `1px solid ${P.border}`, borderRadius: 8, padding: '6px 10px' }}>
               <svg width="13" height="13" fill="none" stroke={P.textSubdued} strokeWidth="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-              <input placeholder="Search settings" style={{ border: 'none', background: 'none', outline: 'none', fontSize: P.fontSize, color: P.text, flex: 1, fontFamily: P.font }}/>
+              <input
+                value={settingsSearch}
+                onChange={e => setSettingsSearch(e.target.value)}
+                placeholder="Search settings"
+                style={{ border: 'none', background: 'none', outline: 'none', fontSize: P.fontSize, color: P.text, flex: 1, fontFamily: P.font }}
+              />
             </div>
           </div>
 
           {/* Nav rows — proper Shopify style with SVG icons */}
           <div>
-            {NAV.map(item => (
+            {filteredNav.map(item => (
               <button
                 key={item.id}
                 onClick={() => goSection(item.id)}
@@ -414,6 +438,24 @@ export default function Settings() {
                 </span>
               </button>
             ))}
+          </div>
+
+          {/* User info at very bottom — clickable, opens users section */}
+          <div
+            onClick={() => goSection('users')}
+            style={{ padding: '12px 16px', borderTop: `1px solid ${P.border}`, cursor: 'pointer', flexShrink: 0 }}
+            onMouseEnter={e => e.currentTarget.style.background = '#f7f7f7'}
+            onMouseLeave={e => e.currentTarget.style.background = 'transparent'}
+          >
+            <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+              <div style={{ width: 30, height: 30, background: P.green, borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', fontWeight: 700, fontSize: 11, flexShrink: 0 }}>
+                {initials}
+              </div>
+              <div style={{ minWidth: 0 }}>
+                <div style={{ fontWeight: '600', fontSize: P.fontSize, color: P.text, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{seller?.full_name || 'User'}</div>
+                <div style={{ fontSize: '0.75rem', color: P.textSubdued, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{seller?.email || ''}</div>
+              </div>
+            </div>
           </div>
         </div>
 
