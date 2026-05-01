@@ -356,11 +356,9 @@ export default function Settings() {
         </div>
       )}
 
-      {/* TOPBAR — hamburger goes to dashboard */}
+      {/* TOPBAR — "Onshipy" text goes to dashboard */}
       <div className="st-topbar">
-        <button onClick={() => router.push('/dashboard')} style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'rgba(255,255,255,0.7)', display: 'flex', padding: 6, borderRadius: 6 }}>
-          <svg width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
-        </button>
+        <span onClick={() => router.push('/dashboard')} style={{ color: '#fff', fontWeight: 750, fontSize: '1rem', letterSpacing: '-0.03em', cursor: 'pointer', flexShrink: 0 }}>Onshipy</span>
         <div style={{ flex: 1, display: 'flex', justifyContent: 'center' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 8, background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.13)', borderRadius: 624, padding: '0 14px', height: 34, maxWidth: 480, width: '100%' }}>
             <svg width="14" height="14" fill="none" stroke="rgba(255,255,255,0.45)" strokeWidth="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
