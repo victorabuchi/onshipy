@@ -293,9 +293,6 @@ export default function Layout({ children, title }) {
       <Head>
         <title>{title ? `${title} — Onshipy` : 'Onshipy'}</title>
         <link rel="icon" type="image/png" href="/favicon.png" />
-        <link rel="preconnect" href="https://fonts.googleapis.com" />
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
-        <link href="https://fonts.googleapis.com/css2?family=Inter:wght@100..900&display=swap" rel="stylesheet" />
       </Head>
 
       <style>{`
