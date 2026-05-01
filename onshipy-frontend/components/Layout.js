@@ -6,7 +6,6 @@ import Head from 'next/head';
 const P = {
   bg:            '#f1f1f1',
   surface:       '#ffffff',
-  surfaceHover:  '#f7f7f7',
   border:        'rgba(227,227,227,1)',
   text:          'rgba(48,48,48,1)',
   textSubdued:   'rgba(97,97,97,1)',
@@ -67,7 +66,6 @@ export default function Layout({ children, title }) {
     { href: '/settings', label: 'Settings' },
   ];
 
-  /* ── Polaris SVG icons ── */
   const icons = {
     '/dashboard':    <svg width="18" height="18" viewBox="0 0 20 20" fill="currentColor"><path d="M6.5 3A3.5 3.5 0 0 0 3 6.5v7A3.5 3.5 0 0 0 6.5 17h7a3.5 3.5 0 0 0 3.5-3.5v-7A3.5 3.5 0 0 0 13.5 3h-7ZM4.5 6.5A2 2 0 0 1 6.5 4.5h7a2 2 0 0 1 2 2v7a2 2 0 0 1-2 2h-7a2 2 0 0 1-2-2v-7Z"/><path d="M7.5 9.75a.75.75 0 0 1 .75-.75h3.5a.75.75 0 0 1 0 1.5h-3.5a.75.75 0 0 1-.75-.75ZM7.5 12.25a.75.75 0 0 1 .75-.75h2a.75.75 0 0 1 0 1.5h-2a.75.75 0 0 1-.75-.75Z"/></svg>,
     '/orders':       <svg width="18" height="18" viewBox="0 0 20 20" fill="currentColor"><path d="M7.5 3.5a.75.75 0 0 0-1.5 0v.75H4.5a1 1 0 0 0-1 1v11a1 1 0 0 0 1 1h11a1 1 0 0 0 1-1v-11a1 1 0 0 0-1-1H14V3.5a.75.75 0 0 0-1.5 0v.75h-5V3.5Z"/></svg>,
@@ -89,7 +87,6 @@ export default function Layout({ children, title }) {
     const isActive = router.pathname === item.href ||
       (item.href !== '/dashboard' && router.pathname.startsWith(item.href));
     const showSub = isActive && item.sub?.length > 0;
-
     return (
       <div>
         <Link href={item.href} style={{
@@ -104,17 +101,13 @@ export default function Layout({ children, title }) {
           onMouseEnter={e => { if (!isActive) { e.currentTarget.style.background = '#ebebeb'; e.currentTarget.style.color = P.text; }}}
           onMouseLeave={e => { if (!isActive) { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.color = P.textSubdued; }}}
         >
-          <span style={{ flexShrink: 0, color: isActive ? P.text : P.textSubdued, display: 'flex' }}>
-            {icons[item.href]}
-          </span>
+          <span style={{ flexShrink: 0, color: isActive ? P.text : P.textSubdued, display: 'flex' }}>{icons[item.href]}</span>
           {item.label}
         </Link>
-
         {showSub && (
           <div style={{ marginLeft: 26, marginBottom: 2 }}>
             {item.sub.map(s => {
               const subActive = router.asPath === s.href ||
-                (router.query.tab && `?tab=${router.query.tab}` === s.href.split('?')[1]) ||
                 (router.query.section && `?section=${router.query.section}` === s.href.split('?')[1]);
               return (
                 <Link key={s.href} href={s.href} style={{
@@ -122,8 +115,7 @@ export default function Layout({ children, title }) {
                   fontSize: P.fontSize, color: subActive ? P.text : P.textSubdued,
                   fontWeight: subActive ? '600' : P.fontWeight,
                   textDecoration: 'none', letterSpacing: P.letterSpacing,
-                  background: subActive ? '#e3e3e3' : 'transparent',
-                  transition: 'background .1s, color .1s',
+                  background: subActive ? '#e3e3e3' : 'transparent', transition: 'background .1s, color .1s',
                 }}
                   onMouseEnter={e => { if (!subActive) { e.currentTarget.style.background = '#ebebeb'; e.currentTarget.style.color = P.text; }}}
                   onMouseLeave={e => { if (!subActive) { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.color = P.textSubdued; }}}
@@ -147,30 +139,8 @@ export default function Layout({ children, title }) {
   const SidebarNav = () => (
     <div style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
 
-      {/* Scrollable nav */}
-      <div style={{ flex: 1, overflowY: 'auto', padding: '8px 8px 0', scrollbarWidth: 'none' }}>
-        {mainNav.map(item => <NavItem key={item.href} item={item} />)}
-        <Divider />
-        <SectionLabel label="Sales channels" />
-        {salesNav.map(item => <NavItem key={item.href} item={item} />)}
-        <button onClick={() => router.push('/online-store')} style={{
-          display: 'flex', alignItems: 'center', gap: 8, width: '100%',
-          padding: '5px 10px', borderRadius: 8, marginTop: 2,
-          background: 'transparent', border: `1px dashed ${P.border}`,
-          color: P.textSubdued, fontSize: P.fontSize, cursor: 'pointer',
-          fontFamily: P.font, letterSpacing: P.letterSpacing,
-        }}>
-          <svg width="14" height="14" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-          Add sales channel
-        </button>
-        <Divider />
-        <SectionLabel label="Account" />
-        {accountNav.map(item => <NavItem key={item.href} item={item} />)}
-        <div style={{ height: 12 }} />
-      </div>
-
-      {/* Profile at bottom */}
-      <div ref={profileRef} style={{ padding: '8px', borderTop: `1px solid ${P.border}`, flexShrink: 0, position: 'relative' }}>
+      {/* ── PROFILE at TOP — same as Shopify image 4 ── */}
+      <div ref={profileRef} style={{ padding: '8px', borderBottom: `1px solid ${P.border}`, flexShrink: 0, position: 'relative' }}>
         <button
           onClick={() => setProfile(!profileOpen)}
           style={{ display: 'flex', alignItems: 'center', gap: 9, width: '100%', padding: '7px 8px', borderRadius: 8, cursor: 'pointer', background: profileOpen ? '#e3e3e3' : 'transparent', border: 'none', fontFamily: P.font, transition: 'background .1s' }}
@@ -189,8 +159,9 @@ export default function Layout({ children, title }) {
           </svg>
         </button>
 
+        {/* Profile dropdown — opens DOWNWARD from top position */}
         {profileOpen && (
-          <div style={{ position: 'absolute', bottom: 58, left: 6, right: 6, background: P.surface, borderRadius: 10, boxShadow: '0 -4px 24px rgba(0,0,0,0.1)', border: `1px solid ${P.border}`, overflow: 'hidden', zIndex: 600 }}>
+          <div style={{ position: 'absolute', top: 58, left: 6, right: 6, background: P.surface, borderRadius: 10, boxShadow: '0 4px 24px rgba(0,0,0,0.12)', border: `1px solid ${P.border}`, overflow: 'hidden', zIndex: 600 }}>
             <div style={{ padding: '10px 12px', background: '#f7f7f7', borderBottom: `1px solid ${P.border}`, display: 'flex', alignItems: 'center', gap: 10 }}>
               <div style={{ width: 32, height: 32, background: P.green, borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', fontWeight: 700, fontSize: 13, flexShrink: 0 }}>{initials}</div>
               <div style={{ minWidth: 0 }}>
@@ -230,6 +201,19 @@ export default function Layout({ children, title }) {
           </div>
         )}
       </div>
+
+      {/* Scrollable nav */}
+      <div style={{ flex: 1, overflowY: 'auto', padding: '8px 8px 0', scrollbarWidth: 'none' }}>
+        {mainNav.map(item => <NavItem key={item.href} item={item} />)}
+        <Divider />
+        <SectionLabel label="Sales channels" />
+        {salesNav.map(item => <NavItem key={item.href} item={item} />)}
+        {/* NO "Add sales channel" button */}
+        <Divider />
+        <SectionLabel label="Account" />
+        {accountNav.map(item => <NavItem key={item.href} item={item} />)}
+        <div style={{ height: 16 }} />
+      </div>
     </div>
   );
 
@@ -254,6 +238,9 @@ export default function Layout({ children, title }) {
           color: ${P.text};
           background: ${P.bg};
           min-height: 100vh;
+          /* FIX MOBILE SHIFTING — prevent horizontal scroll/overflow */
+          overflow-x: hidden;
+          max-width: 100vw;
           -webkit-font-smoothing: antialiased;
           -moz-osx-font-smoothing: grayscale;
         }
@@ -262,69 +249,47 @@ export default function Layout({ children, title }) {
         ::-webkit-scrollbar-track { background: transparent; }
         ::-webkit-scrollbar-thumb { background: #c9cccf; border-radius: 4px; }
 
-        /* ── TOPBAR: full width across everything ── */
+        /* ── TOPBAR ── */
         .topbar {
-          position: fixed;
-          top: 0; left: 0; right: 0;
-          height: ${TOPBAR_H}px;
-          background: #1a1a1a;
-          z-index: 500;
-          display: flex;
-          align-items: center;
-          padding: 0;
+          position: fixed; top: 0; left: 0; right: 0;
+          height: ${TOPBAR_H}px; background: #1a1a1a;
+          z-index: 500; display: flex; align-items: center; padding: 0;
         }
-        /* Logo zone — same width as sidebar */
         .topbar-logo {
-          width: ${SIDEBAR_W}px;
-          flex-shrink: 0;
-          padding: 0 16px;
-          display: flex;
-          align-items: center;
+          width: ${SIDEBAR_W}px; flex-shrink: 0;
+          padding: 0 16px; display: flex; align-items: center;
         }
-        /* Search zone — fills remaining space */
         .topbar-search-wrap {
-          flex: 1;
-          display: flex;
-          justify-content: center;
-          padding: 0 16px;
+          flex: 1; display: flex; justify-content: center; padding: 0 16px;
+          min-width: 0;
         }
         .topbar-search {
           width: 100%; max-width: 480px;
           display: flex; align-items: center; gap: 8px;
           background: rgba(255,255,255,0.08);
           border: 1px solid rgba(255,255,255,0.13);
-          border-radius: 624px;
-          padding: 0 14px; height: 34px;
-          cursor: text;
+          border-radius: 624px; padding: 0 14px; height: 34px; cursor: text;
         }
-        /* Actions zone */
         .topbar-actions {
           display: flex; align-items: center; gap: 4px;
-          padding: 0 16px;
-          flex-shrink: 0;
+          padding: 0 16px; flex-shrink: 0;
         }
 
-        /* ── SIDEBAR: sits below topbar, left side, light gray ── */
+        /* ── SIDEBAR ── */
         .sidebar {
-          position: fixed;
-          top: ${TOPBAR_H}px;
-          left: 0;
-          bottom: 0;
-          width: ${SIDEBAR_W}px;
-          background: ${P.surface};
+          position: fixed; top: ${TOPBAR_H}px; left: 0; bottom: 0;
+          width: ${SIDEBAR_W}px; background: ${P.surface};
           border-right: 1px solid ${P.border};
-          z-index: 400;
-          display: flex;
-          flex-direction: column;
-          overflow: hidden;
+          z-index: 400; display: flex; flex-direction: column; overflow: hidden;
         }
 
-        /* ── MAIN CONTENT: offset by topbar + sidebar ── */
+        /* ── CONTENT ── */
         .main-content {
           margin-left: ${SIDEBAR_W}px;
           padding-top: ${TOPBAR_H}px;
-          min-height: 100vh;
-          background: ${P.bg};
+          min-height: 100vh; background: ${P.bg};
+          /* Prevent content overflow on mobile */
+          min-width: 0; overflow-x: hidden;
         }
 
         /* ── MOBILE ── */
@@ -334,44 +299,38 @@ export default function Layout({ children, title }) {
         @media (max-width: 767px) {
           .topbar { display: none; }
           .mob-topbar {
-            display: flex; align-items: center; justify-content: space-between;
-            padding: 0 16px; height: 52px;
+            display: flex; align-items: center;
+            /* "Onshipy" centered, avatar right — same as Shopify */
+            padding: 0 12px; height: 52px; gap: 0;
             background: #1a1a1a;
             position: fixed; top: 0; left: 0; right: 0; z-index: 500;
           }
           .sidebar {
-            top: 0;
+            top: 0; width: 280px;
             transform: translateX(-100%);
             transition: transform .25s ease;
             z-index: 600;
           }
           .sidebar.open { transform: translateX(0); box-shadow: 4px 0 30px rgba(0,0,0,0.3); }
           .overlay { display: block; position: fixed; inset: 0; background: rgba(0,0,0,0.4); z-index: 550; }
-          .main-content { margin-left: 0; padding-top: 52px; }
+          .main-content { margin-left: 0; padding-top: 52px; width: 100%; }
         }
 
         @media (min-width: 768px) and (max-width: 1024px) {
-          .topbar-logo   { width: 210px; }
-          .sidebar       { width: 210px; }
-          .main-content  { margin-left: 210px; }
+          .topbar-logo { width: 210px; }
+          .sidebar { width: 210px; }
+          .main-content { margin-left: 210px; }
         }
       `}</style>
 
-      {/* ── FULL-WIDTH TOPBAR ── */}
+      {/* ── DESKTOP TOPBAR ── */}
       <header className="topbar">
-        {/* Logo */}
         <div className="topbar-logo">
-          <span style={{ color: '#fff', fontWeight: 750, fontSize: '1rem', letterSpacing: '-0.03em', fontFamily: P.font }}>
-            Onshipy
-          </span>
+          <span style={{ color: '#fff', fontWeight: 750, fontSize: '1rem', letterSpacing: '-0.03em', fontFamily: P.font }}>Onshipy</span>
         </div>
-
-        {/* Search */}
         <div className="topbar-search-wrap">
           <div className="topbar-search">
-            <svg width="14" height="14" fill="none" stroke="rgba(255,255,255,0.45)" strokeWidth="2" viewBox="0 0 24 24">
-              <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
-            </svg>
+            <svg width="14" height="14" fill="none" stroke="rgba(255,255,255,0.45)" strokeWidth="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
             <span style={{ fontSize: P.fontSize, color: 'rgba(255,255,255,0.35)', flex: 1 }}>Search</span>
             <div style={{ display: 'flex', gap: 2 }}>
               <kbd style={{ fontSize: '0.625rem', color: 'rgba(255,255,255,0.22)', background: 'rgba(255,255,255,0.07)', padding: '1px 5px', borderRadius: 3, fontFamily: P.font }}>CTRL</kbd>
@@ -379,53 +338,48 @@ export default function Layout({ children, title }) {
             </div>
           </div>
         </div>
-
-        {/* Actions */}
         <div className="topbar-actions">
-          <button
-            style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'rgba(255,255,255,0.55)', display: 'flex', padding: 8, borderRadius: 8 }}
+          <button style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'rgba(255,255,255,0.55)', display: 'flex', padding: 8, borderRadius: 8 }}
             onMouseEnter={e => e.currentTarget.style.background = 'rgba(255,255,255,0.08)'}
             onMouseLeave={e => e.currentTarget.style.background = 'none'}
           >
-            <svg width="18" height="18" fill="none" stroke="currentColor" strokeWidth="1.75" viewBox="0 0 24 24">
-              <path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9M13.73 21a2 2 0 01-3.46 0"/>
-            </svg>
+            <svg width="18" height="18" fill="none" stroke="currentColor" strokeWidth="1.75" viewBox="0 0 24 24"><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9M13.73 21a2 2 0 01-3.46 0"/></svg>
           </button>
-          <div
-            onClick={() => router.push('/settings')}
-            style={{ width: 30, height: 30, background: P.green, borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', fontWeight: '700', fontSize: 11, cursor: 'pointer', border: '2px solid rgba(255,255,255,0.15)', marginLeft: 4 }}
-          >
+          <div onClick={() => router.push('/settings')} style={{ width: 30, height: 30, background: P.green, borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', fontWeight: '700', fontSize: 11, cursor: 'pointer', border: '2px solid rgba(255,255,255,0.15)', marginLeft: 4 }}>
             {initials}
           </div>
         </div>
       </header>
 
-      {/* ── MOBILE TOPBAR ── */}
+      {/* ── MOBILE TOPBAR — "Onshipy" text on left like Shopify, avatar on right ── */}
       <header className="mob-topbar">
-        <button onClick={() => setMenuOpen(!menuOpen)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'rgba(255,255,255,0.8)', padding: 6, display: 'flex' }}>
+        {/* Hamburger to open sidebar */}
+        <button onClick={() => setMenuOpen(!menuOpen)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'rgba(255,255,255,0.8)', padding: 6, display: 'flex', flexShrink: 0 }}>
           {menuOpen
             ? <svg width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
             : <svg width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
           }
         </button>
-        <span style={{ color: '#fff', fontWeight: '700', fontSize: 16, letterSpacing: '-0.02em' }}>Onshipy</span>
-        <div onClick={() => router.push('/settings')} style={{ width: 30, height: 30, background: P.green, borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', fontWeight: 700, fontSize: 11, cursor: 'pointer' }}>
+
+        {/* Search bar fills middle — same as Shopify mobile */}
+        <div style={{ flex: 1, margin: '0 10px', display: 'flex', alignItems: 'center', gap: 8, background: 'rgba(255,255,255,0.1)', border: '1px solid rgba(255,255,255,0.15)', borderRadius: 624, padding: '0 12px', height: 34 }}>
+          <svg width="13" height="13" fill="none" stroke="rgba(255,255,255,0.5)" strokeWidth="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+          <span style={{ fontSize: '0.8125rem', color: 'rgba(255,255,255,0.4)' }}>Search</span>
+        </div>
+
+        {/* Avatar on right */}
+        <div onClick={() => router.push('/settings')} style={{ width: 30, height: 30, background: P.green, borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', fontWeight: 700, fontSize: 11, cursor: 'pointer', flexShrink: 0 }}>
           {initials}
         </div>
       </header>
 
-      {/* ── OVERLAY (mobile) ── */}
       {menuOpen && <div className="overlay" onClick={() => setMenuOpen(false)} />}
 
-      {/* ── SIDEBAR ── */}
       <aside className={`sidebar${menuOpen ? ' open' : ''}`}>
         <SidebarNav />
       </aside>
 
-      {/* ── MAIN CONTENT ── */}
-      <main className="main-content">
-        {children}
-      </main>
+      <main className="main-content">{children}</main>
     </>
   );
 }
