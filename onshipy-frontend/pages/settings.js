@@ -107,6 +107,8 @@ export default function Settings() {
   const [toast, setToast] = useState(null);
   const [notifs, setNotifs] = useState({ new_order: true, order_shipped: true, price_change: true, out_of_stock: true, auto_buy_failed: true, weekly_summary: false, marketing: false });
   const [settingsSearch, setSettingsSearch] = useState('');
+  const [iconModal, setIconModal] = useState(false);
+  const [storeIcon, setStoreIcon] = useState(null);
   const filteredNav = settingsSearch
     ? NAV.filter(n => n.label.toLowerCase().includes(settingsSearch.toLowerCase()))
     : NAV;
@@ -383,19 +385,25 @@ export default function Settings() {
               <span style={{ color: P.textSubdued }}>{ICONS.security}</span>
               <span style={{ fontWeight: 650, fontSize: '1rem', color: P.text }}>Settings</span>
             </div>
-            {/* Store pill — clicking onshipy.com opens Domains */}
-            <div
-              onClick={() => goSection('domains')}
-              style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '8px 10px', background: P.bg, borderRadius: 8, border: `1px solid ${P.border}`, cursor: 'pointer', transition: 'background .1s' }}
-              onMouseEnter={e => e.currentTarget.style.background = '#e8e8e8'}
-              onMouseLeave={e => e.currentTarget.style.background = P.bg}
-            >
-              <div style={{ width: 32, height: 32, background: P.green, borderRadius: 8, display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', fontWeight: 700, fontSize: 13, flexShrink: 0 }}>
-                {seller?.store_name?.[0]?.toUpperCase() || 'O'}
+            {/* Store card: avatar clicks to set icon, domain link opens domains */}
+            <div style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '8px 10px', background: P.bg, borderRadius: 8, border: `1px solid ${P.border}` }}>
+              {/* Store icon — clickable to upload image */}
+              <div
+                onClick={() => setIconModal(true)}
+                title="Set store icon"
+                style={{ width: 36, height: 36, background: storeIcon ? 'transparent' : P.green, borderRadius: 8, display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', fontWeight: 700, fontSize: 14, flexShrink: 0, cursor: 'pointer', overflow: 'hidden', border: `1px solid ${P.border}` }}
+              >
+                {storeIcon
+                  ? <img src={storeIcon} alt="Store icon" style={{ width: '100%', height: '100%', objectFit: 'cover' }}/>
+                  : (seller?.store_name?.[0]?.toUpperCase() || 'O')
+                }
               </div>
-              <div style={{ minWidth: 0 }}>
+              <div style={{ minWidth: 0, flex: 1 }}>
                 <div style={{ fontWeight: 600, fontSize: P.fontSize, color: P.text, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{seller?.store_name || 'My Store'}</div>
-                <div style={{ fontSize: '0.75rem', color: P.green, textDecoration: 'underline' }}>onshipy.com →</div>
+                <span
+                  onClick={() => goSection('domains')}
+                  style={{ fontSize: '0.75rem', color: P.green, cursor: 'pointer', textDecoration: 'underline' }}
+                >onshipy.com</span>
               </div>
             </div>
             <div style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '8px 10px', background: P.bg, borderRadius: 8, border: `1px solid ${P.border}` }}>
@@ -471,6 +479,52 @@ export default function Settings() {
           </div>
         </div>
       </div>
+      {/* ── STORE ICON UPLOAD MODAL ── */}
+      {iconModal && (
+        <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)', zIndex: 9999, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 16 }}>
+          <div style={{ background: '#fff', borderRadius: 16, padding: 24, width: '100%', maxWidth: 480, boxShadow: '0 20px 60px rgba(0,0,0,0.2)' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
+              <h2 style={{ fontSize: '1rem', fontWeight: 650, color: P.text, margin: 0 }}>Internal icon</h2>
+              <button onClick={() => setIconModal(false)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: P.textSubdued, padding: 4 }}>
+                <svg width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+              </button>
+            </div>
+            <p style={{ fontSize: P.fontSize, color: P.textSubdued, marginBottom: 20, lineHeight: 1.6 }}>
+              Customize how your store appears in the admin. Customers won't see this.
+            </p>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 16 }}>
+              {/* Preview */}
+              <div style={{ width: 48, height: 48, background: storeIcon ? 'transparent' : P.bg, borderRadius: 8, border: `1px solid ${P.border}`, display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden', flexShrink: 0 }}>
+                {storeIcon
+                  ? <img src={storeIcon} alt="icon" style={{ width: '100%', height: '100%', objectFit: 'cover' }}/>
+                  : <svg width="20" height="20" viewBox="0 0 20 20" fill={P.textSubdued}><path d="M3.5 4A1.5 1.5 0 0 0 2 5.5v9A1.5 1.5 0 0 0 3.5 16h13a1.5 1.5 0 0 0 1.5-1.5v-9A1.5 1.5 0 0 0 16.5 4h-13Z"/></svg>
+                }
+              </div>
+              <div style={{ display: 'flex', gap: 8 }}>
+                <label style={{ padding: '7px 14px', background: '#fff', border: `1px solid ${P.border}`, borderRadius: 8, fontSize: P.fontSize, fontWeight: 500, cursor: 'pointer', color: P.text }}>
+                  Edit icon
+                  <input type="file" accept="image/png,image/jpg,image/jpeg,image/webp,image/svg+xml,image/heic" style={{ display: 'none' }}
+                    onChange={e => {
+                      const file = e.target.files?.[0];
+                      if (file) { const url = URL.createObjectURL(file); setStoreIcon(url); }
+                    }}
+                  />
+                </label>
+                {storeIcon && (
+                  <button onClick={() => setStoreIcon(null)} style={{ padding: '7px 14px', background: '#fff', border: `1px solid ${P.border}`, borderRadius: 8, fontSize: P.fontSize, fontWeight: 500, cursor: 'pointer', color: P.text }}>
+                    Remove icon
+                  </button>
+                )}
+              </div>
+            </div>
+            <p style={{ fontSize: '0.75rem', color: P.textSubdued, marginBottom: 20 }}>HEIC, WEBP, SVG, PNG, or JPG. Minimum 512×512 pixels recommended.</p>
+            <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 10, paddingTop: 16, borderTop: `1px solid ${P.border}` }}>
+              <button onClick={() => setIconModal(false)} style={{ padding: '8px 18px', background: '#fff', border: `1px solid ${P.border}`, borderRadius: 8, fontSize: P.fontSize, cursor: 'pointer', fontFamily: 'inherit', color: P.text }}>Cancel</button>
+              <button onClick={() => setIconModal(false)} style={{ padding: '8px 18px', background: P.text, color: '#fff', border: 'none', borderRadius: 8, fontSize: P.fontSize, fontWeight: 500, cursor: 'pointer', fontFamily: 'inherit' }}>Save</button>
+            </div>
+          </div>
+        </div>
+      )}
     </>
   );
 }
