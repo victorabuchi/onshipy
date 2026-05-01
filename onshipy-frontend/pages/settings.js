@@ -11,22 +11,41 @@ const P = {
   fontSize: '0.8125rem', fontWeight: '450', letterSpacing: '-0.00833em',
 };
 
+// Polaris-style SVG icons for each setting section
+const ICONS = {
+  general:           <svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor"><path d="M10 1a9 9 0 1 0 0 18A9 9 0 0 0 10 1Zm0 1.5a7.5 7.5 0 1 1 0 15 7.5 7.5 0 0 1 0-15ZM10 6a1 1 0 1 0 0 2 1 1 0 0 0 0-2Zm-.75 3.75a.75.75 0 0 0 0 1.5h.25v3.25h-.25a.75.75 0 0 0 0 1.5h2a.75.75 0 0 0 0-1.5h-.25v-4a.75.75 0 0 0-.75-.75h-1Z"/></svg>,
+  plan:              <svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor"><path d="M3 4a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4Zm2-.5a.5.5 0 0 0-.5.5v12a.5.5 0 0 0 .5.5h10a.5.5 0 0 0 .5-.5V4a.5.5 0 0 0-.5-.5H5ZM7 7.75A.75.75 0 0 1 7.75 7h4.5a.75.75 0 0 1 0 1.5h-4.5A.75.75 0 0 1 7 7.75Zm0 3A.75.75 0 0 1 7.75 10h4.5a.75.75 0 0 1 0 1.5h-4.5A.75.75 0 0 1 7 10.75Zm0 3A.75.75 0 0 1 7.75 13h2.5a.75.75 0 0 1 0 1.5h-2.5A.75.75 0 0 1 7 13.75Z"/></svg>,
+  billing:           <svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor"><path d="M2 5.5A2.5 2.5 0 0 1 4.5 3h11A2.5 2.5 0 0 1 18 5.5v9a2.5 2.5 0 0 1-2.5 2.5h-11A2.5 2.5 0 0 1 2 14.5v-9Zm2.5-1a1 1 0 0 0-1 1V7h13V5.5a1 1 0 0 0-1-1h-11ZM3.5 8.5v6a1 1 0 0 0 1 1h11a1 1 0 0 0 1-1v-6h-13Zm7.5 2.5a1 1 0 1 1 2 0 1 1 0 0 1-2 0Z"/></svg>,
+  users:             <svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor"><path d="M13 8a3 3 0 1 1-6 0 3 3 0 0 1 6 0Zm-1.5 0a1.5 1.5 0 1 0-3 0 1.5 1.5 0 0 0 3 0Z"/><path d="M10 2a8 8 0 1 0 0 16A8 8 0 0 0 10 2ZM3.5 10a6.5 6.5 0 1 1 11.573 4.089c-.46-.707-1.197-1.323-2.183-1.768C11.862 11.814 10.963 11.5 10 11.5s-1.862.314-2.89.821c-.986.445-1.723 1.06-2.183 1.768A6.476 6.476 0 0 1 3.5 10Z"/></svg>,
+  payments:          <svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor"><path d="M15.5 2h-11A2.5 2.5 0 0 0 2 4.5v11A2.5 2.5 0 0 0 4.5 18h11a2.5 2.5 0 0 0 2.5-2.5v-11A2.5 2.5 0 0 0 15.5 2ZM3.5 4.5A1 1 0 0 1 4.5 3.5h11a1 1 0 0 1 1 1v1h-13v-1Zm-1 2.5h15v8.5a1 1 0 0 1-1 1h-13a1 1 0 0 1-1-1V7Zm3.75 3.5a.75.75 0 0 0 0 1.5h5.5a.75.75 0 0 0 0-1.5h-5.5Z"/></svg>,
+  checkout:          <svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor"><path d="M4.5 3A1.5 1.5 0 0 0 3 4.5v.75c0 .414.336.75.75.75H4v9A1.5 1.5 0 0 0 5.5 16.5h9a1.5 1.5 0 0 0 1.5-1.5V6h.25A.75.75 0 0 0 17 5.25V4.5A1.5 1.5 0 0 0 15.5 3h-11Zm0 1.5h11v.5H4.5v-.5Zm1 2h9v8.5H5.5V6.5Zm3 2a.75.75 0 0 0 0 1.5h3a.75.75 0 0 0 0-1.5h-3Z"/></svg>,
+  'customer-accounts':<svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor"><path d="M7.5 3a4.5 4.5 0 1 0 0 9 4.5 4.5 0 0 0 0-9ZM4.5 7.5a3 3 0 1 1 6 0 3 3 0 0 1-6 0ZM12.5 10a2.5 2.5 0 1 0 0-5 2.5 2.5 0 0 0 0 5ZM1 15.25a6.25 6.25 0 0 1 12.5 0 .75.75 0 0 1-1.5 0A4.75 4.75 0 0 0 2.5 15.25a.75.75 0 0 1-1.5 0Zm12.5-1a5.25 5.25 0 0 1 5 5.5.75.75 0 0 1-1.5 0 3.75 3.75 0 0 0-3.5-3.75.75.75 0 0 1 0-1.5v-.25Z"/></svg>,
+  shipping:          <svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor"><path d="M2.5 5A1.5 1.5 0 0 0 1 6.5v7A1.5 1.5 0 0 0 2.5 15h.535a2.5 2.5 0 0 0 4.93 0h5.07a2.5 2.5 0 0 0 4.93 0H18a1 1 0 0 0 1-1v-3.382a1.5 1.5 0 0 0-.224-.79l-2-3.236A1.5 1.5 0 0 0 15.5 6H13V5.5A.5.5 0 0 0 12.5 5h-10ZM13 7.5h2.5l2 3.236V13.5h-.535a2.5 2.5 0 0 0-4.965 0H13V7.5ZM5.5 14a1 1 0 1 1 0 2 1 1 0 0 1 0-2Zm9 0a1 1 0 1 1 0 2 1 1 0 0 1 0-2Z"/></svg>,
+  taxes:             <svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor"><path d="M10 1a9 9 0 1 0 0 18A9 9 0 0 0 10 1ZM3.5 10a6.5 6.5 0 1 1 13 0 6.5 6.5 0 0 1-13 0Zm9.78-3.03a.75.75 0 0 0-1.06-1.06L6.97 12.16a.75.75 0 1 0 1.06 1.06l5.25-5.25ZM8 8a1 1 0 1 1-2 0 1 1 0 0 1 2 0Zm5 4a1 1 0 1 1-2 0 1 1 0 0 1 2 0Z"/></svg>,
+  locations:         <svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor"><path d="M10 1a7 7 0 0 1 7 7c0 3.866-7 11-7 11S3 11.866 3 8a7 7 0 0 1 7-7Zm0 1.5A5.5 5.5 0 0 0 4.5 8c0 2.9 5.5 8.855 5.5 8.855S15.5 10.9 15.5 8A5.5 5.5 0 0 0 10 2.5ZM10 6a2 2 0 1 1 0 4 2 2 0 0 1 0-4Z"/></svg>,
+  notifications:     <svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor"><path d="M10 1.75a6.25 6.25 0 0 0-6.25 6.25v2.063l-.864 1.726A1.75 1.75 0 0 0 4.45 14.25h2.3a3.25 3.25 0 0 0 6.5 0h2.3a1.75 1.75 0 0 0 1.564-2.461l-.864-1.726V8A6.25 6.25 0 0 0 10 1.75Zm2 12.5a1.75 1.75 0 0 1-3.5 0h3.5Z"/></svg>,
+  domains:           <svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor"><path d="M10 1a9 9 0 1 0 0 18A9 9 0 0 0 10 1Zm5.47 5.5h-2.644a11.65 11.65 0 0 0-.95-2.833A7.517 7.517 0 0 1 15.47 6.5ZM10 2.5c.43 0 1.167.763 1.764 2.418.178.493.324 1.027.437 1.582H7.799c.113-.555.259-1.09.437-1.582C8.833 3.263 9.57 2.5 10 2.5ZM6.124 3.667A11.65 11.65 0 0 0 5.174 6.5H2.53a7.517 7.517 0 0 1 3.594-2.833ZM2.05 8h3.027C5.026 8.49 5 9.004 5 9.5v1H2.05A7.5 7.5 0 0 1 2.05 8ZM2.05 12H5v.5c0 .496.026 1.01.077 1.5H2.05a7.499 7.499 0 0 1 0-2ZM6.577 14A9.61 9.61 0 0 1 6.5 12.5v-3h7v3c0 .512-.026 1.015-.077 1.5H6.577Zm.162 1.5H13.261c-.113.555-.259 1.09-.437 1.582C12.227 18.737 11.43 19.5 10 19.5c-.43 0-1.167-.763-1.764-2.418A9.653 9.653 0 0 1 6.739 15.5ZM14.5 12.5c0 .512-.026 1.015-.077 1.5h-1.846c.051-.485.077-.988.077-1.5v-3H15v1a9.612 9.612 0 0 1-.5 2Zm2.95-2h-2.373c.05-.49.077-1.004.077-1.5V8H18a7.5 7.5 0 0 1-.55 2.5Z"/></svg>,
+  languages:         <svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor"><path d="M10 1a9 9 0 1 0 0 18A9 9 0 0 0 10 1ZM3.5 8.5h3.013A15.76 15.76 0 0 1 6.5 10c0 .518.014 1.024.043 1.5H3.5a6.475 6.475 0 0 1 0-3ZM6.576 13h2.617c.15.815.361 1.543.624 2.155A7.513 7.513 0 0 1 6.576 13Zm6.848 0a7.514 7.514 0 0 1-3.241 2.155c.263-.612.475-1.34.624-2.155h2.617Zm.543-1.5c.03-.476.044-.982.044-1.5 0-.518-.014-1.024-.043-1.5H16.5a6.475 6.475 0 0 1 0 3h-2.533Zm-.543-4.5h-2.617A10.5 10.5 0 0 0 10 4.845 10.5 10.5 0 0 0 9.193 7H6.576A7.513 7.513 0 0 1 13.424 7ZM9.193 13h1.614c-.15.815-.36 1.543-.623 2.155A10.5 10.5 0 0 1 9.193 13Zm0-6h1.614c-.15-.815-.36-1.543-.623-2.155A10.5 10.5 0 0 0 9.193 7Z"/></svg>,
+  policies:          <svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor"><path d="M5.5 1A1.5 1.5 0 0 0 4 2.5v15A1.5 1.5 0 0 0 5.5 19h9a1.5 1.5 0 0 0 1.5-1.5v-15A1.5 1.5 0 0 0 14.5 1h-9ZM5.5 2.5h9v15h-9v-15ZM7 6.75A.75.75 0 0 1 7.75 6h4.5a.75.75 0 0 1 0 1.5h-4.5A.75.75 0 0 1 7 6.75Zm0 3A.75.75 0 0 1 7.75 9h4.5a.75.75 0 0 1 0 1.5h-4.5A.75.75 0 0 1 7 9.75Zm0 3A.75.75 0 0 1 7.75 12h2.5a.75.75 0 0 1 0 1.5h-2.5A.75.75 0 0 1 7 12.75Z"/></svg>,
+  security:          <svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor"><path d="M10.243 2.1a.75.75 0 0 0-.486 0l-7 2.625A.75.75 0 0 0 2.25 5.5C2.25 12.233 5.818 16.8 9.757 18.9a.75.75 0 0 0 .486 0C14.182 16.8 17.75 12.233 17.75 5.5a.75.75 0 0 0-.507-.775l-7-2.625ZM10 4.366l5.75 2.156C15.53 11.62 12.685 15.588 10 17.394 7.315 15.588 4.47 11.62 4.25 6.522L10 4.366Z"/></svg>,
+};
+
 const NAV = [
-  { id: 'general',           label: 'General',               icon: '🏪' },
-  { id: 'plan',              label: 'Plan',                  icon: '📋' },
-  { id: 'billing',           label: 'Billing',               icon: '💳' },
-  { id: 'users',             label: 'Users',                 icon: '👤' },
-  { id: 'payments',          label: 'Payments',              icon: '💰' },
-  { id: 'checkout',          label: 'Checkout',              icon: '🛒' },
-  { id: 'customer-accounts', label: 'Customer accounts',     icon: '👥' },
-  { id: 'shipping',          label: 'Shipping and delivery', icon: '🚚' },
-  { id: 'taxes',             label: 'Taxes and duties',      icon: '🧾' },
-  { id: 'locations',         label: 'Locations',             icon: '📍' },
-  { id: 'notifications',     label: 'Notifications',         icon: '🔔' },
-  { id: 'domains',           label: 'Domains',               icon: '🌐' },
-  { id: 'languages',         label: 'Languages',             icon: '🗣️' },
-  { id: 'policies',          label: 'Policies',              icon: '📄' },
-  { id: 'security',          label: 'Security',              icon: '🔒' },
+  { id: 'general',           label: 'General' },
+  { id: 'plan',              label: 'Plan' },
+  { id: 'billing',           label: 'Billing' },
+  { id: 'users',             label: 'Users' },
+  { id: 'payments',          label: 'Payments' },
+  { id: 'checkout',          label: 'Checkout' },
+  { id: 'customer-accounts', label: 'Customer accounts' },
+  { id: 'shipping',          label: 'Shipping and delivery' },
+  { id: 'taxes',             label: 'Taxes and duties' },
+  { id: 'locations',         label: 'Locations' },
+  { id: 'notifications',     label: 'Notifications' },
+  { id: 'domains',           label: 'Domains' },
+  { id: 'languages',         label: 'Languages' },
+  { id: 'policies',          label: 'Policies' },
+  { id: 'security',          label: 'Security' },
 ];
 
 const Card = ({ children, style = {} }) => (
@@ -34,22 +53,19 @@ const Card = ({ children, style = {} }) => (
     {children}
   </div>
 );
-
 const CardHead = ({ title, subtitle }) => (
   <div style={{ padding: '14px 20px', borderBottom: `1px solid ${P.border}` }}>
     <div style={{ fontWeight: 600, fontSize: P.fontSize, color: P.text }}>{title}</div>
     {subtitle && <div style={{ fontSize: P.fontSize, color: P.textSubdued, marginTop: 2 }}>{subtitle}</div>}
   </div>
 );
-
 const Inp = ({ label, value, onChange, type = 'text', placeholder, prefix, readOnly }) => (
   <div>
     {label && <label style={{ display: 'block', fontSize: P.fontSize, fontWeight: 500, color: P.text, marginBottom: 5 }}>{label}</label>}
     {prefix ? (
       <div style={{ display: 'flex', border: `1px solid ${P.border}`, borderRadius: 8, overflow: 'hidden' }}>
         <span style={{ padding: '7px 12px', background: P.bg, fontSize: P.fontSize, color: P.textSubdued, borderRight: `1px solid ${P.border}`, whiteSpace: 'nowrap' }}>{prefix}</span>
-        <input value={value} onChange={onChange} placeholder={placeholder} readOnly={readOnly}
-          style={{ flex: 1, padding: '7px 12px', border: 'none', outline: 'none', fontSize: P.fontSize, fontFamily: P.font, color: P.text, background: readOnly ? P.bg : P.surface }}/>
+        <input value={value} onChange={onChange} placeholder={placeholder} readOnly={readOnly} style={{ flex: 1, padding: '7px 12px', border: 'none', outline: 'none', fontSize: P.fontSize, fontFamily: P.font, color: P.text, background: readOnly ? P.bg : P.surface }}/>
       </div>
     ) : (
       <input type={type} value={value} onChange={onChange} placeholder={placeholder} readOnly={readOnly}
@@ -57,27 +73,22 @@ const Inp = ({ label, value, onChange, type = 'text', placeholder, prefix, readO
     )}
   </div>
 );
-
 const SaveBtn = ({ onClick, saving, label = 'Save' }) => (
-  <button onClick={onClick} disabled={saving} style={{
-    padding: '7px 18px', background: saving ? P.bg : P.text, color: saving ? P.textSubdued : '#fff',
-    border: `1px solid ${P.border}`, borderRadius: 8, fontSize: P.fontSize, fontWeight: 500,
-    cursor: saving ? 'not-allowed' : 'pointer', fontFamily: P.font,
-  }}>{saving ? 'Saving...' : label}</button>
+  <button onClick={onClick} disabled={saving} style={{ padding: '7px 18px', background: saving ? P.bg : P.text, color: saving ? P.textSubdued : '#fff', border: `1px solid ${P.border}`, borderRadius: 8, fontSize: P.fontSize, fontWeight: 500, cursor: saving ? 'not-allowed' : 'pointer', fontFamily: P.font }}>
+    {saving ? 'Saving...' : label}
+  </button>
 );
-
 const Toggle = ({ on, onChange }) => (
   <div onClick={onChange} style={{ width: 36, height: 20, background: on ? P.green : P.border, borderRadius: 10, cursor: 'pointer', position: 'relative', transition: 'background .2s', flexShrink: 0 }}>
     <div style={{ position: 'absolute', top: 2, left: on ? 18 : 2, width: 16, height: 16, background: '#fff', borderRadius: '50%', transition: 'left .2s', boxShadow: '0 1px 3px rgba(0,0,0,0.2)' }}/>
   </div>
 );
-
 const ComingSoon = ({ title }) => (
   <div>
     <h1 style={{ fontSize: '1.125rem', fontWeight: 650, color: P.text, margin: '0 0 16px', letterSpacing: '-0.02em' }}>{title}</h1>
     <Card>
       <div style={{ padding: '60px 40px', textAlign: 'center' }}>
-        <div style={{ fontSize: '28px', marginBottom: 12 }}>🔧</div>
+        <div style={{ width: 48, height: 48, background: P.bg, borderRadius: 12, margin: '0 auto 14px', display: 'flex', alignItems: 'center', justifyContent: 'center', border: `1px solid ${P.border}`, color: P.textSubdued }}>{ICONS.security}</div>
         <div style={{ fontWeight: 600, fontSize: '0.9375rem', color: P.text, marginBottom: 6 }}>{title} settings</div>
         <div style={{ fontSize: P.fontSize, color: P.textSubdued }}>This section is coming soon.</div>
       </div>
@@ -87,51 +98,33 @@ const ComingSoon = ({ title }) => (
 
 export default function Settings() {
   const router = useRouter();
-  const active = router.query.section || null; // null = show nav list on mobile
+  const active = router.query.section || null;
   const tokenRef = useRef('');
   const [seller, setSeller] = useState(null);
   const [form, setForm] = useState({ full_name: '', email: '', store_name: '', store_url: '' });
   const [pwForm, setPwForm] = useState({ current_password: '', new_password: '', confirm_password: '' });
   const [saving, setSaving] = useState(false);
   const [toast, setToast] = useState(null);
-  const [notifs, setNotifs] = useState({
-    new_order: true, order_shipped: true, price_change: true,
-    out_of_stock: true, auto_buy_failed: true, weekly_summary: false, marketing: false
-  });
+  const [notifs, setNotifs] = useState({ new_order: true, order_shipped: true, price_change: true, out_of_stock: true, auto_buy_failed: true, weekly_summary: false, marketing: false });
 
   useEffect(() => {
     const t = localStorage.getItem('onshipy_token');
     const s = localStorage.getItem('onshipy_seller');
     if (!t) { router.push('/login'); return; }
     tokenRef.current = t;
-    if (s) {
-      try {
-        const sd = JSON.parse(s);
-        setSeller(sd);
-        setForm({ full_name: sd.full_name || '', email: sd.email || '', store_name: sd.store_name || '', store_url: sd.store_url || '' });
-      } catch {}
-    }
+    if (s) { try { const sd = JSON.parse(s); setSeller(sd); setForm({ full_name: sd.full_name || '', email: sd.email || '', store_name: sd.store_name || '', store_url: sd.store_url || '' }); } catch {} }
   }, []);
 
-  const showToast = (msg, err = false) => {
-    setToast({ msg, err });
-    setTimeout(() => setToast(null), 4000);
-  };
+  const showToast = (msg, err = false) => { setToast({ msg, err }); setTimeout(() => setToast(null), 4000); };
 
   const handleSave = async (body) => {
     setSaving(true);
     try {
-      const res = await fetch(`${API_BASE}/api/sellers/profile`, {
-        method: 'PATCH',
-        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${tokenRef.current}` },
-        body: JSON.stringify(body)
-      });
+      const res = await fetch(`${API_BASE}/api/sellers/profile`, { method: 'PATCH', headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${tokenRef.current}` }, body: JSON.stringify(body) });
       const data = await res.json();
       if (!res.ok) { showToast(data.error || 'Save failed', true); return; }
       const updated = { ...seller, ...data.seller };
-      setSeller(updated);
-      localStorage.setItem('onshipy_seller', JSON.stringify(updated));
-      showToast('Changes saved');
+      setSeller(updated); localStorage.setItem('onshipy_seller', JSON.stringify(updated)); showToast('Changes saved');
     } catch { showToast('Connection error', true); }
     setSaving(false);
   };
@@ -141,23 +134,16 @@ export default function Settings() {
     if (pwForm.new_password.length < 8) { showToast('Min 8 characters', true); return; }
     setSaving(true);
     try {
-      const res = await fetch(`${API_BASE}/api/sellers/password`, {
-        method: 'PATCH',
-        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${tokenRef.current}` },
-        body: JSON.stringify({ current_password: pwForm.current_password, new_password: pwForm.new_password })
-      });
+      const res = await fetch(`${API_BASE}/api/sellers/password`, { method: 'PATCH', headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${tokenRef.current}` }, body: JSON.stringify({ current_password: pwForm.current_password, new_password: pwForm.new_password }) });
       const data = await res.json();
       if (!res.ok) { showToast(data.error || 'Failed', true); return; }
-      setPwForm({ current_password: '', new_password: '', confirm_password: '' });
-      showToast('Password updated');
+      setPwForm({ current_password: '', new_password: '', confirm_password: '' }); showToast('Password updated');
     } catch { showToast('Connection error', true); }
     setSaving(false);
   };
 
   const goSection = (id) => router.push(`/settings?section=${id}`, undefined, { shallow: true });
-  const goBack    = () => router.push('/settings', undefined, { shallow: true });
-  const initials  = seller?.full_name?.split(' ').map(w => w[0]).join('').toUpperCase().slice(0, 2) || 'U';
-  const activeNav = NAV.find(n => n.id === active);
+  const initials = seller?.full_name?.split(' ').map(w => w[0]).join('').toUpperCase().slice(0, 2) || 'U';
 
   const SectionContent = () => {
     if (active === 'general') return (
@@ -168,13 +154,9 @@ export default function Settings() {
           <div style={{ padding: '18px 20px', display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: 14 }}>
             <Inp label="Store name" value={form.store_name} onChange={e => setForm({ ...form, store_name: e.target.value })} placeholder="My Store"/>
             <Inp label="Contact email" value={form.email} onChange={e => setForm({ ...form, email: e.target.value })} type="email"/>
-            <div style={{ gridColumn: '1 / -1' }}>
-              <Inp label="Store URL" value={form.store_url} onChange={e => setForm({ ...form, store_url: e.target.value })} prefix="onshipy.com/store/" placeholder="my-store"/>
-            </div>
+            <div style={{ gridColumn: '1 / -1' }}><Inp label="Store URL" value={form.store_url} onChange={e => setForm({ ...form, store_url: e.target.value })} prefix="onshipy.com/store/" placeholder="my-store"/></div>
           </div>
-          <div style={{ padding: '0 20px 18px', display: 'flex', justifyContent: 'flex-end' }}>
-            <SaveBtn onClick={() => handleSave(form)} saving={saving}/>
-          </div>
+          <div style={{ padding: '0 20px 18px', display: 'flex', justifyContent: 'flex-end' }}><SaveBtn onClick={() => handleSave(form)} saving={saving}/></div>
         </Card>
         <Card>
           <CardHead title="Store defaults"/>
@@ -182,14 +164,11 @@ export default function Settings() {
             <div style={{ maxWidth: 240 }}>
               <label style={{ display: 'block', fontSize: P.fontSize, fontWeight: 500, color: P.text, marginBottom: 5 }}>Default currency</label>
               <select style={{ width: '100%', padding: '7px 12px', border: `1px solid ${P.border}`, borderRadius: 8, fontSize: P.fontSize, outline: 'none', fontFamily: P.font, color: P.text, background: P.surface }}>
-                <option>USD — US Dollar</option><option>EUR — Euro</option><option>GBP — British Pound</option>
-                <option>NGN — Nigerian Naira</option><option>CAD — Canadian Dollar</option><option>AUD — Australian Dollar</option>
+                <option>USD — US Dollar</option><option>EUR — Euro</option><option>GBP — British Pound</option><option>NGN — Nigerian Naira</option>
               </select>
             </div>
           </div>
-          <div style={{ padding: '0 20px 18px', display: 'flex', justifyContent: 'flex-end' }}>
-            <SaveBtn onClick={() => showToast('Saved')} saving={saving}/>
-          </div>
+          <div style={{ padding: '0 20px 18px', display: 'flex', justifyContent: 'flex-end' }}><SaveBtn onClick={() => showToast('Saved')} saving={saving}/></div>
         </Card>
       </div>
     );
@@ -199,10 +178,7 @@ export default function Settings() {
         <h1 style={{ fontSize: '1.125rem', fontWeight: 650, color: P.text, margin: '0 0 16px', letterSpacing: '-0.02em' }}>Plan</h1>
         <Card>
           <div style={{ padding: '14px 20px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-            <div>
-              <div style={{ fontWeight: 600, fontSize: '0.9375rem', color: P.text }}>Onshipy {seller?.plan ? seller.plan.charAt(0).toUpperCase() + seller.plan.slice(1) : 'Free'}</div>
-              <div style={{ fontSize: P.fontSize, color: P.textSubdued, marginTop: 2 }}>Your current plan</div>
-            </div>
+            <div><div style={{ fontWeight: 600, fontSize: '0.9375rem', color: P.text }}>Onshipy {seller?.plan ? seller.plan.charAt(0).toUpperCase() + seller.plan.slice(1) : 'Free'}</div><div style={{ fontSize: P.fontSize, color: P.textSubdued, marginTop: 2 }}>Your current plan</div></div>
             <span style={{ padding: '3px 12px', background: '#cdfed4', color: '#006847', borderRadius: 20, fontSize: '0.6875rem', fontWeight: 600, textTransform: 'capitalize' }}>{seller?.plan || 'free'}</span>
           </div>
         </Card>
@@ -222,18 +198,11 @@ export default function Settings() {
                   <span style={{ fontSize: '1.75rem', fontWeight: 800, color: plan.color, letterSpacing: '-0.03em' }}>{plan.price}</span>
                   <span style={{ fontSize: P.fontSize, color: P.textSubdued }}>{plan.period}</span>
                 </div>
-                {plan.features.map((f, i) => (
-                  <div key={i} style={{ display: 'flex', gap: 8, marginBottom: 6, fontSize: P.fontSize, color: P.textSubdued }}>
-                    <span style={{ color: P.green }}>✓</span>{f}
-                  </div>
-                ))}
-                {!isCurrent ? (
-                  <button onClick={() => router.push('/plans')} style={{ width: '100%', marginTop: 14, padding: 8, background: plan.color, color: '#fff', border: 'none', borderRadius: 8, cursor: 'pointer', fontWeight: 600, fontSize: P.fontSize, fontFamily: P.font }}>
-                    Upgrade to {plan.name}
-                  </button>
-                ) : (
-                  <button disabled style={{ width: '100%', marginTop: 14, padding: 8, background: P.bg, color: P.textSubdued, border: `1px solid ${P.border}`, borderRadius: 8, cursor: 'not-allowed', fontWeight: 500, fontSize: P.fontSize, fontFamily: P.font }}>Current plan</button>
-                )}
+                {plan.features.map((f, i) => <div key={i} style={{ display: 'flex', gap: 8, marginBottom: 6, fontSize: P.fontSize, color: P.textSubdued }}><span style={{ color: P.green }}>✓</span>{f}</div>)}
+                {!isCurrent
+                  ? <button onClick={() => router.push('/plans')} style={{ width: '100%', marginTop: 14, padding: 8, background: plan.color, color: '#fff', border: 'none', borderRadius: 8, cursor: 'pointer', fontWeight: 600, fontSize: P.fontSize, fontFamily: P.font }}>Upgrade to {plan.name}</button>
+                  : <button disabled style={{ width: '100%', marginTop: 14, padding: 8, background: P.bg, color: P.textSubdued, border: `1px solid ${P.border}`, borderRadius: 8, cursor: 'not-allowed', fontWeight: 500, fontSize: P.fontSize, fontFamily: P.font }}>Current plan</button>
+                }
               </div>
             );
           })}
@@ -244,17 +213,8 @@ export default function Settings() {
     if (active === 'billing') return (
       <div style={{ maxWidth: 700 }}>
         <h1 style={{ fontSize: '1.125rem', fontWeight: 650, color: P.text, margin: '0 0 16px', letterSpacing: '-0.02em' }}>Billing</h1>
-        <Card>
-          <CardHead title="Payment method"/>
-          <div style={{ padding: '18px 20px' }}>
-            <div style={{ border: `1px solid ${P.border}`, borderRadius: 8, padding: '14px 16px', marginBottom: 14, fontSize: P.fontSize, color: P.textSubdued }}>No payment method added yet</div>
-            <button onClick={() => router.push('/plans')} style={{ padding: '7px 16px', background: P.text, color: '#fff', border: 'none', borderRadius: 8, cursor: 'pointer', fontSize: P.fontSize, fontWeight: 500, fontFamily: P.font }}>Add payment method</button>
-          </div>
-        </Card>
-        <Card>
-          <CardHead title="Billing history"/>
-          <div style={{ padding: '48px 40px', textAlign: 'center', color: P.textSubdued, fontSize: P.fontSize }}>No billing history yet</div>
-        </Card>
+        <Card><CardHead title="Payment method"/><div style={{ padding: '18px 20px' }}><div style={{ border: `1px solid ${P.border}`, borderRadius: 8, padding: '14px 16px', marginBottom: 14, fontSize: P.fontSize, color: P.textSubdued }}>No payment method added yet</div><button onClick={() => router.push('/plans')} style={{ padding: '7px 16px', background: P.text, color: '#fff', border: 'none', borderRadius: 8, cursor: 'pointer', fontSize: P.fontSize, fontWeight: 500, fontFamily: P.font }}>Add payment method</button></div></Card>
+        <Card><CardHead title="Billing history"/><div style={{ padding: '48px 40px', textAlign: 'center', color: P.textSubdued, fontSize: P.fontSize }}>No billing history yet</div></Card>
       </div>
     );
 
@@ -266,11 +226,7 @@ export default function Settings() {
           <div style={{ padding: '18px 20px' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 14, marginBottom: 20, paddingBottom: 18, borderBottom: `1px solid ${P.border}` }}>
               <div style={{ width: 50, height: 50, background: P.green, borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', fontSize: '1.125rem', fontWeight: 700, flexShrink: 0 }}>{initials}</div>
-              <div>
-                <div style={{ fontWeight: 650, fontSize: '0.9375rem', color: P.text }}>{seller?.full_name}</div>
-                <div style={{ fontSize: P.fontSize, color: P.textSubdued }}>{seller?.email}</div>
-                <span style={{ fontSize: '0.6875rem', padding: '2px 8px', background: '#cdfed4', color: '#006847', borderRadius: 20, fontWeight: 600, textTransform: 'uppercase', display: 'inline-block', marginTop: 4 }}>{seller?.plan || 'free'} plan</span>
-              </div>
+              <div><div style={{ fontWeight: 650, fontSize: '0.9375rem', color: P.text }}>{seller?.full_name}</div><div style={{ fontSize: P.fontSize, color: P.textSubdued }}>{seller?.email}</div><span style={{ fontSize: '0.6875rem', padding: '2px 8px', background: '#cdfed4', color: '#006847', borderRadius: 20, fontWeight: 600, textTransform: 'uppercase', display: 'inline-block', marginTop: 4 }}>{seller?.plan || 'free'} plan</span></div>
             </div>
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: 14, marginBottom: 16 }}>
               <Inp label="Full name" value={form.full_name} onChange={e => setForm({ ...form, full_name: e.target.value })}/>
@@ -287,16 +243,9 @@ export default function Settings() {
         <h1 style={{ fontSize: '1.125rem', fontWeight: 650, color: P.text, margin: '0 0 16px', letterSpacing: '-0.02em' }}>Payments</h1>
         <Card>
           <CardHead title="Payment providers" subtitle="Accept payments from your customers"/>
-          {[
-            { name: 'Stripe', desc: 'Credit cards, Apple Pay, Google Pay worldwide' },
-            { name: 'PayPal', desc: 'PayPal and Venmo payments' },
-            { name: 'Paystack', desc: 'Cards, bank transfer, USSD across Africa' },
-          ].map((p, i, arr) => (
-            <div key={i} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '14px 20px', borderBottom: i < arr.length - 1 ? `1px solid ${P.border}` : 'none', background: P.surface }}>
-              <div>
-                <div style={{ fontWeight: 500, fontSize: P.fontSize, color: P.text }}>{p.name}</div>
-                <div style={{ fontSize: '0.75rem', color: P.textSubdued, marginTop: 2 }}>{p.desc}</div>
-              </div>
+          {[{ name: 'Stripe', desc: 'Credit cards, Apple Pay, Google Pay worldwide' }, { name: 'PayPal', desc: 'PayPal and Venmo payments' }, { name: 'Paystack', desc: 'Cards, bank transfer, USSD across Africa' }].map((p, i, arr) => (
+            <div key={i} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '14px 20px', borderBottom: i < arr.length - 1 ? `1px solid ${P.border}` : 'none' }}>
+              <div><div style={{ fontWeight: 500, fontSize: P.fontSize, color: P.text }}>{p.name}</div><div style={{ fontSize: '0.75rem', color: P.textSubdued, marginTop: 2 }}>{p.desc}</div></div>
               <button style={{ padding: '6px 14px', background: P.surface, border: `1px solid ${P.border}`, borderRadius: 8, cursor: 'pointer', fontSize: P.fontSize, fontWeight: 500, fontFamily: P.font, color: P.text }}>Connect</button>
             </div>
           ))}
@@ -309,20 +258,9 @@ export default function Settings() {
         <h1 style={{ fontSize: '1.125rem', fontWeight: 650, color: P.text, margin: '0 0 16px', letterSpacing: '-0.02em' }}>Notifications</h1>
         <Card>
           <CardHead title="Email notifications" subtitle="Choose which events trigger an email"/>
-          {[
-            { key: 'new_order', label: 'New order received', desc: 'When a customer places an order' },
-            { key: 'order_shipped', label: 'Order shipped', desc: 'When tracking is added to an order' },
-            { key: 'price_change', label: 'Price change alert', desc: 'When source price changes' },
-            { key: 'out_of_stock', label: 'Out of stock alert', desc: 'When a source product goes out of stock' },
-            { key: 'auto_buy_failed', label: 'Auto-buy failed', desc: 'When automatic purchase fails' },
-            { key: 'weekly_summary', label: 'Weekly summary', desc: 'Weekly performance report' },
-            { key: 'marketing', label: 'Marketing emails', desc: 'Tips, updates and new features' },
-          ].map((n, i, arr) => (
-            <div key={n.key} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '13px 20px', borderBottom: i < arr.length - 1 ? `1px solid ${P.border}` : 'none', background: P.surface }}>
-              <div>
-                <div style={{ fontSize: P.fontSize, fontWeight: 500, color: P.text }}>{n.label}</div>
-                <div style={{ fontSize: '0.75rem', color: P.textSubdued, marginTop: 2 }}>{n.desc}</div>
-              </div>
+          {[{ key: 'new_order', label: 'New order received', desc: 'When a customer places an order' }, { key: 'order_shipped', label: 'Order shipped', desc: 'When tracking is added' }, { key: 'price_change', label: 'Price change alert', desc: 'When source price changes' }, { key: 'out_of_stock', label: 'Out of stock alert', desc: 'When a source product goes out of stock' }, { key: 'auto_buy_failed', label: 'Auto-buy failed', desc: 'When automatic purchase fails' }, { key: 'weekly_summary', label: 'Weekly summary', desc: 'Weekly performance report' }, { key: 'marketing', label: 'Marketing emails', desc: 'Tips, updates and new features' }].map((n, i, arr) => (
+            <div key={n.key} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '13px 20px', borderBottom: i < arr.length - 1 ? `1px solid ${P.border}` : 'none' }}>
+              <div><div style={{ fontSize: P.fontSize, fontWeight: 500, color: P.text }}>{n.label}</div><div style={{ fontSize: '0.75rem', color: P.textSubdued, marginTop: 2 }}>{n.desc}</div></div>
               <Toggle on={notifs[n.key]} onChange={() => setNotifs(prev => ({ ...prev, [n.key]: !prev[n.key] }))}/>
             </div>
           ))}
@@ -336,22 +274,13 @@ export default function Settings() {
         <Card>
           <CardHead title="Your domains"/>
           <div style={{ padding: '18px 20px' }}>
-            {[
-              { domain: 'onshipy.com', type: 'Primary domain' },
-              { domain: 'api.onshipy.com', type: 'API subdomain' },
-              { domain: 'www.onshipy.com', type: 'Redirect' },
-            ].map((d, i) => (
+            {[{ domain: 'onshipy.com', type: 'Primary domain' }, { domain: 'api.onshipy.com', type: 'API subdomain' }, { domain: 'www.onshipy.com', type: 'Redirect' }].map((d, i) => (
               <div key={i} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '12px 14px', background: P.bg, borderRadius: 8, marginBottom: 8, border: `1px solid ${P.border}` }}>
-                <div>
-                  <div style={{ fontWeight: 500, fontSize: P.fontSize, color: P.text }}>{d.domain}</div>
-                  <div style={{ fontSize: '0.75rem', color: P.textSubdued }}>{d.type}</div>
-                </div>
+                <div><div style={{ fontWeight: 500, fontSize: P.fontSize, color: P.text }}>{d.domain}</div><div style={{ fontSize: '0.75rem', color: P.textSubdued }}>{d.type}</div></div>
                 <span style={{ fontSize: '0.6875rem', padding: '2px 8px', borderRadius: 20, background: '#cdfed4', color: '#006847', fontWeight: 600 }}>Active</span>
               </div>
             ))}
-            <button style={{ marginTop: 8, padding: '7px 16px', background: P.text, color: '#fff', border: 'none', borderRadius: 8, cursor: 'pointer', fontSize: P.fontSize, fontWeight: 500, fontFamily: P.font }}>
-              Connect existing domain
-            </button>
+            <button style={{ marginTop: 8, padding: '7px 16px', background: P.text, color: '#fff', border: 'none', borderRadius: 8, cursor: 'pointer', fontSize: P.fontSize, fontWeight: 500, fontFamily: P.font }}>Connect existing domain</button>
           </div>
         </Card>
       </div>
@@ -363,12 +292,9 @@ export default function Settings() {
         <Card>
           <CardHead title="Store policies" subtitle="Build trust with your customers"/>
           {['Refund policy', 'Privacy policy', 'Terms of service', 'Shipping policy', 'Contact information'].map((policy, i, arr) => (
-            <div key={i} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '13px 20px', borderBottom: i < arr.length - 1 ? `1px solid ${P.border}` : 'none', cursor: 'pointer', background: P.surface }}>
+            <div key={i} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '13px 20px', borderBottom: i < arr.length - 1 ? `1px solid ${P.border}` : 'none', cursor: 'pointer' }}>
               <div style={{ fontSize: P.fontSize, fontWeight: 500, color: P.text }}>{policy}</div>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                <span style={{ fontSize: P.fontSize, color: P.textSubdued }}>Not created</span>
-                <svg width="12" height="12" fill="none" stroke={P.textSubdued} strokeWidth="2" viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg>
-              </div>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}><span style={{ fontSize: P.fontSize, color: P.textSubdued }}>Not created</span><svg width="12" height="12" fill="none" stroke={P.textSubdued} strokeWidth="2" viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg></div>
             </div>
           ))}
         </Card>
@@ -382,27 +308,15 @@ export default function Settings() {
           <CardHead title="Change password" subtitle="Use a strong password of at least 8 characters"/>
           <div style={{ padding: '18px 20px', maxWidth: 400 }}>
             {[{ label: 'Current password', key: 'current_password' }, { label: 'New password', key: 'new_password' }, { label: 'Confirm new password', key: 'confirm_password' }].map(f => (
-              <div key={f.key} style={{ marginBottom: 12 }}>
-                <Inp label={f.label} type="password" value={pwForm[f.key]} onChange={e => setPwForm({ ...pwForm, [f.key]: e.target.value })} placeholder="••••••••"/>
-              </div>
+              <div key={f.key} style={{ marginBottom: 12 }}><Inp label={f.label} type="password" value={pwForm[f.key]} onChange={e => setPwForm({ ...pwForm, [f.key]: e.target.value })} placeholder="••••••••"/></div>
             ))}
             <SaveBtn onClick={handlePassword} saving={saving} label="Update password"/>
-          </div>
-        </Card>
-        <Card>
-          <CardHead title="Login sessions" subtitle="Manage where you're logged in"/>
-          <div style={{ padding: '14px 20px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-            <div>
-              <div style={{ fontSize: P.fontSize, fontWeight: 500, color: P.text }}>Current session</div>
-              <div style={{ fontSize: '0.75rem', color: P.textSubdued, marginTop: 2 }}>Active now</div>
-            </div>
-            <span style={{ fontSize: '0.6875rem', padding: '2px 8px', borderRadius: 20, background: '#cdfed4', color: '#006847', fontWeight: 600 }}>Active</span>
           </div>
         </Card>
       </div>
     );
 
-    return <ComingSoon title={activeNav?.label || 'Settings'}/>;
+    return <ComingSoon title={NAV.find(n => n.id === active)?.label || 'Settings'}/>;
   };
 
   return (
@@ -414,69 +328,38 @@ export default function Settings() {
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous"/>
         <link href="https://fonts.googleapis.com/css2?family=Inter:wght@100..900&display=swap" rel="stylesheet"/>
       </Head>
-
       <style>{`
         *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-        html, body {
-          font-family: "Inter var","Inter",-apple-system,BlinkMacSystemFont,sans-serif;
-          font-size: 0.8125rem; font-weight: 450; letter-spacing: -0.00833em;
-          color: rgba(48,48,48,1); background: #f1f1f1;
-          -webkit-font-smoothing: antialiased;
-        }
-        .row-hover:hover { background: #f7f7f7; }
-
-        /* ── TOPBAR ── */
-        .st-topbar {
-          position: fixed; top: 0; left: 0; right: 0; height: 56px;
-          background: #1a1a1a; z-index: 500;
-          display: flex; align-items: center; padding: 0 16px; gap: 12px;
-        }
-
-        /* ── DESKTOP: side by side ── */
-        .st-shell {
-          display: flex; min-height: 100vh; padding-top: 56px;
-        }
-        .st-nav {
-          width: 260px; flex-shrink: 0; background: #fff;
-          border-right: 1px solid rgba(227,227,227,1);
-          min-height: calc(100vh - 56px); overflow-y: auto;
-          position: sticky; top: 56px; align-self: flex-start;
-          height: calc(100vh - 56px);
-        }
-        .st-content {
-          flex: 1; padding: 24px 28px 60px; min-width: 0; background: #f1f1f1;
-        }
-
-        /* ── MOBILE: full-screen list then full-screen content ── */
+        html, body { font-family: "Inter var","Inter",-apple-system,BlinkMacSystemFont,sans-serif; font-size: 0.8125rem; font-weight: 450; letter-spacing: -0.00833em; color: rgba(48,48,48,1); background: #f1f1f1; -webkit-font-smoothing: antialiased; }
+        .st-topbar { position: fixed; top: 0; left: 0; right: 0; height: 56px; background: #1a1a1a; z-index: 500; display: flex; align-items: center; padding: 0 16px; gap: 12px; }
+        .st-shell { display: flex; min-height: 100vh; padding-top: 56px; }
+        .st-nav { width: 260px; flex-shrink: 0; background: #fff; border-right: 1px solid rgba(227,227,227,1); overflow-y: auto; position: sticky; top: 56px; height: calc(100vh - 56px); align-self: flex-start; }
+        .st-content { flex: 1; padding: 24px 28px 60px; min-width: 0; background: #f1f1f1; }
+        .nav-row { display: flex; align-items: center; width: 100%; padding: 11px 16px; background: none; border: none; border-bottom: 1px solid rgba(227,227,227,1); cursor: pointer; font-family: inherit; gap: 12px; text-align: left; transition: background .1s; }
+        .nav-row:hover { background: #f7f7f7; }
+        .nav-row.active { background: #f0f0f0; }
+        .mob-back { display: none; align-items: center; gap: 8px; width: 100%; padding: 14px 16px; background: #fff; border: none; border-bottom: 1px solid rgba(227,227,227,1); cursor: pointer; font-size: 0.8125rem; font-family: inherit; color: rgba(97,97,97,1); }
         @media (max-width: 767px) {
           .st-shell { flex-direction: column; }
-          /* Nav takes full screen on mobile when no section selected */
-          .st-nav {
-            width: 100%; min-height: auto; height: auto;
-            position: static; border-right: none;
-            border-bottom: 1px solid rgba(227,227,227,1);
-          }
+          .st-nav { width: 100%; height: auto; position: static; border-right: none; }
           .st-nav.mob-hidden { display: none; }
           .st-content { padding: 0 0 40px; }
           .st-content.mob-hidden { display: none; }
+          .st-content > .content-inner { padding: 16px; }
+          .mob-back { display: flex !important; }
         }
       `}</style>
 
       {toast && (
-        <div style={{ position: 'fixed', top: 72, right: 16, background: toast.err ? '#d82c0d' : P.text, color: '#fff', padding: '10px 16px', borderRadius: 8, fontSize: P.fontSize, fontWeight: 500, zIndex: 9999, boxShadow: '0 4px 16px rgba(0,0,0,0.2)', fontFamily: P.font }}>
+        <div style={{ position: 'fixed', top: 68, right: 16, background: toast.err ? '#d82c0d' : P.text, color: '#fff', padding: '10px 16px', borderRadius: 8, fontSize: P.fontSize, fontWeight: 500, zIndex: 9999, boxShadow: '0 4px 16px rgba(0,0,0,0.2)', fontFamily: P.font }}>
           {toast.err ? '' : '✓ '}{toast.msg}
         </div>
       )}
 
-      {/* ── TOPBAR ── */}
+      {/* TOPBAR — hamburger goes to dashboard */}
       <div className="st-topbar">
-        <button
-          onClick={() => active ? goBack() : router.push('/dashboard')}
-          style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'rgba(255,255,255,0.7)', display: 'flex', padding: 6, borderRadius: 6 }}
-        >
-          <svg width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
-            <line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/>
-          </svg>
+        <button onClick={() => router.push('/dashboard')} style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'rgba(255,255,255,0.7)', display: 'flex', padding: 6, borderRadius: 6 }}>
+          <svg width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
         </button>
         <div style={{ flex: 1, display: 'flex', justifyContent: 'center' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 8, background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.13)', borderRadius: 624, padding: '0 14px', height: 34, maxWidth: 480, width: '100%' }}>
@@ -484,23 +367,20 @@ export default function Settings() {
             <span style={{ fontSize: P.fontSize, color: 'rgba(255,255,255,0.35)', flex: 1 }}>Search</span>
           </div>
         </div>
-        <div style={{ width: 30, height: 30, background: P.green, borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', fontWeight: 700, fontSize: 11, cursor: 'pointer' }}>
+        <div onClick={() => router.push('/settings')} style={{ width: 30, height: 30, background: P.green, borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', fontWeight: 700, fontSize: 11, cursor: 'pointer' }}>
           {initials}
         </div>
       </div>
 
-      {/* ── MAIN SHELL ── */}
       <div className="st-shell">
-
-        {/* ── LEFT NAV — hidden on mobile when a section is active ── */}
+        {/* LEFT NAV */}
         <div className={`st-nav${active ? ' mob-hidden' : ''}`}>
-          {/* Header */}
+          {/* Settings header */}
           <div style={{ padding: '14px 16px', borderBottom: `1px solid ${P.border}` }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 12 }}>
-              <svg width="20" height="20" viewBox="0 0 20 20" fill={P.textSubdued}><path d="M11.013 2.513a1.75 1.75 0 0 0-2.027 0l-1.5 1.134a1.75 1.75 0 0 1-.59.28l-1.84.44a1.75 1.75 0 0 0-1.433 1.79l.065 1.9a1.75 1.75 0 0 1-.165.67l-.8 1.7a1.75 1.75 0 0 0 .492 2.21l1.49 1.147a1.75 1.75 0 0 1 .485.572l.84 1.716a1.75 1.75 0 0 0 2.127.817l1.78-.608a1.75 1.75 0 0 1 1.13 0l1.78.608a1.75 1.75 0 0 0 2.127-.817l.84-1.716a1.75 1.75 0 0 1 .485-.572l1.49-1.147a1.75 1.75 0 0 0 .492-2.21l-.8-1.7a1.75 1.75 0 0 1-.165-.67l.065-1.9a1.75 1.75 0 0 0-1.434-1.79l-1.84-.44a1.75 1.75 0 0 1-.59-.28l-1.499-1.134Z"/></svg>
+              <span style={{ color: P.textSubdued }}>{ICONS.security}</span>
               <span style={{ fontWeight: 650, fontSize: '1rem', color: P.text }}>Settings</span>
             </div>
-            {/* Store pill */}
             <div style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '8px 10px', background: P.bg, borderRadius: 8, border: `1px solid ${P.border}` }}>
               <div style={{ width: 32, height: 32, background: P.green, borderRadius: 8, display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', fontWeight: 700, fontSize: 13, flexShrink: 0 }}>
                 {seller?.store_name?.[0]?.toUpperCase() || 'O'}
@@ -520,68 +400,37 @@ export default function Settings() {
             </div>
           </div>
 
-          {/* Nav list — bigger items on mobile like Shopify */}
-          <div style={{ padding: '6px 0' }}>
+          {/* Nav rows — proper Shopify style with SVG icons */}
+          <div>
             {NAV.map(item => (
               <button
                 key={item.id}
                 onClick={() => goSection(item.id)}
-                style={{
-                  display: 'flex', alignItems: 'center', width: '100%', padding: '12px 16px',
-                  background: active === item.id ? '#f0f0f0' : 'none',
-                  border: 'none', borderBottom: `1px solid ${P.border}`,
-                  cursor: 'pointer', fontFamily: P.font, gap: 12,
-                  color: active === item.id ? P.text : P.text,
-                  textAlign: 'left',
-                }}
+                className={`nav-row${active === item.id ? ' active' : ''}`}
               >
-                <span style={{ fontSize: '18px', flexShrink: 0 }}>{item.icon}</span>
-                <span style={{ flex: 1, fontSize: '0.9375rem', fontWeight: active === item.id ? 600 : 450, letterSpacing: P.letterSpacing }}>{item.label}</span>
-                <svg width="14" height="14" fill="none" stroke={P.textSubdued} strokeWidth="2" viewBox="0 0 24 24" style={{ flexShrink: 0 }}><polyline points="9 18 15 12 9 6"/></svg>
+                <span style={{ color: active === item.id ? P.text : P.textSubdued, display: 'flex', flexShrink: 0 }}>
+                  {ICONS[item.id]}
+                </span>
+                <span style={{ flex: 1, fontSize: '0.875rem', fontWeight: active === item.id ? 600 : 450, color: P.text }}>
+                  {item.label}
+                </span>
               </button>
             ))}
           </div>
-
-          {/* Back to app */}
-          <div style={{ padding: '12px 16px', borderTop: `1px solid ${P.border}` }}>
-            <button
-              onClick={() => router.push('/dashboard')}
-              style={{ display: 'flex', alignItems: 'center', gap: 8, background: 'none', border: 'none', cursor: 'pointer', color: P.textSubdued, fontSize: P.fontSize, fontFamily: P.font, padding: '6px 0', width: '100%' }}
-            >
-              <svg width="14" height="14" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg>
-              Back to Onshipy
-            </button>
-          </div>
         </div>
 
-        {/* ── CONTENT — hidden on mobile when no section selected ── */}
+        {/* CONTENT */}
         <div className={`st-content${!active ? ' mob-hidden' : ''}`}>
-          {/* Mobile back button */}
-          {active && (
-            <div style={{ display: 'none' }} className="mob-section-back">
-              <button
-                onClick={goBack}
-                style={{ display: 'flex', alignItems: 'center', gap: 8, width: '100%', padding: '14px 16px', background: P.surface, border: 'none', borderBottom: `1px solid ${P.border}`, cursor: 'pointer', fontSize: P.fontSize, fontFamily: P.font, color: P.textSubdued }}
-              >
-                <svg width="14" height="14" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg>
-                Settings
-              </button>
-            </div>
-          )}
-          <div style={{ padding: 0 }}>
+          {/* Mobile: back button */}
+          <button className="mob-back" onClick={() => router.push('/settings', undefined, { shallow: true })}>
+            <svg width="14" height="14" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg>
+            Settings
+          </button>
+          <div className="content-inner" style={{ padding: '24px 28px 60px' }}>
             <SectionContent/>
           </div>
         </div>
       </div>
-
-      {/* Mobile: show back button inside content on small screens */}
-      <style>{`
-        @media (max-width: 767px) {
-          .mob-section-back { display: block !important; }
-          .st-content { padding: 0 !important; }
-          .st-content > div { padding: 16px; }
-        }
-      `}</style>
     </>
   );
 }

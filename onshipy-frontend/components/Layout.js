@@ -49,10 +49,7 @@ export default function Layout({ children, title }) {
 
   const mainNav = [
     { href: '/dashboard', label: 'Home' },
-    { href: '/orders',    label: 'Orders', sub: [
-      { href: '/orders?tab=drafts',    label: 'Drafts' },
-      { href: '/orders?tab=abandoned', label: 'Abandoned checkouts' },
-    ]},
+    { href: '/orders',    label: 'Orders' },
     { href: '/products',  label: 'Products', sub: [
       { href: '/products?section=inventory',       label: 'Inventory' },
       { href: '/products?section=purchase_orders', label: 'Purchase orders' },
