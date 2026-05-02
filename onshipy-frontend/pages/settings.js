@@ -105,6 +105,8 @@ export default function Settings() {
   const [form, setForm] = useState({ full_name: '', email: '', store_name: '', store_url: '' });
   const [pwForm, setPwForm] = useState({ current_password: '', new_password: '', confirm_password: '' });
   const [saving, setSaving] = useState(false);
+  const [upgrading, setUpgrading] = useState('');
+  const [upgrading, setUpgrading] = useState('');
   const [toast, setToast] = useState(null);
   const [notifs, setNotifs] = useState({ new_order: true, order_shipped: true, price_change: true, out_of_stock: true, auto_buy_failed: true, weekly_summary: false, marketing: false });
   const [settingsSearch, setSettingsSearch] = useState('');
@@ -120,8 +122,21 @@ export default function Settings() {
   const filteredNav = settingsSearch
     ? NAV.filter(n => n.label.toLowerCase().includes(settingsSearch.toLowerCase()))
     : NAV;
+  const GLOBAL_SEARCH = [
+    { label: 'Home', desc: 'Dashboard overview', href: '/dashboard', icon: 'home' },
+    { label: 'Orders', desc: 'View and manage orders', href: '/orders', icon: 'orders' },
+    { label: 'Products', desc: 'Imported products', href: '/products', icon: 'products' },
+    { label: 'Customers', desc: 'Customer list', href: '/customers', icon: 'customers' },
+    { label: 'Analytics', desc: 'Sales and traffic data', href: '/analytics', icon: 'analytics' },
+    { label: 'Browse brands', desc: 'Find products from top brands', href: '/browse', icon: 'browse' },
+    { label: 'Online Store', desc: 'Connect Shopify, WooCommerce', href: '/online-store', icon: 'store' },
+    ...NAV.map(n => ({ label: n.label + ' settings', desc: 'Settings › ' + n.label, href: '/settings?section=' + n.id, icon: n.id, isSettings: true })),
+  ];
   const topbarResults = topbarSearch
-    ? NAV.filter(n => n.label.toLowerCase().includes(topbarSearch.toLowerCase())).slice(0, 6)
+    ? GLOBAL_SEARCH.filter(n =>
+        n.label.toLowerCase().includes(topbarSearch.toLowerCase()) ||
+        n.desc.toLowerCase().includes(topbarSearch.toLowerCase())
+      ).slice(0, 8)
     : [];
 
   useEffect(() => {
@@ -236,7 +251,7 @@ export default function Settings() {
                 </div>
                 {plan.features.map((f, i) => <div key={i} style={{ display: 'flex', gap: 8, marginBottom: 6, fontSize: P.fontSize, color: P.textSubdued }}><span style={{ color: P.green }}>✓</span>{f}</div>)}
                 {!isCurrent
-                  ? <button onClick={() => router.push('/plans')} style={{ width: '100%', marginTop: 14, padding: 8, background: plan.color, color: '#fff', border: 'none', borderRadius: 8, cursor: 'pointer', fontWeight: 600, fontSize: P.fontSize, fontFamily: P.font }}>Upgrade to {plan.name}</button>
+                  ? <button onClick={() => handleUpgrade(plan.id)} disabled={!!upgrading} style={{ width: '100%', marginTop: 14, padding: 8, background: upgrading === plan.id ? P.textSubdued : plan.color, color: '#fff', border: 'none', borderRadius: 8, cursor: upgrading ? 'not-allowed' : 'pointer', fontWeight: 600, fontSize: P.fontSize, fontFamily: P.font }}>{upgrading === plan.id ? 'Redirecting...' : `Upgrade to ${plan.name}`}</button>
                   : <button disabled style={{ width: '100%', marginTop: 14, padding: 8, background: P.bg, color: P.textSubdued, border: `1px solid ${P.border}`, borderRadius: 8, cursor: 'not-allowed', fontWeight: 500, fontSize: P.fontSize, fontFamily: P.font }}>Current plan</button>
                 }
               </div>
@@ -249,8 +264,34 @@ export default function Settings() {
     if (active === 'billing') return (
       <div style={{ maxWidth: 700 }}>
         <h1 style={{ fontSize: '1.125rem', fontWeight: 650, color: P.text, margin: '0 0 16px', letterSpacing: '-0.02em' }}>Billing</h1>
-        <Card><CardHead title="Payment method"/><div style={{ padding: '18px 20px' }}><div style={{ border: `1px solid ${P.border}`, borderRadius: 8, padding: '14px 16px', marginBottom: 14, fontSize: P.fontSize, color: P.textSubdued }}>No payment method added yet</div><button onClick={() => router.push('/plans')} style={{ padding: '7px 16px', background: P.text, color: '#fff', border: 'none', borderRadius: 8, cursor: 'pointer', fontSize: P.fontSize, fontWeight: 500, fontFamily: P.font }}>Add payment method</button></div></Card>
-        <Card><CardHead title="Billing history"/><div style={{ padding: '48px 40px', textAlign: 'center', color: P.textSubdued, fontSize: P.fontSize }}>No billing history yet</div></Card>
+        <Card>
+          <CardHead title="Current plan"/>
+          <div style={{ padding: '18px 20px' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
+              <div>
+                <div style={{ fontWeight: 650, fontSize: '0.9375rem', color: P.text, textTransform: 'capitalize' }}>{seller?.plan || 'free'} Plan</div>
+                <div style={{ fontSize: P.fontSize, color: P.textSubdued, marginTop: 2 }}>
+                  {seller?.plan === 'free' ? 'Upgrade to unlock more features' : 'Active subscription'}
+                </div>
+              </div>
+              <span style={{ padding: '3px 12px', background: '#cdfed4', color: '#006847', borderRadius: 20, fontSize: '0.6875rem', fontWeight: 600, textTransform: 'capitalize' }}>{seller?.plan || 'free'}</span>
+            </div>
+            {seller?.plan === 'free' ? (
+              <button onClick={() => goSection('plan')} style={{ padding: '7px 16px', background: P.text, color: '#fff', border: 'none', borderRadius: 8, cursor: 'pointer', fontSize: P.fontSize, fontWeight: 500, fontFamily: P.font }}>
+                View plans
+              </button>
+            ) : (
+              <button onClick={handleManageBilling} style={{ padding: '7px 16px', background: P.text, color: '#fff', border: 'none', borderRadius: 8, cursor: 'pointer', fontSize: P.fontSize, fontWeight: 500, fontFamily: P.font }}>
+                Manage subscription
+              </button>
+            )}
+          </div>
+        </Card>
+        <Card><CardHead title="Billing history"/><div style={{ padding: '48px 40px', textAlign: 'center', color: P.textSubdued, fontSize: P.fontSize }}>
+          {seller?.plan === 'free' ? 'No billing history yet' : (
+            <button onClick={handleManageBilling} style={{ background: 'none', border: 'none', color: P.green, cursor: 'pointer', fontSize: P.fontSize, fontWeight: 500, fontFamily: P.font }}>View invoices in Stripe →</button>
+          )}
+        </div></Card>
       </div>
     );
 
@@ -355,6 +396,36 @@ export default function Settings() {
     return <ComingSoon title={NAV.find(n => n.id === active)?.label || 'Settings'}/>;
   };
 
+  const handleUpgrade = async (planId) => {
+    const t = localStorage.getItem('onshipy_token');
+    if (!t) return;
+    setUpgrading(planId);
+    try {
+      const res = await fetch(`${API_BASE}/api/billing/checkout`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${t}` },
+        body: JSON.stringify({ plan: planId })
+      });
+      const data = await res.json();
+      if (data.url) window.location.href = data.url;
+      else alert(data.error || 'Something went wrong');
+    } catch { alert('Connection error. Please try again.'); }
+    setUpgrading('');
+  };
+
+  const handleManageBilling = async () => {
+    const t = localStorage.getItem('onshipy_token');
+    if (!t) return;
+    try {
+      const res = await fetch(`${API_BASE}/api/billing/portal`, {
+        method: 'POST', headers: { Authorization: `Bearer ${t}` }
+      });
+      const data = await res.json();
+      if (data.url) window.location.href = data.url;
+      else alert(data.error || 'No active subscription found');
+    } catch { alert('Connection error'); }
+  };
+
   return (
     <>
       <Head>
@@ -391,10 +462,7 @@ export default function Settings() {
 
       {/* TOPBAR — "Onshipy" text goes to dashboard */}
       <div className="st-topbar">
-        <div onClick={() => router.push('/dashboard')} style={{ cursor: 'pointer', flexShrink: 0, display: 'flex', alignItems: 'center', gap: 8 }}>
-          <img src="/favicon-32x32.png" alt="Onshipy" width={20} height={20} style={{ filter: 'brightness(0) invert(1)', flexShrink: 0 }} />
-          <span style={{ color: '#fff', fontWeight: 700, fontSize: '1.0625rem', letterSpacing: '-0.02em', fontFamily: '"Space Grotesk", sans-serif' }}>Onshipy</span>
-        </div>
+        <span onClick={() => router.push('/dashboard')} style={{ color: '#fff', fontWeight: 750, fontSize: '1rem', letterSpacing: '-0.03em', cursor: 'pointer', flexShrink: 0 }}>Onshipy</span>
         <div style={{ flex: 1, display: 'flex', justifyContent: 'center', position: 'relative', maxWidth: 540, margin: '0 auto', width: '100%', padding: '0 16px' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 8, background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.13)', borderRadius: 624, padding: '0 14px', height: 34, width: '100%' }}>
             <svg width="14" height="14" fill="none" stroke="rgba(255,255,255,0.45)" strokeWidth="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
@@ -416,13 +484,19 @@ export default function Settings() {
             <div style={{ position: 'absolute', top: '100%', left: 16, right: 16, marginTop: 6, background: '#fff', borderRadius: 10, boxShadow: '0 8px 30px rgba(0,0,0,0.15)', border: `1px solid ${P.border}`, overflow: 'hidden', zIndex: 800 }}>
               {topbarResults.map((item, i) => (
                 <div key={i}
-                  onMouseDown={() => { goSection(item.id); setTopbarSearch(''); setTopbarSearchOpen(false); }}
+                  onMouseDown={() => {
+                    setTopbarSearch(''); setTopbarSearchOpen(false);
+                    if (item.isSettings) { goSection(item.href.split('section=')[1]); }
+                    else { router.push(item.href); }
+                  }}
                   style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '10px 14px', cursor: 'pointer', borderBottom: i < topbarResults.length - 1 ? `1px solid ${P.border}` : 'none', background: 'transparent' }}
                   onMouseEnter={e => e.currentTarget.style.background = '#f7f7f7'}
                   onMouseLeave={e => e.currentTarget.style.background = 'transparent'}
                 >
-                  <span style={{ color: P.textSubdued, display: 'flex' }}>{ICONS[item.id]}</span>
-                  <span style={{ fontSize: P.fontSize, fontWeight: 500, color: P.text }}>{item.label}</span>
+                  <div style={{ display: 'flex', flexDirection: 'column' }}>
+                    <span style={{ fontSize: P.fontSize, fontWeight: 500, color: P.text }}>{item.label}</span>
+                    <span style={{ fontSize: '0.75rem', color: P.textSubdued }}>{item.desc}</span>
+                  </div>
                 </div>
               ))}
             </div>
