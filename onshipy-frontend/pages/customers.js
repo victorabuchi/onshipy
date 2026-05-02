@@ -25,7 +25,6 @@ const Btn = ({ children, onClick, variant = 'secondary', style = {} }) => {
   );
 };
 
-// Segment definitions — mirrors Shopify's default segments
 const SEGMENTS = [
   { id: 'all', label: 'All customers', filter: () => true },
   { id: 'repeat', label: 'Returning customers', filter: c => c.orders.length > 1 },
@@ -55,7 +54,6 @@ export default function Customers() {
       .finally(() => setLoading(false));
   }, []);
 
-  // Build customer profiles from orders
   const allCustomers = Object.values(orders.reduce((acc, o) => {
     const key = o.customer_email || o.id;
     if (!acc[key]) acc[key] = {
@@ -78,7 +76,6 @@ export default function Customers() {
     c.email?.toLowerCase().includes(search.toLowerCase())
   );
 
-  // Sort
   filtered = [...filtered].sort((a, b) => {
     let av, bv;
     if (sortBy === 'spent') { av = a.total_spent; bv = b.total_spent; }
@@ -131,11 +128,11 @@ export default function Customers() {
       <div style={{ fontFamily: P.font, fontSize: P.fontSize, letterSpacing: P.letterSpacing, color: P.text, display: 'flex', height: 'calc(100vh - 56px)' }}>
 
         {/* ── Main panel ── */}
-        <div style={{ flex: 1, overflowY: 'auto', background: P.bg, minWidth: 0 }}>
+        <div style={{ flex: 1, overflowY: 'auto', background: P.bg, minWidth: 0, display: 'flex', flexDirection: 'column' }}>
 
-          {/* Page header */}
-          <div style={{ background: P.surface, borderBottom: `1px solid ${P.border}`, padding: '14px 20px 0' }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
+          {/* Header — floating on gray bg */}
+          <div style={{ padding: '12px 20px 8px' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 10 }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
                 <svg width="20" height="20" viewBox="0 0 20 20" fill={P.textSubdued}>
                   <path d="M13 8a3 3 0 1 1-6 0 3 3 0 0 1 6 0Zm-1.5 0a1.5 1.5 0 1 0-3 0 1.5 1.5 0 0 0 3 0Z"/>
@@ -150,12 +147,12 @@ export default function Customers() {
             </div>
 
             {/* Segment tabs */}
-            <div style={{ display: 'flex', gap: 0, marginBottom: -1, overflowX: 'auto', scrollbarWidth: 'none' }}>
+            <div style={{ display: 'flex', gap: 0, overflowX: 'auto', scrollbarWidth: 'none' }}>
               {SEGMENTS.map(s => (
                 <button key={s.id} className={`seg-tab${segment === s.id ? ' active' : ''}`}
                   onClick={() => { setSegment(s.id); setSelected(null); }}>
                   {s.label}
-                  <span style={{ marginLeft: 6, fontSize: '0.625rem', background: P.bg, color: P.textSubdued, padding: '1px 6px', borderRadius: 20, fontWeight: 600 }}>
+                  <span style={{ marginLeft: 6, fontSize: '0.625rem', background: 'rgba(0,0,0,0.08)', color: P.textSubdued, padding: '1px 6px', borderRadius: 20, fontWeight: 600 }}>
                     {allCustomers.filter(s.filter).length}
                   </span>
                 </button>
@@ -163,23 +160,29 @@ export default function Customers() {
             </div>
           </div>
 
-          <div style={{ padding: '16px 20px 60px' }}>
+          {/* Main white card */}
+          <div style={{ background: P.surface, margin: '0 16px 16px', borderRadius: 12, border: `1px solid ${P.border}`, overflow: 'hidden', flex: 1, display: 'flex', flexDirection: 'column' }}>
 
-            {/* Search + filter bar */}
-            <div style={{ display: 'flex', gap: 8, marginBottom: 14, flexWrap: 'wrap' }}>
+            {/* Search bar */}
+            <div style={{ padding: '12px 16px', borderBottom: `1px solid ${P.border}`, display: 'flex', gap: 8 }}>
               <div style={{ position: 'relative', flex: 1, maxWidth: 360 }}>
                 <svg width="14" height="14" fill="none" stroke={P.textSubdued} strokeWidth="2" viewBox="0 0 24 24" style={{ position: 'absolute', left: 10, top: '50%', transform: 'translateY(-50%)' }}>
                   <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
                 </svg>
                 <input type="text" value={search} onChange={e => setSearch(e.target.value)}
                   placeholder="Search customers..."
-                  style={{ width: '100%', padding: '7px 12px 7px 32px', border: `1px solid ${P.border}`, borderRadius: 8, fontSize: P.fontSize, outline: 'none', fontFamily: P.font, letterSpacing: P.letterSpacing, color: P.text, background: P.surface, boxSizing: 'border-box' }} />
+                  style={{ width: '100%', padding: '7px 12px 7px 32px', border: `1px solid ${P.border}`, borderRadius: 8, fontSize: P.fontSize, outline: 'none', fontFamily: P.font, letterSpacing: P.letterSpacing, color: P.text, background: P.bg, boxSizing: 'border-box' }} />
               </div>
             </div>
 
-            {/* Empty state */}
+            {/* Loading */}
+            {loading && (
+              <div style={{ padding: '60px', textAlign: 'center', color: P.textSubdued, fontSize: P.fontSize }}>Loading customers...</div>
+            )}
+
+            {/* Empty state — no customers at all */}
             {!loading && allCustomers.length === 0 && (
-              <div style={{ background: P.surface, borderRadius: 12, border: `1px solid ${P.border}`, padding: '80px 40px', textAlign: 'center' }}>
+              <div style={{ padding: '80px 40px', textAlign: 'center', flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
                 <div style={{ width: 64, height: 64, background: P.bg, borderRadius: 16, margin: '0 auto 16px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                   <svg width="32" height="32" viewBox="0 0 20 20" fill={P.border}>
                     <path d="M13 8a3 3 0 1 1-6 0 3 3 0 0 1 6 0Zm-1.5 0a1.5 1.5 0 1 0-3 0 1.5 1.5 0 0 0 3 0Z"/>
@@ -196,73 +199,69 @@ export default function Customers() {
             )}
 
             {/* Table */}
-            {(loading || filtered.length > 0) && (
-              <div style={{ background: P.surface, borderRadius: 12, border: `1px solid ${P.border}`, overflow: 'hidden' }}>
-                {loading ? (
-                  <div style={{ padding: '60px', textAlign: 'center', color: P.textSubdued, fontSize: P.fontSize }}>Loading customers...</div>
-                ) : (
-                  <table style={{ width: '100%', borderCollapse: 'collapse' }}>
-                    <thead>
-                      <tr>
-                        <th style={{ ...th, width: 40, paddingRight: 0 }}>
+            {!loading && filtered.length > 0 && (
+              <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+                <thead>
+                  <tr>
+                    <th style={{ ...th, width: 40, paddingRight: 0 }}>
+                      <input type="checkbox" style={{ accentColor: P.green }} />
+                    </th>
+                    {[
+                      { label: 'Customer', col: 'name' },
+                      { label: 'Email', col: null },
+                      { label: 'Orders', col: 'orders' },
+                      { label: 'Total spent', col: 'spent' },
+                      { label: 'Last order', col: 'last' },
+                    ].map(({ label, col }) => (
+                      <th key={label} style={th} onClick={() => col && toggleSort(col)}>
+                        {label}<SortIcon col={col} />
+                      </th>
+                    ))}
+                  </tr>
+                </thead>
+                <tbody>
+                  {filtered.map((c) => {
+                    const isSel = selected?.email === c.email;
+                    return (
+                      <tr key={c.email} className="cust-row"
+                        onClick={() => setSelected(isSel ? null : c)}
+                        style={{ cursor: 'pointer', background: isSel ? '#f0fdf6' : P.surface }}>
+                        <td style={{ ...td, width: 40, paddingRight: 0 }} onClick={e => e.stopPropagation()}>
                           <input type="checkbox" style={{ accentColor: P.green }} />
-                        </th>
-                        {[
-                          { label: 'Customer', col: 'name' },
-                          { label: 'Email', col: null },
-                          { label: 'Orders', col: 'orders' },
-                          { label: 'Total spent', col: 'spent' },
-                          { label: 'Last order', col: 'last' },
-                        ].map(({ label, col }) => (
-                          <th key={label} style={th} onClick={() => col && toggleSort(col)}>
-                            {label}<SortIcon col={col} />
-                          </th>
-                        ))}
+                        </td>
+                        <td style={td}>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                            <div style={{ width: 30, height: 30, borderRadius: '50%', background: avatarColor(c.name), display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', fontSize: '0.6875rem', fontWeight: 700, flexShrink: 0 }}>
+                              {initials(c.name)}
+                            </div>
+                            <span style={{ fontWeight: 500 }}>{c.name}</span>
+                          </div>
+                        </td>
+                        <td style={{ ...td, color: P.textSubdued }}>{c.email}</td>
+                        <td style={td}>{c.orders.length}</td>
+                        <td style={{ ...td, fontWeight: 600, color: P.green }}>${c.total_spent.toFixed(2)}</td>
+                        <td style={{ ...td, color: P.textSubdued }}>
+                          {c.last_order ? new Date(c.last_order).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' }) : '—'}
+                        </td>
                       </tr>
-                    </thead>
-                    <tbody>
-                      {filtered.map((c) => {
-                        const isSel = selected?.email === c.email;
-                        return (
-                          <tr key={c.email} className="cust-row"
-                            onClick={() => setSelected(isSel ? null : c)}
-                            style={{ cursor: 'pointer', background: isSel ? '#f0fdf6' : P.surface }}>
-                            <td style={{ ...td, width: 40, paddingRight: 0 }} onClick={e => e.stopPropagation()}>
-                              <input type="checkbox" style={{ accentColor: P.green }} />
-                            </td>
-                            <td style={td}>
-                              <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-                                <div style={{ width: 30, height: 30, borderRadius: '50%', background: avatarColor(c.name), display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', fontSize: '0.6875rem', fontWeight: 700, flexShrink: 0 }}>
-                                  {initials(c.name)}
-                                </div>
-                                <span style={{ fontWeight: 500 }}>{c.name}</span>
-                              </div>
-                            </td>
-                            <td style={{ ...td, color: P.textSubdued }}>{c.email}</td>
-                            <td style={td}>{c.orders.length}</td>
-                            <td style={{ ...td, fontWeight: 600, color: P.green }}>${c.total_spent.toFixed(2)}</td>
-                            <td style={{ ...td, color: P.textSubdued }}>
-                              {c.last_order ? new Date(c.last_order).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' }) : '—'}
-                            </td>
-                          </tr>
-                        );
-                      })}
-                    </tbody>
-                  </table>
-                )}
-              </div>
+                    );
+                  })}
+                </tbody>
+              </table>
             )}
 
+            {/* No search results */}
             {!loading && filtered.length === 0 && allCustomers.length > 0 && (
-              <div style={{ background: P.surface, borderRadius: 12, border: `1px solid ${P.border}`, padding: '60px', textAlign: 'center' }}>
+              <div style={{ padding: '60px', textAlign: 'center' }}>
                 <div style={{ fontWeight: 500, fontSize: P.fontSize, color: P.text, marginBottom: 4 }}>No customers found</div>
                 <div style={{ fontSize: P.fontSize, color: P.textSubdued }}>Try changing your search or segment filter</div>
               </div>
             )}
+          </div>
 
-            <div style={{ textAlign: 'center', marginTop: 20, fontSize: P.fontSize, color: P.textSubdued }}>
-              <span style={{ color: '#2b6cb0', cursor: 'pointer' }}>Learn more about customers</span>
-            </div>
+          {/* Learn more */}
+          <div style={{ padding: '4px 20px 32px', textAlign: 'center', fontSize: P.fontSize }}>
+            <span style={{ color: '#2b6cb0', cursor: 'pointer' }}>Learn more about customers</span>
           </div>
         </div>
 
@@ -275,7 +274,6 @@ export default function Customers() {
             </div>
 
             <div style={{ padding: '20px 16px', flex: 1 }}>
-              {/* Avatar + name */}
               <div style={{ textAlign: 'center', marginBottom: 20 }}>
                 <div style={{ width: 56, height: 56, borderRadius: '50%', background: avatarColor(selected.name), display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', fontSize: '1.25rem', fontWeight: 700, margin: '0 auto 10px' }}>
                   {initials(selected.name)}
@@ -284,7 +282,6 @@ export default function Customers() {
                 <div style={{ fontSize: P.fontSize, color: P.textSubdued, marginTop: 2 }}>{selected.email}</div>
               </div>
 
-              {/* Stats */}
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8, marginBottom: 20 }}>
                 {[
                   { label: 'Orders', value: selected.orders.length, color: P.text },
@@ -299,7 +296,6 @@ export default function Customers() {
                 ))}
               </div>
 
-              {/* Order history */}
               <div style={{ fontSize: '0.6875rem', fontWeight: 600, color: P.textSubdued, textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: 10 }}>Order history</div>
               <div style={{ display: 'flex', flexDirection: 'column', gap: 0 }}>
                 {selected.orders.sort((a, b) => new Date(b.created_at) - new Date(a.created_at)).map((o, i) => (

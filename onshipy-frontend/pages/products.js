@@ -179,7 +179,6 @@ export default function Products() {
 
   const isListed = (p) => listings.some(l => l.imported_product_id === p.id);
 
-  // Filtered products
   const filtered = search
     ? products.filter(p => (p.title || '').toLowerCase().includes(search.toLowerCase()) || (p.source_domain || '').toLowerCase().includes(search.toLowerCase()))
     : products;
@@ -205,10 +204,8 @@ export default function Products() {
     verticalAlign: 'middle', color: P.text, letterSpacing: P.letterSpacing,
   };
 
-  // Sub-section empty states
-  const EmptyState = ({ icon, title, desc, actions }) => (
-    <div style={{ background: P.surface, borderRadius: 12, border: `1px solid ${P.border}`, padding: '80px 40px', textAlign: 'center' }}>
-      {icon && <div style={{ fontSize: 48, marginBottom: 16 }}>{icon}</div>}
+  const SubEmptyState = ({ title, desc, actions }) => (
+    <div style={{ padding: '80px 40px', textAlign: 'center' }}>
       <div style={{ fontWeight: 650, fontSize: '1rem', color: P.text, marginBottom: 8 }}>{title}</div>
       <div style={{ fontSize: P.fontSize, color: P.textSubdued, marginBottom: 20, maxWidth: 400, margin: '0 auto 20px' }}>{desc}</div>
       <div style={{ display: 'flex', gap: 8, justifyContent: 'center' }}>{actions}</div>
@@ -219,10 +216,11 @@ export default function Products() {
     <Layout title="Products">
       <style>{`
         .prod-row:hover { background: #fafafa !important; }
-        .sub-link { padding: 4px 10px 4px 24px; display: block; font-size: ${P.fontSize}; color: ${P.textSubdued}; cursor: pointer; border-radius: 6px; transition: background .1s, color .1s; text-decoration: none; letter-spacing: ${P.letterSpacing}; }
-        .sub-link:hover { background: #f0f0f0; color: ${P.text}; }
-        .sub-link.active { background: #e8e8e8; color: ${P.text}; font-weight: 600; }
+        .sub-tab { padding: 7px 14px; background: none; border: none; border-bottom: 2.5px solid transparent; font-size: ${P.fontSize}; color: ${P.textSubdued}; cursor: pointer; font-family: ${P.font}; letter-spacing: ${P.letterSpacing}; font-weight: ${P.fontWeight}; white-space: nowrap; transition: color .1s; }
+        .sub-tab.active { color: ${P.text}; font-weight: 600; border-bottom-color: ${P.text}; }
+        .sub-tab:hover:not(.active) { color: ${P.text}; }
         @keyframes fadeIn { from{opacity:0;transform:translateY(4px)} to{opacity:1;transform:translateY(0)} }
+        @keyframes spin { to { transform: rotate(360deg); } }
       `}</style>
 
       {toast && (
@@ -231,7 +229,6 @@ export default function Products() {
         </div>
       )}
 
-      {/* Lightbox */}
       {lightbox.open && images.length > 0 && (
         <div onClick={() => setLightbox({ open: false, index: 0 })} style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.92)', zIndex: 9999, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
           <button onClick={() => setLightbox({ open: false, index: 0 })} style={{ position: 'absolute', top: 20, right: 24, background: 'none', border: 'none', color: '#fff', fontSize: 28, cursor: 'pointer' }}>×</button>
@@ -249,9 +246,9 @@ export default function Products() {
           {/* ── ALL PRODUCTS ── */}
           {section === 'products' && (
             <>
-              {/* Header */}
-              <div style={{ background: P.surface, borderBottom: `1px solid ${P.border}`, padding: '14px 20px' }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
+              {/* Header — on gray bg, no white card */}
+              <div style={{ padding: '12px 20px 8px' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
                     <svg width="20" height="20" viewBox="0 0 20 20" fill={P.textSubdued}><path d="M10.4 2.143a1 1 0 0 0-.8 0l-7 3.11A1 1 0 0 0 2 6.167V13.833a1 1 0 0 0 .6.924l7 3.11a1 1 0 0 0 .8 0l7-3.11A1 1 0 0 0 18 13.833V6.167a1 1 0 0 0-.6-.924l-7-3.11ZM10 3.65l5.514 2.45L10 8.55 4.486 6.1 10 3.65ZM3.5 7.365 9.25 9.9v6.183l-5.75-2.556V7.365Zm7.25 8.718V9.9l5.75-2.535v6.162l-5.75 2.556Z"/></svg>
                     <h1 style={{ fontSize: '1.125rem', fontWeight: 650, color: P.text, margin: 0, letterSpacing: '-0.02em' }}>Products</h1>
@@ -263,21 +260,23 @@ export default function Products() {
                   </div>
                 </div>
                 {/* Filter tabs */}
-                <div style={{ display: 'flex', gap: 4 }}>
-                  <div style={{ padding: '5px 12px', borderRadius: 6, background: '#e8e8e8', fontSize: P.fontSize, fontWeight: 600, color: P.text, cursor: 'pointer' }}>
-                    All <span style={{ background: P.bg, color: P.textSubdued, fontSize: '0.625rem', padding: '1px 5px', borderRadius: 20, marginLeft: 4, fontWeight: 600 }}>{products.length}</span>
-                  </div>
-                  <button style={{ padding: '5px 10px', background: 'none', border: 'none', borderRadius: 6, fontSize: P.fontSize, color: P.textSubdued, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 4, fontFamily: P.font }}>
-                    <svg width="14" height="14" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                <div style={{ display: 'flex', gap: 0 }}>
+                  <button className="sub-tab active">
+                    All
+                    <span style={{ marginLeft: 5, fontSize: '0.625rem', background: P.bg, color: P.textSubdued, padding: '1px 6px', borderRadius: 20, fontWeight: 600 }}>{products.length}</span>
+                  </button>
+                  <button className="sub-tab" style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+                    <svg width="12" height="12" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
                   </button>
                 </div>
               </div>
 
-              <div style={{ padding: '16px 20px 60px' }}>
+              {/* Main white card */}
+              <div style={{ background: P.surface, margin: '0 16px', borderRadius: 12, border: `1px solid ${P.border}`, overflow: 'hidden' }}>
                 {/* Search + filter row */}
-                <div style={{ display: 'flex', gap: 8, marginBottom: 12 }}>
+                <div style={{ padding: '12px 16px', borderBottom: `1px solid ${P.border}`, display: 'flex', gap: 8 }}>
                   <div style={{ position: 'relative', flex: 1, maxWidth: 360 }}>
-                    <svg width="14" height="14" fill="none" stroke={P.textSubdued} strokeWidth="2" viewBox="0 0 24 24" style={{ position: 'absolute', left: 10, top: '50%', transform: 'translateY(-50%)' }}>
+                    <svg width="14" height="14" fill="none" stroke={P.textSubdued} strokeWidth="2" viewBox="0 0 24 24" style={{ position: 'absolute', left: 10, top: '50%', transform: 'translateY(-50%)', pointerEvents: 'none' }}>
                       <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
                     </svg>
                     <input type="text" value={search} onChange={e => setSearch(e.target.value)}
@@ -291,9 +290,17 @@ export default function Products() {
                   <Btn>Sort ▾</Btn>
                 </div>
 
+                {/* Loading */}
+                {loading && (
+                  <div style={{ padding: '60px', textAlign: 'center', color: P.textSubdued, fontSize: P.fontSize }}>
+                    <div style={{ width: 20, height: 20, borderRadius: '50%', border: `2px solid ${P.green}`, borderTopColor: 'transparent', animation: 'spin 0.8s linear infinite', margin: '0 auto 10px' }}/>
+                    Loading products...
+                  </div>
+                )}
+
                 {/* Empty state */}
                 {!loading && products.length === 0 && (
-                  <div style={{ background: P.surface, borderRadius: 12, border: `1px solid ${P.border}`, padding: '80px 40px', animation: 'fadeIn .3s ease' }}>
+                  <div style={{ padding: '60px 40px', animation: 'fadeIn .3s ease' }}>
                     <div style={{ display: 'flex', gap: 40, alignItems: 'center', flexWrap: 'wrap' }}>
                       <div style={{ flex: 1, minWidth: 260 }}>
                         <div style={{ fontWeight: 650, fontSize: '1.125rem', color: P.text, marginBottom: 8 }}>Add your products</div>
@@ -305,7 +312,6 @@ export default function Products() {
                           <Btn onClick={() => router.push('/browse')}>↓ Import</Btn>
                         </div>
                       </div>
-                      {/* Product illustration grid */}
                       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8, flexShrink: 0 }}>
                         {[0,1,2,3].map(i => (
                           <div key={i} style={{ width: 80, height: 80, background: P.bg, borderRadius: 10, border: `1px solid ${P.border}`, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
@@ -314,7 +320,6 @@ export default function Products() {
                         ))}
                       </div>
                     </div>
-                    {/* Discover section */}
                     <div style={{ marginTop: 24, padding: '16px 20px', background: P.bg, borderRadius: 10, border: `1px solid ${P.border}`, display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 12 }}>
                       <div>
                         <div style={{ fontWeight: 600, fontSize: P.fontSize, color: P.text, marginBottom: 2 }}>Discover wholesale products with Onshipy Browse</div>
@@ -326,169 +331,167 @@ export default function Products() {
                 )}
 
                 {/* Products table */}
-                {(loading || filtered.length > 0) && (
-                  <div style={{ background: P.surface, borderRadius: 12, border: `1px solid ${P.border}`, overflow: 'hidden' }}>
-                    {loading ? (
-                      <div style={{ padding: '60px', textAlign: 'center', color: P.textSubdued, fontSize: P.fontSize }}>
-                        <div style={{ width: 20, height: 20, borderRadius: '50%', border: `2px solid ${P.green}`, borderTopColor: 'transparent', animation: 'spin 0.8s linear infinite', margin: '0 auto 10px' }}/>
-                        <style>{`@keyframes spin{to{transform:rotate(360deg)}}`}</style>
-                        Loading products...
-                      </div>
-                    ) : (
-                      <table style={{ width: '100%', borderCollapse: 'collapse' }}>
-                        <thead>
-                          <tr>
-                            <th style={{ ...th, width: 40, paddingRight: 0 }}><input type="checkbox" style={{ accentColor: P.green }}/></th>
-                            <th style={th}></th>
-                            <th style={th}>Product</th>
-                            <th style={th}>Status</th>
-                            <th style={th}>Inventory</th>
-                            <th style={th}>Source price</th>
-                            <th style={th}>Listed</th>
-                            <th style={th}>Variants</th>
+                {!loading && filtered.length > 0 && (
+                  <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+                    <thead>
+                      <tr>
+                        <th style={{ ...th, width: 40, paddingRight: 0 }}><input type="checkbox" style={{ accentColor: P.green }}/></th>
+                        <th style={th}></th>
+                        <th style={th}>Product</th>
+                        <th style={th}>Status</th>
+                        <th style={th}>Inventory</th>
+                        <th style={th}>Source price</th>
+                        <th style={th}>Listed</th>
+                        <th style={th}>Variants</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {filtered.map(p => {
+                        const imgs = getImages(p.images);
+                        const pvars = getVariants(p.variants);
+                        const listed = isListed(p);
+                        return (
+                          <tr key={p.id} className="prod-row"
+                            onClick={() => openProduct(p)}
+                            style={{ cursor: 'pointer', background: selected?.id === p.id ? '#f0fdf6' : P.surface }}>
+                            <td style={{ ...td, width: 40, paddingRight: 0 }} onClick={e => e.stopPropagation()}>
+                              <input type="checkbox" style={{ accentColor: P.green }}/>
+                            </td>
+                            <td style={{ ...td, width: 44, paddingRight: 0 }}>
+                              {imgs[0]
+                                ? <img src={imgs[0]} alt="" style={{ width: 32, height: 32, objectFit: 'cover', borderRadius: 6, border: `1px solid ${P.border}`, display: 'block' }} onError={e => e.target.style.display = 'none'}/>
+                                : <div style={{ width: 32, height: 32, background: P.bg, borderRadius: 6, border: `1px solid ${P.border}` }}/>}
+                            </td>
+                            <td style={td}>
+                              <div style={{ fontWeight: 500, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', maxWidth: 260, color: '#2b6cb0' }}>{p.title}</div>
+                              <div style={{ fontSize: '0.75rem', color: P.textSubdued, marginTop: 1 }}>{p.source_domain} · {new Date(p.created_at).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })}</div>
+                            </td>
+                            <td style={td}>
+                              <span style={{ fontSize: '0.6875rem', padding: '2px 8px', borderRadius: 20, background: p.scrape_status === 'completed' ? '#cdfed4' : '#fff8db', color: p.scrape_status === 'completed' ? '#006847' : '#7c5a00', fontWeight: 600 }}>
+                                {p.scrape_status === 'completed' ? 'Active' : p.scrape_status}
+                              </span>
+                            </td>
+                            <td style={{ ...td, color: P.textSubdued }}>—</td>
+                            <td style={{ ...td, fontWeight: 600 }}>{sym(p.currency)}{parseFloat(p.source_price).toFixed(2)}</td>
+                            <td style={td}>
+                              {listed
+                                ? <span style={{ fontSize: '0.6875rem', padding: '2px 8px', borderRadius: 20, background: '#cdfed4', color: '#006847', fontWeight: 600 }}>● Listed</span>
+                                : <span style={{ fontSize: '0.6875rem', color: P.textSubdued }}>Not listed</span>}
+                            </td>
+                            <td style={td}>
+                              {pvars.length > 0
+                                ? <span style={{ fontSize: '0.6875rem', padding: '2px 8px', borderRadius: 20, background: '#eaf4ff', color: '#1d4ed8', fontWeight: 600 }}>{pvars.length}</span>
+                                : <span style={{ color: P.textSubdued }}>—</span>}
+                            </td>
                           </tr>
-                        </thead>
-                        <tbody>
-                          {filtered.map(p => {
-                            const imgs = getImages(p.images);
-                            const pvars = getVariants(p.variants);
-                            const listed = isListed(p);
-                            return (
-                              <tr key={p.id} className="prod-row"
-                                onClick={() => setSelected(selected?.id === p.id ? null : p)}
-                                style={{ cursor: 'pointer', background: selected?.id === p.id ? '#f0fdf6' : P.surface }}>
-                                <td style={{ ...td, width: 40, paddingRight: 0 }} onClick={e => e.stopPropagation()}>
-                                  <input type="checkbox" style={{ accentColor: P.green }}/>
-                                </td>
-                                <td style={{ ...td, width: 44, paddingRight: 0 }}>
-                                  {imgs[0]
-                                    ? <img src={imgs[0]} alt="" style={{ width: 32, height: 32, objectFit: 'cover', borderRadius: 6, border: `1px solid ${P.border}`, display: 'block' }} onError={e => e.target.style.display = 'none'}/>
-                                    : <div style={{ width: 32, height: 32, background: P.bg, borderRadius: 6, border: `1px solid ${P.border}` }}/>}
-                                </td>
-                                <td style={td}>
-                                  <div style={{ fontWeight: 500, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', maxWidth: 260, color: '#2b6cb0' }}>{p.title}</div>
-                                  <div style={{ fontSize: '0.75rem', color: P.textSubdued, marginTop: 1 }}>{p.source_domain} · {new Date(p.created_at).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })}</div>
-                                </td>
-                                <td style={td}>
-                                  <span style={{ fontSize: '0.6875rem', padding: '2px 8px', borderRadius: 20, background: p.scrape_status === 'completed' ? '#cdfed4' : '#fff8db', color: p.scrape_status === 'completed' ? '#006847' : '#7c5a00', fontWeight: 600 }}>
-                                    {p.scrape_status === 'completed' ? 'Active' : p.scrape_status}
-                                  </span>
-                                </td>
-                                <td style={{ ...td, color: P.textSubdued }}>—</td>
-                                <td style={{ ...td, fontWeight: 600 }}>{sym(p.currency)}{parseFloat(p.source_price).toFixed(2)}</td>
-                                <td style={td}>
-                                  {listed
-                                    ? <span style={{ fontSize: '0.6875rem', padding: '2px 8px', borderRadius: 20, background: '#cdfed4', color: '#006847', fontWeight: 600 }}>● Listed</span>
-                                    : <span style={{ fontSize: '0.6875rem', color: P.textSubdued }}>Not listed</span>}
-                                </td>
-                                <td style={td}>
-                                  {pvars.length > 0
-                                    ? <span style={{ fontSize: '0.6875rem', padding: '2px 8px', borderRadius: 20, background: '#eaf4ff', color: '#1d4ed8', fontWeight: 600 }}>{pvars.length}</span>
-                                    : <span style={{ color: P.textSubdued }}>—</span>}
-                                </td>
-                              </tr>
-                            );
-                          })}
-                        </tbody>
-                      </table>
-                    )}
-                  </div>
+                        );
+                      })}
+                    </tbody>
+                  </table>
                 )}
 
                 {!loading && filtered.length === 0 && products.length > 0 && (
-                  <div style={{ background: P.surface, borderRadius: 12, border: `1px solid ${P.border}`, padding: '48px', textAlign: 'center' }}>
+                  <div style={{ padding: '48px', textAlign: 'center' }}>
                     <div style={{ fontWeight: 500, fontSize: P.fontSize, color: P.text }}>No products match your search</div>
                   </div>
                 )}
+              </div>
 
-                <div style={{ textAlign: 'center', marginTop: 20, fontSize: P.fontSize }}>
-                  <span style={{ color: '#2b6cb0', cursor: 'pointer' }}>Learn more about products</span>
-                </div>
+              {/* Learn more — gray area */}
+              <div style={{ padding: '12px 20px 32px', textAlign: 'center' }}>
+                <span style={{ color: '#2b6cb0', cursor: 'pointer', fontSize: P.fontSize }}>Learn more about products</span>
               </div>
             </>
           )}
 
           {/* ── INVENTORY ── */}
           {section === 'inventory' && (
-            <div style={{ padding: '20px' }}>
-              <h1 style={{ fontSize: '1.125rem', fontWeight: 650, color: P.text, marginBottom: 16, letterSpacing: '-0.02em' }}>Inventory</h1>
-              <EmptyState
-                icon={null}
-                title="Keep track of your inventory"
-                desc="When you enable inventory tracking on your products, you can view and adjust their inventory counts here."
-                actions={<Btn variant="primary" onClick={() => router.push('/products')}>Go to products</Btn>}
-              />
-              <div style={{ textAlign: 'center', marginTop: 16, fontSize: P.fontSize }}>
-                <span style={{ color: '#2b6cb0', cursor: 'pointer' }}>Learn more about managing inventory</span>
+            <>
+              <div style={{ padding: '12px 20px 8px' }}>
+                <h1 style={{ fontSize: '1.125rem', fontWeight: 650, color: P.text, margin: 0, letterSpacing: '-0.02em' }}>Inventory</h1>
               </div>
-            </div>
+              <div style={{ background: P.surface, margin: '0 16px', borderRadius: 12, border: `1px solid ${P.border}`, overflow: 'hidden' }}>
+                <SubEmptyState
+                  title="Keep track of your inventory"
+                  desc="When you enable inventory tracking on your products, you can view and adjust their inventory counts here."
+                  actions={<Btn variant="primary" onClick={() => router.push('/products')}>Go to products</Btn>}
+                />
+              </div>
+              <div style={{ padding: '12px 20px 32px', textAlign: 'center' }}>
+                <span style={{ color: '#2b6cb0', cursor: 'pointer', fontSize: P.fontSize }}>Learn more about managing inventory</span>
+              </div>
+            </>
           )}
 
           {/* ── PURCHASE ORDERS ── */}
           {section === 'purchase_orders' && (
-            <div style={{ padding: '20px' }}>
-              <h1 style={{ fontSize: '1.125rem', fontWeight: 650, color: P.text, marginBottom: 16, letterSpacing: '-0.02em' }}>Purchase orders</h1>
-              <EmptyState
-                icon={null}
-                title="Manage your purchase orders"
-                desc="Track and receive inventory ordered from suppliers."
-                actions={<Btn variant="primary">Create purchase order</Btn>}
-              />
-              <div style={{ textAlign: 'center', marginTop: 16, fontSize: P.fontSize }}>
-                <span style={{ color: '#2b6cb0', cursor: 'pointer' }}>Learn more about purchase orders</span>
+            <>
+              <div style={{ padding: '12px 20px 8px' }}>
+                <h1 style={{ fontSize: '1.125rem', fontWeight: 650, color: P.text, margin: 0, letterSpacing: '-0.02em' }}>Purchase orders</h1>
               </div>
-            </div>
+              <div style={{ background: P.surface, margin: '0 16px', borderRadius: 12, border: `1px solid ${P.border}`, overflow: 'hidden' }}>
+                <SubEmptyState
+                  title="Manage your purchase orders"
+                  desc="Track and receive inventory ordered from suppliers."
+                  actions={<Btn variant="primary">Create purchase order</Btn>}
+                />
+              </div>
+              <div style={{ padding: '12px 20px 32px', textAlign: 'center' }}>
+                <span style={{ color: '#2b6cb0', cursor: 'pointer', fontSize: P.fontSize }}>Learn more about purchase orders</span>
+              </div>
+            </>
           )}
 
           {/* ── TRANSFERS ── */}
           {section === 'transfers' && (
-            <div style={{ padding: '20px' }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
+            <>
+              <div style={{ padding: '12px 20px 8px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                 <h1 style={{ fontSize: '1.125rem', fontWeight: 650, color: P.text, margin: 0, letterSpacing: '-0.02em' }}>Transfers</h1>
                 <Btn>Transfers report</Btn>
               </div>
-              <EmptyState
-                icon={null}
-                title="Move inventory between locations"
-                desc="Move and track inventory between your business locations."
-                actions={<Btn variant="primary">Create transfer</Btn>}
-              />
-              <div style={{ textAlign: 'center', marginTop: 16, fontSize: P.fontSize }}>
-                <span style={{ color: '#2b6cb0', cursor: 'pointer' }}>Learn more about transfers</span>
+              <div style={{ background: P.surface, margin: '0 16px', borderRadius: 12, border: `1px solid ${P.border}`, overflow: 'hidden' }}>
+                <SubEmptyState
+                  title="Move inventory between locations"
+                  desc="Move and track inventory between your business locations."
+                  actions={<Btn variant="primary">Create transfer</Btn>}
+                />
               </div>
-            </div>
+              <div style={{ padding: '12px 20px 32px', textAlign: 'center' }}>
+                <span style={{ color: '#2b6cb0', cursor: 'pointer', fontSize: P.fontSize }}>Learn more about transfers</span>
+              </div>
+            </>
           )}
 
           {/* ── GIFT CARDS ── */}
           {section === 'gift_cards' && (
-            <div style={{ padding: '20px' }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
+            <>
+              <div style={{ padding: '12px 20px 8px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                 <h1 style={{ fontSize: '1.125rem', fontWeight: 650, color: P.text, margin: 0, letterSpacing: '-0.02em' }}>Gift cards</h1>
                 <Btn>Export</Btn>
               </div>
-              <EmptyState
-                icon={null}
-                title="Start selling gift cards"
-                desc="Add gift card products to sell or create gift cards and send them directly to your customers."
-                actions={[
-                  <Btn key="1">Create gift card</Btn>,
-                  <Btn key="2" variant="primary">Add gift card product</Btn>
-                ]}
-              />
-              <div style={{ textAlign: 'center', marginTop: 16, fontSize: P.fontSize, color: P.textSubdued }}>
+              <div style={{ background: P.surface, margin: '0 16px', borderRadius: 12, border: `1px solid ${P.border}`, overflow: 'hidden' }}>
+                <SubEmptyState
+                  title="Start selling gift cards"
+                  desc="Add gift card products to sell or create gift cards and send them directly to your customers."
+                  actions={[
+                    <Btn key="1">Create gift card</Btn>,
+                    <Btn key="2" variant="primary">Add gift card product</Btn>
+                  ]}
+                />
+              </div>
+              <div style={{ padding: '12px 20px 8px', textAlign: 'center', fontSize: P.fontSize, color: P.textSubdued }}>
                 By using gift cards, you agree to our <span style={{ color: '#2b6cb0', cursor: 'pointer' }}>Terms of Service</span>
               </div>
-              <div style={{ textAlign: 'center', marginTop: 8, fontSize: P.fontSize }}>
-                <span style={{ color: '#2b6cb0', cursor: 'pointer' }}>Learn more about gift cards</span>
+              <div style={{ padding: '4px 20px 32px', textAlign: 'center' }}>
+                <span style={{ color: '#2b6cb0', cursor: 'pointer', fontSize: P.fontSize }}>Learn more about gift cards</span>
               </div>
-            </div>
+            </>
           )}
         </div>
 
         {/* ── Product detail panel ── */}
         {selected && section === 'products' && (
           <div style={{ width: 420, flexShrink: 0, background: P.surface, borderLeft: `1px solid ${P.border}`, overflowY: 'auto', display: 'flex', flexDirection: 'column', animation: 'fadeIn .2s ease' }}>
-            {/* Panel header */}
             <div style={{ padding: '12px 16px', borderBottom: `1px solid ${P.border}`, display: 'flex', justifyContent: 'space-between', alignItems: 'center', position: 'sticky', top: 0, background: P.surface, zIndex: 10 }}>
               <span style={{ fontWeight: 600, fontSize: P.fontSize, color: P.text }}>Product details</span>
               <div style={{ display: 'flex', gap: 6 }}>
@@ -498,7 +501,6 @@ export default function Products() {
             </div>
 
             <div style={{ padding: 16, flex: 1 }}>
-              {/* Images */}
               {images.length > 0 ? (
                 <div style={{ marginBottom: 16 }}>
                   <div style={{ position: 'relative', marginBottom: 8 }}>
@@ -527,7 +529,6 @@ export default function Products() {
                 </div>
               )}
 
-              {/* Source info */}
               <div style={{ background: P.bg, borderRadius: 8, border: `1px solid ${P.border}`, padding: '10px 12px', marginBottom: 14, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                 <div>
                   <div style={{ fontSize: '0.6875rem', color: P.textSubdued, marginBottom: 1 }}>Source</div>
@@ -541,7 +542,6 @@ export default function Products() {
                 </div>
               </div>
 
-              {/* Title */}
               <div style={{ marginBottom: 12 }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 5 }}>
                   <label style={{ fontSize: '0.6875rem', fontWeight: 600, color: P.textSubdued, textTransform: 'uppercase', letterSpacing: '0.06em' }}>Title</label>
@@ -552,7 +552,6 @@ export default function Products() {
                   : <div style={{ fontSize: P.fontSize, color: P.text, fontWeight: 500, lineHeight: 1.5 }}>{selected.title}</div>}
               </div>
 
-              {/* Description */}
               <div style={{ marginBottom: 14 }}>
                 <label style={{ display: 'block', fontSize: '0.6875rem', fontWeight: 600, color: P.textSubdued, textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: 5 }}>Description</label>
                 {editing
@@ -569,7 +568,6 @@ export default function Products() {
                 </div>
               )}
 
-              {/* Variants */}
               {Object.keys(groupedVariants).length > 0 && (
                 <div style={{ marginBottom: 14, paddingTop: 14, borderTop: `1px solid ${P.border}` }}>
                   <div style={{ fontSize: '0.6875rem', fontWeight: 600, color: P.textSubdued, textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: 10 }}>Variants</div>
@@ -598,7 +596,6 @@ export default function Products() {
                 </div>
               )}
 
-              {/* Pricing section */}
               <div style={{ paddingTop: 14, borderTop: `1px solid ${P.border}` }}>
                 <div style={{ fontWeight: 600, fontSize: P.fontSize, color: P.text, marginBottom: 12 }}>Set selling price</div>
                 <div style={{ marginBottom: 10 }}>

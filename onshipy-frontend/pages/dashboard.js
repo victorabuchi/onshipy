@@ -227,7 +227,7 @@ export default function Dashboard() {
           </div>
 
           {/* ── Stat cards ── */}
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4,1fr)', gap: 12, marginBottom: 16 }}>
+          <div style={{ display: 'flex', gap: 12, marginBottom: 16, overflowX: 'auto', scrollbarWidth: 'none', WebkitOverflowScrolling: 'touch', paddingBottom: 2 }}>
             {[
               { label: 'Sessions', value: '—' },
               { label: 'Total sales', value: `$${revenue}` },
@@ -236,7 +236,8 @@ export default function Dashboard() {
             ].map((s, i) => (
               <div key={i} className="stat-card" style={{
                 background: P.surface, borderRadius: 12, border: `1px solid ${P.border}`,
-                padding: '16px 20px', cursor: 'pointer', transition: 'box-shadow .15s'
+                padding: '16px 20px', cursor: 'pointer', transition: 'box-shadow .15s',
+                flexShrink: 0, minWidth: 160
               }} onClick={() => router.push(i === 0 ? '/analytics' : i === 1 ? '/analytics' : '/orders')}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 8 }}>
                   <span style={{ fontSize: P.fontSize, color: P.textSubdued, fontWeight: P.fontWeight }}>{s.label}</span>
@@ -403,7 +404,7 @@ export default function Dashboard() {
           </div>
 
           {/* ── Quick actions — Shopify style dark icon cards ── */}
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4,1fr)', gap: 10, marginBottom: 12 }}>
+          <div style={{ display: 'flex', gap: 10, marginBottom: 12, overflowX: 'auto', scrollbarWidth: 'none' }}>
             {[
               {
                 title: 'Browse brands', desc: 'Find products from top brands', href: '/browse',

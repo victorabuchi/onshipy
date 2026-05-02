@@ -42,7 +42,6 @@ export default function OnlineStore() {
   const [toast, setToast] = useState(null);
   const [shopInput, setShopInput] = useState('');
   const [connecting, setConnecting] = useState(false);
-  const [loading, setLoading] = useState(true);
 
   const showToast = (msg, err = false) => {
     setToast({ msg, err });
@@ -79,7 +78,6 @@ export default function OnlineStore() {
       const data = await res.json();
       setShopifyStatus(data);
     } catch {}
-    setLoading(false);
   };
 
   const fetchListings = async (t) => {
@@ -167,10 +165,10 @@ export default function OnlineStore() {
         </div>
       )}
 
-      <div style={{ fontFamily: P.font, fontSize: P.fontSize, letterSpacing: P.letterSpacing, color: P.text }}>
+      <div style={{ fontFamily: P.font, fontSize: P.fontSize, letterSpacing: P.letterSpacing, color: P.text, background: P.bg, minHeight: 'calc(100vh - 56px)' }}>
 
-        {/* Header */}
-        <div style={{ background: P.surface, borderBottom: `1px solid ${P.border}`, padding: '14px 20px 0' }}>
+        {/* Header — floating on gray bg */}
+        <div style={{ padding: '12px 20px 8px' }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
               <span style={{ fontSize: 20 }}>🛍️</span>

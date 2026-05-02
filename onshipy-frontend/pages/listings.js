@@ -29,8 +29,8 @@ const Btn = ({ children, onClick, variant = 'secondary', disabled, style = {} })
 };
 
 const FILTERS = [
-  { id: 'all',      label: 'All',      filter: () => true },
-  { id: 'active',   label: 'Active',   filter: l => l.status === 'active' },
+  { id: 'all',      label: 'All',        filter: () => true },
+  { id: 'active',   label: 'Active',     filter: l => l.status === 'active' },
   { id: 'pushed',   label: 'On Shopify', filter: l => !!l.shopify_product_id },
   { id: 'unpushed', label: 'Not pushed', filter: l => !l.shopify_product_id },
 ];
@@ -111,10 +111,7 @@ export default function Listings() {
       });
       const data = await res.json();
       if (!res.ok) { showToast(data.error || 'Push failed', true); }
-      else {
-        showToast('✓ Pushed to Shopify!');
-        fetchListings();
-      }
+      else { showToast('✓ Pushed to Shopify!'); fetchListings(); }
     } catch (err) { showToast('Error: ' + err.message, true); }
     setPushing(p => ({ ...p, [listingId]: false }));
   };
@@ -132,7 +129,6 @@ export default function Listings() {
     </svg>
   );
 
-  // Filter + search + sort
   const filterDef = FILTERS.find(f => f.id === filter);
   let visible = listings.filter(filterDef.filter);
   if (search) visible = visible.filter(l =>
@@ -149,11 +145,10 @@ export default function Listings() {
     return sortDir === 'asc' ? av - bv : bv - av;
   });
 
-  // Aggregate stats
-  const totalRevenue  = listings.reduce((s, l) => s + parseFloat(l.selling_price || 0), 0);
-  const totalProfit   = listings.reduce((s, l) => s + profit(l), 0);
-  const avgMargin     = listings.length > 0 ? (listings.reduce((s, l) => s + parseFloat(margin(l)), 0) / listings.length).toFixed(1) : '0';
-  const pushedCount   = listings.filter(l => l.shopify_product_id).length;
+  const totalRevenue = listings.reduce((s, l) => s + parseFloat(l.selling_price || 0), 0);
+  const totalProfit  = listings.reduce((s, l) => s + profit(l), 0);
+  const avgMargin    = listings.length > 0 ? (listings.reduce((s, l) => s + parseFloat(margin(l)), 0) / listings.length).toFixed(1) : '0';
+  const pushedCount  = listings.filter(l => l.shopify_product_id).length;
 
   const th = {
     padding: '8px 14px', fontSize: '0.6875rem', fontWeight: 600, color: P.textSubdued,
@@ -186,11 +181,11 @@ export default function Listings() {
       <div style={{ fontFamily: P.font, fontSize: P.fontSize, letterSpacing: P.letterSpacing, color: P.text, display: 'flex', height: 'calc(100vh - 56px)' }}>
 
         {/* ── Main ── */}
-        <div style={{ flex: 1, overflowY: 'auto', background: P.bg, minWidth: 0 }}>
+        <div style={{ flex: 1, overflowY: 'auto', background: P.bg, minWidth: 0, display: 'flex', flexDirection: 'column' }}>
 
-          {/* Header */}
-          <div style={{ background: P.surface, borderBottom: `1px solid ${P.border}`, padding: '14px 20px 0' }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 14 }}>
+          {/* Header — floating on gray bg */}
+          <div style={{ padding: '12px 20px 8px' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 10 }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
                 <svg width="20" height="20" viewBox="0 0 20 20" fill={P.textSubdued}>
                   <path d="M3.25 4a.75.75 0 0 0 0 1.5h13.5a.75.75 0 0 0 0-1.5H3.25ZM3.25 8a.75.75 0 0 0 0 1.5h13.5a.75.75 0 0 0 0-1.5H3.25ZM3.25 12a.75.75 0 0 0 0 1.5h8.5a.75.75 0 0 0 0-1.5h-8.5Z"/>
@@ -204,12 +199,12 @@ export default function Listings() {
             </div>
 
             {/* Filter tabs */}
-            <div style={{ display: 'flex', gap: 0, marginBottom: -1, overflowX: 'auto', scrollbarWidth: 'none' }}>
+            <div style={{ display: 'flex', gap: 0, overflowX: 'auto', scrollbarWidth: 'none' }}>
               {FILTERS.map(f => (
                 <button key={f.id} className={`filter-tab${filter === f.id ? ' active' : ''}`}
                   onClick={() => { setFilter(f.id); setSelected(null); }}>
                   {f.label}
-                  <span style={{ marginLeft: 5, fontSize: '0.625rem', background: P.bg, color: P.textSubdued, padding: '1px 6px', borderRadius: 20, fontWeight: 600 }}>
+                  <span style={{ marginLeft: 5, fontSize: '0.625rem', background: 'rgba(0,0,0,0.08)', color: P.textSubdued, padding: '1px 6px', borderRadius: 20, fontWeight: 600 }}>
                     {listings.filter(f.filter).length}
                   </span>
                 </button>
@@ -217,42 +212,43 @@ export default function Listings() {
             </div>
           </div>
 
-          <div style={{ padding: '16px 20px 60px' }}>
-
-            {/* KPI row */}
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4,1fr)', gap: 10, marginBottom: 14 }}>
-              {[
-                { label: 'Active listings', value: listings.filter(l => l.status === 'active').length, color: P.text },
-                { label: 'Revenue potential', value: `$${totalRevenue.toFixed(2)}`, color: '#1d4ed8' },
-                { label: 'Profit potential', value: `$${totalProfit.toFixed(2)}`, color: P.green },
-                { label: 'Avg margin', value: `${avgMargin}%`, color: '#7c3aed' },
-              ].map((s, i) => (
-                <div key={i} style={{ background: P.surface, borderRadius: 10, border: `1px solid ${P.border}`, padding: '14px 16px' }}>
-                  <div style={{ fontSize: P.fontSize, color: P.textSubdued, marginBottom: 5 }}>{s.label}</div>
-                  <div style={{ fontSize: '1.25rem', fontWeight: 650, color: s.color, letterSpacing: '-0.02em' }}>{s.value}</div>
-                  {i === 3 && listings.length > 0 && (
-                    <div style={{ marginTop: 4 }}>
-                      <div style={{ height: 3, background: P.bg, borderRadius: 2, overflow: 'hidden' }}>
-                        <div style={{ height: '100%', width: `${Math.min(parseFloat(avgMargin), 100)}%`, background: '#7c3aed', borderRadius: 2 }}/>
+          {/* KPI cards — in gray area */}
+          {listings.length > 0 && (
+            <div style={{ padding: '0 16px 12px' }}>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4,1fr)', gap: 10 }}>
+                {[
+                  { label: 'Active listings', value: listings.filter(l => l.status === 'active').length, color: P.text },
+                  { label: 'Revenue potential', value: `$${totalRevenue.toFixed(2)}`, color: '#1d4ed8' },
+                  { label: 'Profit potential', value: `$${totalProfit.toFixed(2)}`, color: P.green },
+                  { label: 'Avg margin', value: `${avgMargin}%`, color: '#7c3aed' },
+                ].map((s, i) => (
+                  <div key={i} style={{ background: P.surface, borderRadius: 10, border: `1px solid ${P.border}`, padding: '14px 16px' }}>
+                    <div style={{ fontSize: P.fontSize, color: P.textSubdued, marginBottom: 5 }}>{s.label}</div>
+                    <div style={{ fontSize: '1.25rem', fontWeight: 650, color: s.color, letterSpacing: '-0.02em' }}>{s.value}</div>
+                    {i === 3 && listings.length > 0 && (
+                      <div style={{ marginTop: 4 }}>
+                        <div style={{ height: 3, background: P.bg, borderRadius: 2, overflow: 'hidden' }}>
+                          <div style={{ height: '100%', width: `${Math.min(parseFloat(avgMargin), 100)}%`, background: '#7c3aed', borderRadius: 2 }}/>
+                        </div>
                       </div>
-                    </div>
-                  )}
-                </div>
-              ))}
+                    )}
+                  </div>
+                ))}
+              </div>
             </div>
+          )}
 
-            {/* Shopify push status bar */}
-            {listings.length > 0 && (
-              <div style={{ background: P.surface, borderRadius: 10, border: `1px solid ${P.border}`, padding: '12px 16px', marginBottom: 14, display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 10 }}>
+          {/* Shopify push status bar — in gray area */}
+          {listings.length > 0 && (
+            <div style={{ padding: '0 16px 12px' }}>
+              <div style={{ background: P.surface, borderRadius: 10, border: `1px solid ${P.border}`, padding: '12px 16px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 10 }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
                   <div style={{ fontSize: P.fontSize, color: P.textSubdued }}>
                     <span style={{ fontWeight: 600, color: P.green }}>{pushedCount}</span> of <span style={{ fontWeight: 600, color: P.text }}>{listings.length}</span> listings pushed to Shopify
                   </div>
-                  {listings.length > 0 && (
-                    <div style={{ height: 6, width: 120, background: P.bg, borderRadius: 3, overflow: 'hidden' }}>
-                      <div style={{ height: '100%', width: `${(pushedCount / listings.length) * 100}%`, background: P.green, borderRadius: 3, transition: 'width .4s ease' }}/>
-                    </div>
-                  )}
+                  <div style={{ height: 6, width: 120, background: P.bg, borderRadius: 3, overflow: 'hidden' }}>
+                    <div style={{ height: '100%', width: `${(pushedCount / listings.length) * 100}%`, background: P.green, borderRadius: 3, transition: 'width .4s ease' }}/>
+                  </div>
                 </div>
                 {pushedCount < listings.length && (
                   <Btn variant="green" onClick={() => router.push('/online-store')} style={{ padding: '5px 14px', fontSize: P.fontSize }}>
@@ -260,123 +256,136 @@ export default function Listings() {
                   </Btn>
                 )}
               </div>
-            )}
-
-            {/* Search */}
-            <div style={{ position: 'relative', marginBottom: 12, maxWidth: 360 }}>
-              <svg width="14" height="14" fill="none" stroke={P.textSubdued} strokeWidth="2" viewBox="0 0 24 24" style={{ position: 'absolute', left: 10, top: '50%', transform: 'translateY(-50%)', pointerEvents: 'none' }}>
-                <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
-              </svg>
-              <input type="text" value={search} onChange={e => setSearch(e.target.value)}
-                placeholder="Search listings..."
-                style={{ width: '100%', padding: '7px 12px 7px 32px', border: `1px solid ${P.border}`, borderRadius: 8, fontSize: P.fontSize, outline: 'none', fontFamily: P.font, letterSpacing: P.letterSpacing, color: P.text, background: P.surface, boxSizing: 'border-box' }} />
             </div>
+          )}
 
-            {/* Empty state */}
-            {!loading && listings.length === 0 && (
-              <div style={{ background: P.surface, borderRadius: 12, border: `1px solid ${P.border}`, padding: '80px 40px', textAlign: 'center' }}>
-                <div style={{ width: 56, height: 56, background: P.bg, borderRadius: 14, margin: '0 auto 16px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                  <svg width="28" height="28" viewBox="0 0 20 20" fill={P.border}><path d="M3.25 4a.75.75 0 0 0 0 1.5h13.5a.75.75 0 0 0 0-1.5H3.25ZM3.25 8a.75.75 0 0 0 0 1.5h13.5a.75.75 0 0 0 0-1.5H3.25ZM3.25 12a.75.75 0 0 0 0 1.5h8.5a.75.75 0 0 0 0-1.5h-8.5Z"/></svg>
+          {/* Empty state when no listings */}
+          {!loading && listings.length === 0 && (
+            <div style={{ background: P.surface, margin: '0 16px 16px', borderRadius: 12, border: `1px solid ${P.border}`, padding: '80px 40px', textAlign: 'center' }}>
+              <div style={{ width: 56, height: 56, background: P.bg, borderRadius: 14, margin: '0 auto 16px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                <svg width="28" height="28" viewBox="0 0 20 20" fill={P.border}><path d="M3.25 4a.75.75 0 0 0 0 1.5h13.5a.75.75 0 0 0 0-1.5H3.25ZM3.25 8a.75.75 0 0 0 0 1.5h13.5a.75.75 0 0 0 0-1.5H3.25ZM3.25 12a.75.75 0 0 0 0 1.5h8.5a.75.75 0 0 0 0-1.5h-8.5Z"/></svg>
+              </div>
+              <div style={{ fontWeight: 600, fontSize: '0.9375rem', color: P.text, marginBottom: 6 }}>No listings yet</div>
+              <div style={{ fontSize: P.fontSize, color: P.textSubdued, marginBottom: 20 }}>Import a product and set a selling price to create your first listing</div>
+              <Btn variant="primary" onClick={() => router.push('/products')}>Go to Products</Btn>
+            </div>
+          )}
+
+          {/* Main white card — search + table */}
+          {(loading || listings.length > 0) && (
+            <div style={{ background: P.surface, margin: '0 16px 16px', borderRadius: 12, border: `1px solid ${P.border}`, overflow: 'hidden' }}>
+
+              {/* Search bar */}
+              <div style={{ padding: '12px 16px', borderBottom: `1px solid ${P.border}` }}>
+                <div style={{ position: 'relative', maxWidth: 360 }}>
+                  <svg width="14" height="14" fill="none" stroke={P.textSubdued} strokeWidth="2" viewBox="0 0 24 24" style={{ position: 'absolute', left: 10, top: '50%', transform: 'translateY(-50%)', pointerEvents: 'none' }}>
+                    <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+                  </svg>
+                  <input type="text" value={search} onChange={e => setSearch(e.target.value)}
+                    placeholder="Search listings..."
+                    style={{ width: '100%', padding: '7px 12px 7px 32px', border: `1px solid ${P.border}`, borderRadius: 8, fontSize: P.fontSize, outline: 'none', fontFamily: P.font, letterSpacing: P.letterSpacing, color: P.text, background: P.bg, boxSizing: 'border-box' }} />
                 </div>
-                <div style={{ fontWeight: 600, fontSize: '0.9375rem', color: P.text, marginBottom: 6 }}>No listings yet</div>
-                <div style={{ fontSize: P.fontSize, color: P.textSubdued, marginBottom: 20 }}>Import a product and set a selling price to create your first listing</div>
-                <Btn variant="primary" onClick={() => router.push('/products')}>Go to Products</Btn>
               </div>
-            )}
 
-            {/* Table */}
-            {(loading || visible.length > 0) && (
-              <div style={{ background: P.surface, borderRadius: 12, border: `1px solid ${P.border}`, overflow: 'hidden' }}>
-                {loading ? (
-                  <div style={{ padding: '60px', textAlign: 'center', color: P.textSubdued, fontSize: P.fontSize }}>Loading listings...</div>
-                ) : (
-                  <table style={{ width: '100%', borderCollapse: 'collapse' }}>
-                    <thead>
-                      <tr>
-                        <th style={{ ...th, width: 40 }}></th>
-                        <th style={th}>Product</th>
-                        <th style={{ ...th }} onClick={() => toggleSort('source')}>
-                          Source price <SortArrow col="source"/>
-                        </th>
-                        <th style={{ ...th }} onClick={() => toggleSort('selling')}>
-                          Selling price <SortArrow col="selling"/>
-                        </th>
-                        <th style={{ ...th }} onClick={() => toggleSort('profit')}>
-                          Profit <SortArrow col="profit"/>
-                        </th>
-                        <th style={{ ...th }} onClick={() => toggleSort('margin')}>
-                          Margin <SortArrow col="margin"/>
-                        </th>
-                        <th style={th}>Shopify</th>
-                        <th style={th}></th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {visible.map(l => {
-                        const imgs = getImages(l.images);
-                        const p = profit(l).toFixed(2);
-                        const m = margin(l);
-                        const isSel = selected?.id === l.id;
-                        const isPushing = pushing[l.id];
-                        const isPushed = !!l.shopify_product_id;
-                        return (
-                          <tr key={l.id} className="lst-row"
-                            onClick={() => setSelected(isSel ? null : l)}
-                            style={{ cursor: 'pointer', background: isSel ? '#f0fdf6' : P.surface }}>
-                            <td style={{ ...td, width: 44, paddingRight: 0 }}>
-                              {imgs[0]
-                                ? <img src={imgs[0]} alt="" style={{ width: 32, height: 32, objectFit: 'cover', borderRadius: 6, border: `1px solid ${P.border}`, display: 'block' }} onError={e => e.target.style.display = 'none'} />
-                                : <div style={{ width: 32, height: 32, background: P.bg, borderRadius: 6, border: `1px solid ${P.border}` }} />
-                              }
-                            </td>
-                            <td style={td}>
-                              <div style={{ fontWeight: 500, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', maxWidth: 240 }}>
-                                {l.custom_title || l.original_title}
-                              </div>
-                              <div style={{ fontSize: '0.75rem', color: P.textSubdued, marginTop: 1 }}>{l.source_domain}</div>
-                            </td>
-                            <td style={{ ...td, color: P.textSubdued }}>{sym(l.currency)}{parseFloat(l.source_price_at_listing).toFixed(2)}</td>
-                            <td style={{ ...td, fontWeight: 600 }}>{sym(l.currency)}{parseFloat(l.selling_price).toFixed(2)}</td>
-                            <td style={{ ...td }}>
-                              <span style={{ fontWeight: 650, color: parseFloat(p) > 0 ? P.green : '#d82c0d' }}>
-                                {parseFloat(p) > 0 ? '+' : ''}{sym(l.currency)}{p}
-                              </span>
-                            </td>
-                            <td style={td}>
-                              <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-                                <div style={{ height: 4, width: 48, background: P.bg, borderRadius: 2, overflow: 'hidden' }}>
-                                  <div style={{ height: '100%', width: `${Math.min(parseFloat(m), 100)}%`, background: parseFloat(m) > 30 ? P.green : parseFloat(m) > 10 ? '#f59e0b' : '#d82c0d', borderRadius: 2 }}/>
-                                </div>
-                                <span style={{ fontSize: '0.75rem', color: P.textSubdued }}>{m}%</span>
-                              </div>
-                            </td>
-                            <td style={td} onClick={e => e.stopPropagation()}>
-                              {isPushed ? (
-                                <span style={{ fontSize: '0.6875rem', padding: '2px 8px', borderRadius: 20, background: '#cdfed4', color: '#006847', fontWeight: 600 }}>✓ Pushed</span>
-                              ) : (
-                                <Btn onClick={() => handlePush(l.id)} disabled={isPushing} style={{ padding: '4px 10px', fontSize: '0.75rem' }}>
-                                  {isPushing ? '...' : 'Push'}
-                                </Btn>
-                              )}
-                            </td>
-                            <td style={td} onClick={e => e.stopPropagation()}>
-                              <Btn variant="danger" onClick={() => handleUnlist(l.id)} style={{ padding: '4px 10px', fontSize: '0.75rem' }}>Remove</Btn>
-                            </td>
-                          </tr>
-                        );
-                      })}
-                    </tbody>
-                  </table>
-                )}
-              </div>
-            )}
+              {/* Loading */}
+              {loading && (
+                <div style={{ padding: '60px', textAlign: 'center', color: P.textSubdued, fontSize: P.fontSize }}>Loading listings...</div>
+              )}
 
-            {!loading && visible.length === 0 && listings.length > 0 && (
-              <div style={{ background: P.surface, borderRadius: 12, border: `1px solid ${P.border}`, padding: '48px', textAlign: 'center' }}>
-                <div style={{ fontWeight: 500, fontSize: P.fontSize, color: P.text, marginBottom: 4 }}>No listings match your filter</div>
-                <div style={{ fontSize: P.fontSize, color: P.textSubdued }}>Try a different filter or search term</div>
-              </div>
-            )}
+              {/* Table */}
+              {!loading && visible.length > 0 && (
+                <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+                  <thead>
+                    <tr>
+                      <th style={{ ...th, width: 40 }}></th>
+                      <th style={th}>Product</th>
+                      <th style={{ ...th }} onClick={() => toggleSort('source')}>
+                        Source price <SortArrow col="source"/>
+                      </th>
+                      <th style={{ ...th }} onClick={() => toggleSort('selling')}>
+                        Selling price <SortArrow col="selling"/>
+                      </th>
+                      <th style={{ ...th }} onClick={() => toggleSort('profit')}>
+                        Profit <SortArrow col="profit"/>
+                      </th>
+                      <th style={{ ...th }} onClick={() => toggleSort('margin')}>
+                        Margin <SortArrow col="margin"/>
+                      </th>
+                      <th style={th}>Shopify</th>
+                      <th style={th}></th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {visible.map(l => {
+                      const imgs = getImages(l.images);
+                      const p = profit(l).toFixed(2);
+                      const m = margin(l);
+                      const isSel = selected?.id === l.id;
+                      const isPushing = pushing[l.id];
+                      const isPushed = !!l.shopify_product_id;
+                      return (
+                        <tr key={l.id} className="lst-row"
+                          onClick={() => setSelected(isSel ? null : l)}
+                          style={{ cursor: 'pointer', background: isSel ? '#f0fdf6' : P.surface }}>
+                          <td style={{ ...td, width: 44, paddingRight: 0 }}>
+                            {imgs[0]
+                              ? <img src={imgs[0]} alt="" style={{ width: 32, height: 32, objectFit: 'cover', borderRadius: 6, border: `1px solid ${P.border}`, display: 'block' }} onError={e => e.target.style.display = 'none'} />
+                              : <div style={{ width: 32, height: 32, background: P.bg, borderRadius: 6, border: `1px solid ${P.border}` }} />
+                            }
+                          </td>
+                          <td style={td}>
+                            <div style={{ fontWeight: 500, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', maxWidth: 240 }}>
+                              {l.custom_title || l.original_title}
+                            </div>
+                            <div style={{ fontSize: '0.75rem', color: P.textSubdued, marginTop: 1 }}>{l.source_domain}</div>
+                          </td>
+                          <td style={{ ...td, color: P.textSubdued }}>{sym(l.currency)}{parseFloat(l.source_price_at_listing).toFixed(2)}</td>
+                          <td style={{ ...td, fontWeight: 600 }}>{sym(l.currency)}{parseFloat(l.selling_price).toFixed(2)}</td>
+                          <td style={{ ...td }}>
+                            <span style={{ fontWeight: 650, color: parseFloat(p) > 0 ? P.green : '#d82c0d' }}>
+                              {parseFloat(p) > 0 ? '+' : ''}{sym(l.currency)}{p}
+                            </span>
+                          </td>
+                          <td style={td}>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                              <div style={{ height: 4, width: 48, background: P.bg, borderRadius: 2, overflow: 'hidden' }}>
+                                <div style={{ height: '100%', width: `${Math.min(parseFloat(m), 100)}%`, background: parseFloat(m) > 30 ? P.green : parseFloat(m) > 10 ? '#f59e0b' : '#d82c0d', borderRadius: 2 }}/>
+                              </div>
+                              <span style={{ fontSize: '0.75rem', color: P.textSubdued }}>{m}%</span>
+                            </div>
+                          </td>
+                          <td style={td} onClick={e => e.stopPropagation()}>
+                            {isPushed ? (
+                              <span style={{ fontSize: '0.6875rem', padding: '2px 8px', borderRadius: 20, background: '#cdfed4', color: '#006847', fontWeight: 600 }}>✓ Pushed</span>
+                            ) : (
+                              <Btn onClick={() => handlePush(l.id)} disabled={isPushing} style={{ padding: '4px 10px', fontSize: '0.75rem' }}>
+                                {isPushing ? '...' : 'Push'}
+                              </Btn>
+                            )}
+                          </td>
+                          <td style={td} onClick={e => e.stopPropagation()}>
+                            <Btn variant="danger" onClick={() => handleUnlist(l.id)} style={{ padding: '4px 10px', fontSize: '0.75rem' }}>Remove</Btn>
+                          </td>
+                        </tr>
+                      );
+                    })}
+                  </tbody>
+                </table>
+              )}
+
+              {/* No filter results */}
+              {!loading && visible.length === 0 && listings.length > 0 && (
+                <div style={{ padding: '48px', textAlign: 'center' }}>
+                  <div style={{ fontWeight: 500, fontSize: P.fontSize, color: P.text, marginBottom: 4 }}>No listings match your filter</div>
+                  <div style={{ fontSize: P.fontSize, color: P.textSubdued }}>Try a different filter or search term</div>
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* Learn more */}
+          <div style={{ padding: '4px 20px 32px', textAlign: 'center', fontSize: P.fontSize }}>
+            <span style={{ color: '#2b6cb0', cursor: 'pointer' }}>Learn more about listings</span>
           </div>
         </div>
 
@@ -389,7 +398,6 @@ export default function Listings() {
             </div>
 
             <div style={{ padding: '16px', flex: 1 }}>
-              {/* Product image */}
               {getImages(selected.images)[0] && (
                 <img src={getImages(selected.images)[0]} alt="" style={{ width: '100%', height: 180, objectFit: 'cover', borderRadius: 10, marginBottom: 14, border: `1px solid ${P.border}` }} onError={e => e.target.style.display = 'none'} />
               )}
@@ -401,7 +409,6 @@ export default function Listings() {
                 {selected.source_domain} · <a href={selected.source_url} target="_blank" rel="noreferrer" style={{ color: '#2b6cb0', textDecoration: 'none' }}>View source ↗</a>
               </div>
 
-              {/* Pricing breakdown */}
               <div style={{ background: P.bg, borderRadius: 10, border: `1px solid ${P.border}`, overflow: 'hidden', marginBottom: 14 }}>
                 <div style={{ padding: '10px 14px', borderBottom: `1px solid ${P.border}` }}>
                   <div style={{ fontSize: '0.6875rem', fontWeight: 600, color: P.textSubdued, textTransform: 'uppercase', letterSpacing: '0.08em' }}>Pricing</div>
@@ -419,7 +426,6 @@ export default function Listings() {
                 ))}
               </div>
 
-              {/* Margin bar */}
               <div style={{ marginBottom: 16 }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 6 }}>
                   <span style={{ fontSize: '0.75rem', color: P.textSubdued }}>Profit margin</span>
@@ -430,7 +436,6 @@ export default function Listings() {
                 </div>
               </div>
 
-              {/* Shopify status */}
               <div style={{ background: P.bg, borderRadius: 8, padding: '10px 12px', marginBottom: 14, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                 <div>
                   <div style={{ fontSize: '0.6875rem', fontWeight: 600, color: P.textSubdued, textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: 2 }}>Shopify</div>
@@ -445,7 +450,6 @@ export default function Listings() {
                 )}
               </div>
 
-              {/* Actions */}
               <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
                 <Btn onClick={() => router.push('/products')} style={{ width: '100%', textAlign: 'center', justifyContent: 'center' }}>
                   Edit product
