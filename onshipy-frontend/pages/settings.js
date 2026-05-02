@@ -1,4 +1,5 @@
-import { useState, useEffect, useRef, createPortal } from 'react';
+import { useState, useEffect, useRef } from 'react';
+import { createPortal } from 'react-dom';
 import { useRouter } from 'next/router';
 import Head from 'next/head';
 
@@ -110,6 +111,7 @@ export default function Settings() {
   const [iconModal, setIconModal] = useState(false);
   const [storeIcon, setStoreIcon] = useState(null);
   const [profileOpen, setProfileOpen] = useState(false);
+  const [mounted, setMounted] = useState(false);
   const profileRef = useRef(null);
   const [avatarUrl, setAvatarUrl] = useState(null);
   const [avatarModal, setAvatarModal] = useState(false);
@@ -129,6 +131,8 @@ export default function Settings() {
     tokenRef.current = t;
     if (s) { try { const sd = JSON.parse(s); setSeller(sd); setForm({ full_name: sd.full_name || '', email: sd.email || '', store_name: sd.store_name || '', store_url: sd.store_url || '' }); } catch {} }
   }, []);
+
+  useEffect(() => { setMounted(true); }, []);
 
   useEffect(() => {
     const fn = e => {
@@ -578,7 +582,7 @@ export default function Settings() {
         </div>
       )}
       {/* Profile dropdown portal — same as Layout, works on settings page too */}
-      {typeof window !== 'undefined' && profileOpen && createPortal(
+      {mounted && profileOpen && createPortal(
         <div id="settings-profile-portal" style={{
           position: 'fixed', top: 64, right: 14,
           width: 268, background: '#fff', borderRadius: 12,

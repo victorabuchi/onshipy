@@ -1,4 +1,5 @@
-import { useState, useEffect, useRef, createPortal } from 'react';
+import { useState, useEffect, useRef } from 'react';
+import { createPortal } from 'react-dom';
 import { useRouter } from 'next/router';
 import Link from 'next/link';
 import Head from 'next/head';
@@ -25,6 +26,7 @@ export default function Layout({ children, title }) {
   const [seller, setSeller]     = useState(null);
   const [menuOpen, setMenuOpen] = useState(false);
   const [profileOpen, setProfile] = useState(false);
+  const [mounted, setMounted] = useState(false);
   const [avatarModal, setAvatarModal] = useState(false);
   const [avatarUrl, setAvatarUrl] = useState(null);
   const profileRef = useRef(null);
@@ -86,6 +88,8 @@ export default function Layout({ children, title }) {
     document.addEventListener('mousedown', fn);
     return () => document.removeEventListener('mousedown', fn);
   }, []);
+
+  useEffect(() => { setMounted(true); }, []);
 
   useEffect(() => {
     const s = localStorage.getItem('onshipy_seller');
@@ -464,7 +468,7 @@ export default function Layout({ children, title }) {
       <main className="main-content">{children}</main>
 
       {/* Profile dropdown — inlined portal, NOT a sub-component */}
-      {profileOpen && typeof document !== 'undefined' && createPortal(
+      {mounted && profileOpen && createPortal(
         <div id="profile-dropdown-portal" style={{
           position: 'fixed', top: TOPBAR_H + 8, right: 14,
           width: 268, background: '#fff', borderRadius: 12,
