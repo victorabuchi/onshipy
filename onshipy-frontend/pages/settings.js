@@ -465,10 +465,7 @@ export default function Settings() {
           onClick={() => router.push('/dashboard')}
           style={{ cursor: 'pointer', flexShrink: 0, display: 'flex', alignItems: 'center', gap: 8 }}
         >
-          <svg width="20" height="20" viewBox="0 0 20 20" fill="none" style={{ flexShrink: 0 }}>
-            <circle cx="10" cy="10" r="8.5" stroke="white" strokeWidth="1.4" strokeOpacity="0.85"/>
-            <path d="M10 4.5L13.5 15L10 12.5L6.5 15L10 4.5Z" fill="white"/>
-          </svg>
+          <img src="/favicon-32x32.png" alt="Onshipy" width={20} height={20} style={{ filter: 'brightness(0) invert(1)', flexShrink: 0, display: 'block' }} />
           <span style={{ color: '#fff', fontWeight: 700, fontSize: '1.0625rem', letterSpacing: '-0.02em', fontFamily: '"Space Grotesk", sans-serif' }}>Onshipy</span>
         </div>
         <div style={{ flex: 1, display: 'flex', justifyContent: 'center', position: 'relative', maxWidth: 540, margin: '0 auto', width: '100%', padding: '0 16px' }}>

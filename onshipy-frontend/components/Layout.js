@@ -381,10 +381,7 @@ export default function Layout({ children, title }) {
         {/* Brand logo + name on left — goes to dashboard or refreshes if already there */}
         <div className="topbar-logo" onClick={() => router.pathname === '/dashboard' ? router.reload() : router.push('/dashboard')} style={{ cursor: 'pointer' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-            <svg width="20" height="20" viewBox="0 0 20 20" fill="none" style={{ flexShrink: 0 }}>
-              <circle cx="10" cy="10" r="8.5" stroke="white" strokeWidth="1.4" strokeOpacity="0.85"/>
-              <path d="M10 4.5L13.5 15L10 12.5L6.5 15L10 4.5Z" fill="white"/>
-            </svg>
+            <img src="/favicon-32x32.png" alt="Onshipy" width={20} height={20} style={{ filter: 'brightness(0) invert(1)', flexShrink: 0, display: 'block' }} />
             <span style={{ color: '#fff', fontWeight: 700, fontSize: '1.0625rem', letterSpacing: '-0.02em', fontFamily: '"Space Grotesk", sans-serif' }}>Onshipy</span>
           </div>
         </div>
