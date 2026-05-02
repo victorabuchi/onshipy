@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, createPortal } from 'react';
 import { useRouter } from 'next/router';
 import Head from 'next/head';
 
@@ -109,6 +109,10 @@ export default function Settings() {
   const [settingsSearch, setSettingsSearch] = useState('');
   const [iconModal, setIconModal] = useState(false);
   const [storeIcon, setStoreIcon] = useState(null);
+  const [profileOpen, setProfileOpen] = useState(false);
+  const profileRef = useRef(null);
+  const [avatarUrl, setAvatarUrl] = useState(null);
+  const [avatarModal, setAvatarModal] = useState(false);
   const [topbarSearch, setTopbarSearch] = useState('');
   const [topbarSearchOpen, setTopbarSearchOpen] = useState(false);
   const filteredNav = settingsSearch
@@ -125,6 +129,23 @@ export default function Settings() {
     tokenRef.current = t;
     if (s) { try { const sd = JSON.parse(s); setSeller(sd); setForm({ full_name: sd.full_name || '', email: sd.email || '', store_name: sd.store_name || '', store_url: sd.store_url || '' }); } catch {} }
   }, []);
+
+  useEffect(() => {
+    const fn = e => {
+      if (profileRef.current && !profileRef.current.contains(e.target)) {
+        const portal = document.getElementById('settings-profile-portal');
+        if (!portal || !portal.contains(e.target)) setProfileOpen(false);
+      }
+    };
+    document.addEventListener('mousedown', fn);
+    return () => document.removeEventListener('mousedown', fn);
+  }, []);
+
+  const handleLogout = () => {
+    localStorage.removeItem('onshipy_token');
+    localStorage.removeItem('onshipy_seller');
+    router.push('/login');
+  };
 
   const showToast = (msg, err = false) => { setToast({ msg, err }); setTimeout(() => setToast(null), 4000); };
 
@@ -405,8 +426,13 @@ export default function Settings() {
             </div>
           )}
         </div>
-        <div onClick={() => router.push('/settings')} style={{ width: 30, height: 30, background: P.green, borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', fontWeight: 700, fontSize: 11, cursor: 'pointer' }}>
-          {initials}
+        <div ref={profileRef} style={{ position: 'relative' }}>
+          <button
+            onClick={() => setProfileOpen(!profileOpen)}
+            style={{ width: 30, height: 30, background: avatarUrl ? 'transparent' : P.green, borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', fontWeight: 700, fontSize: 11, cursor: 'pointer', border: '2px solid rgba(255,255,255,0.2)', outline: 'none', overflow: 'hidden', padding: 0, fontFamily: P.font }}
+          >
+            {avatarUrl ? <img src={avatarUrl} alt="avatar" style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: '50%' }}/> : initials}
+          </button>
         </div>
       </div>
 
@@ -547,6 +573,95 @@ export default function Settings() {
             <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 10, paddingTop: 16, borderTop: `1px solid ${P.border}` }}>
               <button onClick={() => setIconModal(false)} style={{ padding: '8px 18px', background: '#fff', border: `1px solid ${P.border}`, borderRadius: 8, fontSize: P.fontSize, cursor: 'pointer', fontFamily: 'inherit', color: P.text }}>Cancel</button>
               <button onClick={() => setIconModal(false)} style={{ padding: '8px 18px', background: P.text, color: '#fff', border: 'none', borderRadius: 8, fontSize: P.fontSize, fontWeight: 500, cursor: 'pointer', fontFamily: 'inherit' }}>Save</button>
+            </div>
+          </div>
+        </div>
+      )}
+      {/* Profile dropdown portal — same as Layout, works on settings page too */}
+      {typeof window !== 'undefined' && profileOpen && createPortal(
+        <div id="settings-profile-portal" style={{
+          position: 'fixed', top: 64, right: 14,
+          width: 268, background: '#fff', borderRadius: 12,
+          boxShadow: '0 8px 32px rgba(0,0,0,0.18)', border: '1px solid rgba(227,227,227,1)',
+          zIndex: 99999,
+        }}>
+          {/* Header */}
+          <div style={{ padding: '12px 14px', background: '#f7f7f7', borderBottom: '1px solid rgba(227,227,227,1)', borderRadius: '12px 12px 0 0' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+              <div
+                onClick={() => { setProfileOpen(false); setAvatarModal(true); }}
+                style={{ width: 38, height: 38, background: avatarUrl ? 'transparent' : P.green, borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', fontWeight: 700, fontSize: 13, flexShrink: 0, cursor: 'pointer', overflow: 'hidden' }}
+              >
+                {avatarUrl ? <img src={avatarUrl} alt="avatar" style={{ width: '100%', height: '100%', objectFit: 'cover' }}/> : initials}
+              </div>
+              <div style={{ minWidth: 0, flex: 1 }}>
+                <div style={{ fontWeight: '600', fontSize: '0.8125rem', color: 'rgba(48,48,48,1)' }}>{seller?.full_name || 'User'}</div>
+                <div style={{ fontSize: '0.75rem', color: 'rgba(97,97,97,1)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{seller?.email}</div>
+                <span
+                  onMouseDown={() => { setProfileOpen(false); router.push('/settings?section=plan'); }}
+                  style={{ fontSize: '0.6875rem', color: '#008060', fontWeight: '700', marginTop: 2, textTransform: 'uppercase', letterSpacing: '0.04em', cursor: 'pointer', display: 'inline-block' }}
+                >{seller?.plan || 'free'} plan</span>
+              </div>
+            </div>
+          </div>
+          {/* Items */}
+          {[
+            { label: 'Your profile',   href: '/settings?section=users' },
+            { label: 'Store settings', href: '/settings' },
+            { label: 'Billing & plan', href: '/settings?section=plan' },
+            { label: 'Create store',   href: '/online-store' },
+          ].map((item, i, arr) => (
+            <div key={i}
+              onMouseDown={e => { e.preventDefault(); setProfileOpen(false); router.push(item.href); }}
+              style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '11px 14px', fontSize: '0.8125rem', color: 'rgba(48,48,48,1)', borderBottom: i < arr.length - 1 ? '1px solid rgba(227,227,227,1)' : 'none', cursor: 'pointer', background: 'transparent', userSelect: 'none' }}
+              onMouseEnter={e => e.currentTarget.style.background = '#f7f7f7'}
+              onMouseLeave={e => e.currentTarget.style.background = 'transparent'}
+            >
+              <span>{item.label}</span>
+              <svg width="12" height="12" fill="none" stroke="rgba(97,97,97,1)" strokeWidth="2" viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg>
+            </div>
+          ))}
+          <div style={{ borderTop: '1px solid rgba(227,227,227,1)' }}>
+            <div
+              onMouseDown={e => { e.preventDefault(); setProfileOpen(false); handleLogout(); }}
+              style={{ padding: '11px 14px', fontSize: '0.8125rem', color: '#d82c0d', cursor: 'pointer', fontWeight: '500', display: 'flex', alignItems: 'center', gap: 8, borderRadius: '0 0 12px 12px', userSelect: 'none', background: 'transparent' }}
+              onMouseEnter={e => e.currentTarget.style.background = '#fff4f4'}
+              onMouseLeave={e => e.currentTarget.style.background = 'transparent'}
+            >
+              <svg width="14" height="14" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+              Log out
+            </div>
+          </div>
+        </div>,
+        document.body
+      )}
+
+      {/* Avatar upload modal */}
+      {avatarModal && (
+        <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)', zIndex: 100000, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 16 }}>
+          <div style={{ background: '#fff', borderRadius: 16, padding: 24, width: '100%', maxWidth: 420, boxShadow: '0 20px 60px rgba(0,0,0,0.2)' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
+              <h2 style={{ fontSize: '1rem', fontWeight: 650, color: P.text, margin: 0 }}>Profile photo</h2>
+              <button onClick={() => setAvatarModal(false)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: P.textSubdued, padding: 4, display: 'flex' }}>
+                <svg width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+              </button>
+            </div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 14, marginBottom: 20 }}>
+              <div style={{ width: 56, height: 56, background: avatarUrl ? 'transparent' : P.green, borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', fontWeight: 700, fontSize: 18, flexShrink: 0, overflow: 'hidden', border: `2px solid ${P.border}` }}>
+                {avatarUrl ? <img src={avatarUrl} alt="preview" style={{ width: '100%', height: '100%', objectFit: 'cover' }}/> : initials}
+              </div>
+              <div style={{ display: 'flex', gap: 8 }}>
+                <label style={{ padding: '7px 14px', background: '#fff', border: `1px solid ${P.border}`, borderRadius: 8, fontSize: P.fontSize, fontWeight: 500, cursor: 'pointer', color: P.text }}>
+                  Upload photo
+                  <input type="file" accept="image/*" style={{ display: 'none' }} onChange={e => { const f = e.target.files?.[0]; if (f) setAvatarUrl(URL.createObjectURL(f)); }}/>
+                </label>
+                {avatarUrl && <button onClick={() => setAvatarUrl(null)} style={{ padding: '7px 14px', background: '#fff', border: `1px solid ${P.border}`, borderRadius: 8, fontSize: P.fontSize, fontWeight: 500, cursor: 'pointer', color: '#d82c0d', fontFamily: P.font }}>Remove</button>}
+              </div>
+            </div>
+            <p style={{ fontSize: '0.75rem', color: P.textSubdued, marginBottom: 20 }}>PNG, JPG, WEBP, or SVG. Minimum 512×512 pixels recommended.</p>
+            <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 10, paddingTop: 16, borderTop: `1px solid ${P.border}` }}>
+              <button onClick={() => setAvatarModal(false)} style={{ padding: '8px 18px', background: '#fff', border: `1px solid ${P.border}`, borderRadius: 8, fontSize: P.fontSize, cursor: 'pointer', fontFamily: 'inherit', color: P.text }}>Cancel</button>
+              <button onClick={() => setAvatarModal(false)} style={{ padding: '8px 18px', background: P.text, color: '#fff', border: 'none', borderRadius: 8, fontSize: P.fontSize, fontWeight: 500, cursor: 'pointer', fontFamily: 'inherit' }}>Save</button>
             </div>
           </div>
         </div>
