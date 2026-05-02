@@ -6,7 +6,7 @@ export default function Home() {
   useEffect(() => {
     const token = localStorage.getItem('onshipy_token');
     if (token) router.replace('/dashboard');
-    else router.replace('/login');
+    else router.replace('/register');
   }, []);
   return null;
 }
