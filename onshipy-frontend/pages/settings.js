@@ -109,9 +109,14 @@ export default function Settings() {
   const [settingsSearch, setSettingsSearch] = useState('');
   const [iconModal, setIconModal] = useState(false);
   const [storeIcon, setStoreIcon] = useState(null);
+  const [topbarSearch, setTopbarSearch] = useState('');
+  const [topbarSearchOpen, setTopbarSearchOpen] = useState(false);
   const filteredNav = settingsSearch
     ? NAV.filter(n => n.label.toLowerCase().includes(settingsSearch.toLowerCase()))
     : NAV;
+  const topbarResults = topbarSearch
+    ? NAV.filter(n => n.label.toLowerCase().includes(topbarSearch.toLowerCase())).slice(0, 6)
+    : [];
 
   useEffect(() => {
     const t = localStorage.getItem('onshipy_token');
@@ -362,11 +367,43 @@ export default function Settings() {
       {/* TOPBAR — "Onshipy" text goes to dashboard */}
       <div className="st-topbar">
         <span onClick={() => router.push('/dashboard')} style={{ color: '#fff', fontWeight: 750, fontSize: '1rem', letterSpacing: '-0.03em', cursor: 'pointer', flexShrink: 0 }}>Onshipy</span>
-        <div style={{ flex: 1, display: 'flex', justifyContent: 'center' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 8, background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.13)', borderRadius: 624, padding: '0 14px', height: 34, maxWidth: 480, width: '100%' }}>
+        <div style={{ flex: 1, display: 'flex', justifyContent: 'center', position: 'relative', maxWidth: 540, margin: '0 auto', width: '100%', padding: '0 16px' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 8, background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.13)', borderRadius: 624, padding: '0 14px', height: 34, width: '100%' }}>
             <svg width="14" height="14" fill="none" stroke="rgba(255,255,255,0.45)" strokeWidth="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-            <span style={{ fontSize: P.fontSize, color: 'rgba(255,255,255,0.35)', flex: 1 }}>Search</span>
+            <input
+              value={topbarSearch}
+              onChange={e => { setTopbarSearch(e.target.value); setTopbarSearchOpen(true); }}
+              onFocus={() => setTopbarSearchOpen(true)}
+              onBlur={() => setTimeout(() => setTopbarSearchOpen(false), 150)}
+              placeholder="Search settings..."
+              style={{ flex: 1, background: 'none', border: 'none', outline: 'none', fontSize: P.fontSize, color: '#fff', fontFamily: P.font }}
+            />
+            {topbarSearch && (
+              <button onClick={() => { setTopbarSearch(''); setTopbarSearchOpen(false); }} style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'rgba(255,255,255,0.4)', padding: 0, display: 'flex' }}>
+                <svg width="12" height="12" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+              </button>
+            )}
           </div>
+          {topbarSearchOpen && topbarResults.length > 0 && (
+            <div style={{ position: 'absolute', top: '100%', left: 16, right: 16, marginTop: 6, background: '#fff', borderRadius: 10, boxShadow: '0 8px 30px rgba(0,0,0,0.15)', border: `1px solid ${P.border}`, overflow: 'hidden', zIndex: 800 }}>
+              {topbarResults.map((item, i) => (
+                <div key={i}
+                  onMouseDown={() => { goSection(item.id); setTopbarSearch(''); setTopbarSearchOpen(false); }}
+                  style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '10px 14px', cursor: 'pointer', borderBottom: i < topbarResults.length - 1 ? `1px solid ${P.border}` : 'none', background: 'transparent' }}
+                  onMouseEnter={e => e.currentTarget.style.background = '#f7f7f7'}
+                  onMouseLeave={e => e.currentTarget.style.background = 'transparent'}
+                >
+                  <span style={{ color: P.textSubdued, display: 'flex' }}>{ICONS[item.id]}</span>
+                  <span style={{ fontSize: P.fontSize, fontWeight: 500, color: P.text }}>{item.label}</span>
+                </div>
+              ))}
+            </div>
+          )}
+          {topbarSearchOpen && topbarSearch && topbarResults.length === 0 && (
+            <div style={{ position: 'absolute', top: '100%', left: 16, right: 16, marginTop: 6, background: '#fff', borderRadius: 10, boxShadow: '0 8px 30px rgba(0,0,0,0.15)', border: `1px solid ${P.border}`, padding: '14px', zIndex: 800, fontSize: P.fontSize, color: P.textSubdued }}>
+              No results for "{topbarSearch}"
+            </div>
+          )}
         </div>
         <div onClick={() => router.push('/settings')} style={{ width: 30, height: 30, background: P.green, borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', fontWeight: 700, fontSize: 11, cursor: 'pointer' }}>
           {initials}
