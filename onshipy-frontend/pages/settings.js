@@ -391,7 +391,10 @@ export default function Settings() {
 
       {/* TOPBAR — "Onshipy" text goes to dashboard */}
       <div className="st-topbar">
-        <span onClick={() => router.push('/dashboard')} style={{ color: '#fff', fontWeight: 750, fontSize: '1rem', letterSpacing: '-0.03em', cursor: 'pointer', flexShrink: 0 }}>Onshipy</span>
+        <div onClick={() => router.push('/dashboard')} style={{ cursor: 'pointer', flexShrink: 0, display: 'flex', alignItems: 'center', gap: 8 }}>
+          <img src="/favicon-32x32.png" alt="Onshipy" width={20} height={20} style={{ filter: 'brightness(0) invert(1)', flexShrink: 0 }} />
+          <span style={{ color: '#fff', fontWeight: 700, fontSize: '1.0625rem', letterSpacing: '-0.02em', fontFamily: '"Space Grotesk", sans-serif' }}>Onshipy</span>
+        </div>
         <div style={{ flex: 1, display: 'flex', justifyContent: 'center', position: 'relative', maxWidth: 540, margin: '0 auto', width: '100%', padding: '0 16px' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 8, background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.13)', borderRadius: 624, padding: '0 14px', height: 34, width: '100%' }}>
             <svg width="14" height="14" fill="none" stroke="rgba(255,255,255,0.45)" strokeWidth="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>

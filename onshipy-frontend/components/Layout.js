@@ -378,9 +378,18 @@ export default function Layout({ children, title }) {
 
       {/* ── DESKTOP TOPBAR ── */}
       <header className="topbar">
-        {/* "Onshipy" text on left — clicking goes to dashboard */}
-        <div className="topbar-logo" onClick={() => router.push('/dashboard')} style={{ cursor: 'pointer' }}>
-          <span style={{ color: '#fff', fontWeight: 750, fontSize: '1rem', letterSpacing: '-0.03em', fontFamily: P.font }}>Onshipy</span>
+        {/* Brand logo + name on left — goes to dashboard or refreshes if already there */}
+        <div className="topbar-logo" onClick={() => router.pathname === '/dashboard' ? router.reload() : router.push('/dashboard')} style={{ cursor: 'pointer' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+            <img
+              src="/favicon-32x32.png"
+              alt="Onshipy"
+              width={20}
+              height={20}
+              style={{ filter: 'brightness(0) invert(1)', flexShrink: 0 }}
+            />
+            <span style={{ color: '#fff', fontWeight: 700, fontSize: '1.0625rem', letterSpacing: '-0.02em', fontFamily: '"Space Grotesk", sans-serif' }}>Onshipy</span>
+          </div>
         </div>
         <div className="topbar-search-wrap" ref={searchRef} style={{ position: 'relative' }}>
           <div className="topbar-search" onClick={() => setSearchOpen(true)}>
