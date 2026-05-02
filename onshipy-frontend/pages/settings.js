@@ -106,7 +106,6 @@ export default function Settings() {
   const [pwForm, setPwForm] = useState({ current_password: '', new_password: '', confirm_password: '' });
   const [saving, setSaving] = useState(false);
   const [upgrading, setUpgrading] = useState('');
-  const [upgrading, setUpgrading] = useState('');
   const [toast, setToast] = useState(null);
   const [notifs, setNotifs] = useState({ new_order: true, order_shipped: true, price_change: true, out_of_stock: true, auto_buy_failed: true, weekly_summary: false, marketing: false });
   const [settingsSearch, setSettingsSearch] = useState('');
