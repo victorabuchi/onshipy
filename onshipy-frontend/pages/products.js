@@ -28,12 +28,12 @@ const Btn = ({ children, onClick, variant = 'secondary', disabled, style = {} })
   );
 };
 
-const SUB_SECTIONS = [
-  { id: 'products', label: 'All products' },
-  { id: 'inventory', label: 'Inventory' },
+const TABS = [
+  { id: 'products',        label: 'All' },
+  { id: 'inventory',       label: 'Inventory' },
   { id: 'purchase_orders', label: 'Purchase orders' },
-  { id: 'transfers', label: 'Transfers' },
-  { id: 'gift_cards', label: 'Gift cards' },
+  { id: 'transfers',       label: 'Transfers' },
+  { id: 'gift_cards',      label: 'Gift cards' },
 ];
 
 export default function Products() {
@@ -243,36 +243,41 @@ export default function Products() {
         {/* ── Main content ── */}
         <div style={{ flex: 1, overflowY: 'auto', background: P.bg, minWidth: 0 }}>
 
+          {/* ── Shared header ── */}
+          <div style={{ padding: '12px 20px 0' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                <svg width="20" height="20" viewBox="0 0 20 20" fill={P.textSubdued}><path d="M10.4 2.143a1 1 0 0 0-.8 0l-7 3.11A1 1 0 0 0 2 6.167V13.833a1 1 0 0 0 .6.924l7 3.11a1 1 0 0 0 .8 0l7-3.11A1 1 0 0 0 18 13.833V6.167a1 1 0 0 0-.6-.924l-7-3.11ZM10 3.65l5.514 2.45L10 8.55 4.486 6.1 10 3.65ZM3.5 7.365 9.25 9.9v6.183l-5.75-2.556V7.365Zm7.25 8.718V9.9l5.75-2.535v6.162l-5.75 2.556Z"/></svg>
+                <h1 style={{ fontSize: '1.125rem', fontWeight: 650, color: P.text, margin: 0, letterSpacing: '-0.02em' }}>Products</h1>
+              </div>
+              <div style={{ display: 'flex', gap: 8 }}>
+                <Btn>More actions ▾</Btn>
+                <Btn variant="primary" onClick={() => router.push('/dashboard')}>+ Add product</Btn>
+                <Btn onClick={() => router.push('/browse')}>↓ Import</Btn>
+              </div>
+            </div>
+            {/* Tabs */}
+            <div style={{ display: 'flex', gap: 0, borderBottom: `1px solid ${P.border}` }}>
+              {TABS.map(tab => (
+                <button
+                  key={tab.id}
+                  className={`sub-tab${section === tab.id ? ' active' : ''}`}
+                  onClick={() => router.push(tab.id === 'products' ? '/products' : `/products?section=${tab.id}`)}
+                >
+                  {tab.label}
+                  {tab.id === 'products' && (
+                    <span style={{ marginLeft: 5, fontSize: '0.625rem', background: P.bg, color: P.textSubdued, padding: '1px 6px', borderRadius: 20, fontWeight: 600 }}>{products.length}</span>
+                  )}
+                </button>
+              ))}
+            </div>
+          </div>
+
           {/* ── ALL PRODUCTS ── */}
           {section === 'products' && (
             <>
-              {/* Header — on gray bg, no white card */}
-              <div style={{ padding: '12px 20px 8px' }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-                    <svg width="20" height="20" viewBox="0 0 20 20" fill={P.textSubdued}><path d="M10.4 2.143a1 1 0 0 0-.8 0l-7 3.11A1 1 0 0 0 2 6.167V13.833a1 1 0 0 0 .6.924l7 3.11a1 1 0 0 0 .8 0l7-3.11A1 1 0 0 0 18 13.833V6.167a1 1 0 0 0-.6-.924l-7-3.11ZM10 3.65l5.514 2.45L10 8.55 4.486 6.1 10 3.65ZM3.5 7.365 9.25 9.9v6.183l-5.75-2.556V7.365Zm7.25 8.718V9.9l5.75-2.535v6.162l-5.75 2.556Z"/></svg>
-                    <h1 style={{ fontSize: '1.125rem', fontWeight: 650, color: P.text, margin: 0, letterSpacing: '-0.02em' }}>Products</h1>
-                  </div>
-                  <div style={{ display: 'flex', gap: 8 }}>
-                    <Btn>More actions ▾</Btn>
-                    <Btn variant="primary" onClick={() => router.push('/dashboard')}>+ Add product</Btn>
-                    <Btn onClick={() => router.push('/browse')}>↓ Import</Btn>
-                  </div>
-                </div>
-                {/* Filter tabs */}
-                <div style={{ display: 'flex', gap: 0 }}>
-                  <button className="sub-tab active">
-                    All
-                    <span style={{ marginLeft: 5, fontSize: '0.625rem', background: P.bg, color: P.textSubdued, padding: '1px 6px', borderRadius: 20, fontWeight: 600 }}>{products.length}</span>
-                  </button>
-                  <button className="sub-tab" style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
-                    <svg width="12" height="12" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-                  </button>
-                </div>
-              </div>
-
               {/* Main white card */}
-              <div style={{ background: P.surface, margin: '0 16px', borderRadius: 12, border: `1px solid ${P.border}`, overflow: 'hidden' }}>
+              <div style={{ background: P.surface, margin: '8px 16px 0', borderRadius: 12, border: `1px solid ${P.border}`, overflow: 'hidden' }}>
                 {/* Search + filter row */}
                 <div style={{ padding: '12px 16px', borderBottom: `1px solid ${P.border}`, display: 'flex', gap: 8 }}>
                   <div style={{ position: 'relative', flex: 1, maxWidth: 360 }}>
@@ -407,10 +412,7 @@ export default function Products() {
           {/* ── INVENTORY ── */}
           {section === 'inventory' && (
             <>
-              <div style={{ padding: '12px 20px 8px' }}>
-                <h1 style={{ fontSize: '1.125rem', fontWeight: 650, color: P.text, margin: 0, letterSpacing: '-0.02em' }}>Inventory</h1>
-              </div>
-              <div style={{ background: P.surface, margin: '0 16px', borderRadius: 12, border: `1px solid ${P.border}`, overflow: 'hidden' }}>
+              <div style={{ background: P.surface, margin: '8px 16px 0', borderRadius: 12, border: `1px solid ${P.border}`, overflow: 'hidden' }}>
                 <SubEmptyState
                   title="Keep track of your inventory"
                   desc="When you enable inventory tracking on your products, you can view and adjust their inventory counts here."
@@ -426,10 +428,7 @@ export default function Products() {
           {/* ── PURCHASE ORDERS ── */}
           {section === 'purchase_orders' && (
             <>
-              <div style={{ padding: '12px 20px 8px' }}>
-                <h1 style={{ fontSize: '1.125rem', fontWeight: 650, color: P.text, margin: 0, letterSpacing: '-0.02em' }}>Purchase orders</h1>
-              </div>
-              <div style={{ background: P.surface, margin: '0 16px', borderRadius: 12, border: `1px solid ${P.border}`, overflow: 'hidden' }}>
+              <div style={{ background: P.surface, margin: '8px 16px 0', borderRadius: 12, border: `1px solid ${P.border}`, overflow: 'hidden' }}>
                 <SubEmptyState
                   title="Manage your purchase orders"
                   desc="Track and receive inventory ordered from suppliers."
@@ -445,11 +444,7 @@ export default function Products() {
           {/* ── TRANSFERS ── */}
           {section === 'transfers' && (
             <>
-              <div style={{ padding: '12px 20px 8px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                <h1 style={{ fontSize: '1.125rem', fontWeight: 650, color: P.text, margin: 0, letterSpacing: '-0.02em' }}>Transfers</h1>
-                <Btn>Transfers report</Btn>
-              </div>
-              <div style={{ background: P.surface, margin: '0 16px', borderRadius: 12, border: `1px solid ${P.border}`, overflow: 'hidden' }}>
+              <div style={{ background: P.surface, margin: '8px 16px 0', borderRadius: 12, border: `1px solid ${P.border}`, overflow: 'hidden' }}>
                 <SubEmptyState
                   title="Move inventory between locations"
                   desc="Move and track inventory between your business locations."
@@ -465,11 +460,7 @@ export default function Products() {
           {/* ── GIFT CARDS ── */}
           {section === 'gift_cards' && (
             <>
-              <div style={{ padding: '12px 20px 8px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                <h1 style={{ fontSize: '1.125rem', fontWeight: 650, color: P.text, margin: 0, letterSpacing: '-0.02em' }}>Gift cards</h1>
-                <Btn>Export</Btn>
-              </div>
-              <div style={{ background: P.surface, margin: '0 16px', borderRadius: 12, border: `1px solid ${P.border}`, overflow: 'hidden' }}>
+              <div style={{ background: P.surface, margin: '8px 16px 0', borderRadius: 12, border: `1px solid ${P.border}`, overflow: 'hidden' }}>
                 <SubEmptyState
                   title="Start selling gift cards"
                   desc="Add gift card products to sell or create gift cards and send them directly to your customers."
