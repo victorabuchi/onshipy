@@ -93,7 +93,12 @@ export default function Layout({ children, title }) {
   useEffect(() => { setMenuOpen(false); setProfile(false); }, [router.pathname]);
 
   useEffect(() => {
-    const fn = e => { if (profileRef.current && !profileRef.current.contains(e.target)) setProfile(false); };
+    const fn = e => {
+      // Use setTimeout so click handlers fire before we close the dropdown
+      setTimeout(() => {
+        if (profileRef.current && !profileRef.current.contains(e.target)) setProfile(false);
+      }, 150);
+    };
     document.addEventListener('mousedown', fn);
     return () => document.removeEventListener('mousedown', fn);
   }, []);
@@ -217,7 +222,7 @@ export default function Layout({ children, title }) {
           position: 'fixed', top: TOPBAR_H + 8, right: 14,
           width: 260, background: P.surface, borderRadius: 12,
           boxShadow: '0 8px 32px rgba(0,0,0,0.18)', border: `1px solid ${P.border}`,
-          zIndex: 9999, overflow: 'visible',
+          zIndex: 9999, overflow: 'visible', pointerEvents: 'auto',
         }}>
           {/* User info header */}
           <div style={{ padding: '12px 14px', background: '#f7f7f7', borderBottom: `1px solid ${P.border}`, borderRadius: '12px 12px 0 0' }}>
@@ -243,6 +248,7 @@ export default function Layout({ children, title }) {
                 display: 'flex', alignItems: 'center', justifyContent: 'space-between',
                 padding: '11px 14px', fontSize: P.fontSize, color: P.text,
                 borderBottom: `1px solid ${P.border}`, cursor: 'pointer',
+                pointerEvents: 'auto', userSelect: 'none',
               }}
               onMouseEnter={e => e.currentTarget.style.background = '#f7f7f7'}
               onMouseLeave={e => e.currentTarget.style.background = 'transparent'}
@@ -256,7 +262,7 @@ export default function Layout({ children, title }) {
             style={{
               padding: '11px 14px', fontSize: P.fontSize, color: '#d82c0d', cursor: 'pointer',
               fontWeight: '500', display: 'flex', alignItems: 'center', gap: 8,
-              borderRadius: '0 0 12px 12px',
+              borderRadius: '0 0 12px 12px', pointerEvents: 'auto', userSelect: 'none',
             }}
             onMouseEnter={e => e.currentTarget.style.background = '#fff4f4'}
             onMouseLeave={e => e.currentTarget.style.background = 'transparent'}

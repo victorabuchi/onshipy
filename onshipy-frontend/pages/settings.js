@@ -403,15 +403,7 @@ export default function Settings() {
                 >onshipy.com</span>
               </div>
             </div>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '8px 10px', background: P.bg, borderRadius: 8, border: `1px solid ${P.border}` }}>
-              <div style={{ width: 32, height: 32, background: P.green, borderRadius: 8, display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', fontWeight: 700, fontSize: 13, flexShrink: 0 }}>
-                {seller?.store_name?.[0]?.toUpperCase() || 'O'}
-              </div>
-              <div style={{ minWidth: 0 }}>
-                <div style={{ fontWeight: 600, fontSize: P.fontSize, color: P.text, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{seller?.store_name || 'My Store'}</div>
-                <div style={{ fontSize: '0.75rem', color: P.textSubdued }}>onshipy.com</div>
-              </div>
-            </div>
+
           </div>
 
           {/* Search */}
