@@ -41,15 +41,15 @@ export default function Layout({ children, title }) {
       <path d={path}/>
     </svg>
   );
-  const ICON_HOME    = "M6.5 3A3.5 3.5 0 0 0 3 6.5v7A3.5 3.5 0 0 0 6.5 17h7a3.5 3.5 0 0 0 3.5-3.5v-7A3.5 3.5 0 0 0 13.5 3h-7Z";
+  const ICON_HOME    = "M17.062 5.204 13.45 3.372A2.5 2.5 0 0 0 12.25 3h-4.5a2.5 2.5 0 0 0-1.2.372L2.938 5.204A2.5 2.5 0 0 0 2 7.368V15.5A1.5 1.5 0 0 0 3.5 17H7v-3.5a3 3 0 0 1 6 0V17h3.5a1.5 1.5 0 0 0 1.5-1.5V7.368a2.5 2.5 0 0 0-.938-1.964Z";
   const ICON_ORDER   = "M7.5 3.5a.75.75 0 0 0-1.5 0v.75H4.5a1 1 0 0 0-1 1v11a1 1 0 0 0 1 1h11a1 1 0 0 0 1-1v-11a1 1 0 0 0-1-1H14V3.5a.75.75 0 0 0-1.5 0v.75h-5V3.5Z";
   const ICON_PRODUCT = "M10.4 2.143a1 1 0 0 0-.8 0l-7 3.11A1 1 0 0 0 2 6.167V13.833a1 1 0 0 0 .6.924l7 3.11a1 1 0 0 0 .8 0l7-3.11A1 1 0 0 0 18 13.833V6.167a1 1 0 0 0-.6-.924l-7-3.11Z";
   const ICON_PERSON  = "M13 8a3 3 0 1 1-6 0 3 3 0 0 1 6 0Zm-1.5 0a1.5 1.5 0 1 0-3 0 1.5 1.5 0 0 0 3 0ZM10 2a8 8 0 1 0 0 16A8 8 0 0 0 10 2ZM3.5 10a6.5 6.5 0 1 1 11.573 4.089c-.46-.707-1.197-1.323-2.183-1.768C11.862 11.814 10.963 11.5 10 11.5s-1.862.314-2.89.821c-.986.445-1.723 1.06-2.183 1.768A6.476 6.476 0 0 1 3.5 10Z";
   const ICON_LIST    = "M3.25 4a.75.75 0 0 0 0 1.5h13.5a.75.75 0 0 0 0-1.5H3.25ZM3.25 8a.75.75 0 0 0 0 1.5h13.5a.75.75 0 0 0 0-1.5H3.25ZM3.25 12a.75.75 0 0 0 0 1.5h8.5a.75.75 0 0 0 0-1.5h-8.5Z";
   const ICON_CHART   = "M4.5 12.25a.75.75 0 0 1 .75.75v3.25a.75.75 0 0 1-1.5 0V13a.75.75 0 0 1 .75-.75ZM10 8.5a.75.75 0 0 1 .75.75v7a.75.75 0 0 1-1.5 0V9.25A.75.75 0 0 1 10 8.5ZM15.5 4.5a.75.75 0 0 1 .75.75v11a.75.75 0 0 1-1.5 0v-11a.75.75 0 0 1 .75-.75Z";
   const ICON_SEARCH  = "M8.5 3a5.5 5.5 0 1 0 3.17 9.98l3.674 3.675a.75.75 0 1 0 1.06-1.06L12.731 12.23A5.5 5.5 0 0 0 8.5 3Zm-4 5.5a4 4 0 1 1 8 0 4 4 0 0 1-8 0Z";
-  const ICON_STORE   = "M3.5 4A1.5 1.5 0 0 0 2 5.5v9A1.5 1.5 0 0 0 3.5 16h13a1.5 1.5 0 0 0 1.5-1.5v-9A1.5 1.5 0 0 0 16.5 4h-13Z";
-  const ICON_WALLET  = "M2 5.5A2.5 2.5 0 0 1 4.5 3h11A2.5 2.5 0 0 1 18 5.5v9a2.5 2.5 0 0 1-2.5 2.5h-11A2.5 2.5 0 0 1 2 14.5v-9Z";
+  const ICON_STORE   = "M4 3h12a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2h-3.5v2h1.75a.75.75 0 0 1 0 1.5h-8.5a.75.75 0 0 1 0-1.5H7.5v-2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2Z";
+  const ICON_WALLET  = "M4.5 4A2.5 2.5 0 0 0 2 6.5V8h16V6.5A2.5 2.5 0 0 0 15.5 4h-11ZM18 9.5H2v4A2.5 2.5 0 0 0 4.5 16h11A2.5 2.5 0 0 0 18 13.5v-4Zm-5.5 2a1.5 1.5 0 1 1 3 0 1.5 1.5 0 0 1-3 0Z";
   const ICON_SETTING = "M11.013 2.513a1.75 1.75 0 0 0-2.027 0l-1.5 1.134a1.75 1.75 0 0 1-.59.28l-1.84.44a1.75 1.75 0 0 0-1.433 1.79l.065 1.9a1.75 1.75 0 0 1-.165.67l-.8 1.7a1.75 1.75 0 0 0 .492 2.21l1.49 1.147a1.75 1.75 0 0 1 .485.572l.84 1.716a1.75 1.75 0 0 0 2.127.817l1.78-.608a1.75 1.75 0 0 1 1.13 0l1.78.608a1.75 1.75 0 0 0 2.127-.817l.84-1.716a1.75 1.75 0 0 1 .485-.572l1.49-1.147a1.75 1.75 0 0 0 .492-2.21l-.8-1.7a1.75 1.75 0 0 1-.165-.67l.065-1.9a1.75 1.75 0 0 0-1.434-1.79l-1.84-.44a1.75 1.75 0 0 1-.59-.28l-1.499-1.134ZM10 7.25a2.75 2.75 0 1 0 0 5.5 2.75 2.75 0 0 0 0-5.5Z";
 
   const SEARCH_ITEMS = [
@@ -130,20 +130,19 @@ export default function Layout({ children, title }) {
   ];
   const salesNav   = [{ href: '/online-store', label: 'Online Store' }];
   const accountNav = [
-    { href: '/wallet',   label: 'Wallet' },
-    { href: '/settings', label: 'Settings' },
+    { href: '/wallet', label: 'Wallet' },
   ];
 
   const icons = {
-    '/dashboard':    <svg width="18" height="18" viewBox="0 0 20 20" fill="currentColor"><path d="M6.5 3A3.5 3.5 0 0 0 3 6.5v7A3.5 3.5 0 0 0 6.5 17h7a3.5 3.5 0 0 0 3.5-3.5v-7A3.5 3.5 0 0 0 13.5 3h-7ZM4.5 6.5A2 2 0 0 1 6.5 4.5h7a2 2 0 0 1 2 2v7a2 2 0 0 1-2 2h-7a2 2 0 0 1-2-2v-7Z"/><path d="M7.5 9.75a.75.75 0 0 1 .75-.75h3.5a.75.75 0 0 1 0 1.5h-3.5a.75.75 0 0 1-.75-.75ZM7.5 12.25a.75.75 0 0 1 .75-.75h2a.75.75 0 0 1 0 1.5h-2a.75.75 0 0 1-.75-.75Z"/></svg>,
+    '/dashboard':    <svg width="18" height="18" viewBox="0 0 20 20" fill="currentColor"><path d="M17.062 5.204 13.45 3.372A2.5 2.5 0 0 0 12.25 3h-4.5a2.5 2.5 0 0 0-1.2.372L2.938 5.204A2.5 2.5 0 0 0 2 7.368V15.5A1.5 1.5 0 0 0 3.5 17H7v-3.5a3 3 0 0 1 6 0V17h3.5a1.5 1.5 0 0 0 1.5-1.5V7.368a2.5 2.5 0 0 0-.938-1.964Z"/></svg>,
     '/orders':       <svg width="18" height="18" viewBox="0 0 20 20" fill="currentColor"><path d="M7.5 3.5a.75.75 0 0 0-1.5 0v.75H4.5a1 1 0 0 0-1 1v11a1 1 0 0 0 1 1h11a1 1 0 0 0 1-1v-11a1 1 0 0 0-1-1H14V3.5a.75.75 0 0 0-1.5 0v.75h-5V3.5Z"/></svg>,
     '/products':     <svg width="18" height="18" viewBox="0 0 20 20" fill="currentColor"><path d="M10.4 2.143a1 1 0 0 0-.8 0l-7 3.11A1 1 0 0 0 2 6.167V13.833a1 1 0 0 0 .6.924l7 3.11a1 1 0 0 0 .8 0l7-3.11A1 1 0 0 0 18 13.833V6.167a1 1 0 0 0-.6-.924l-7-3.11Z"/></svg>,
     '/customers':    <svg width="18" height="18" viewBox="0 0 20 20" fill="currentColor"><path d="M13 8a3 3 0 1 1-6 0 3 3 0 0 1 6 0Zm-1.5 0a1.5 1.5 0 1 0-3 0 1.5 1.5 0 0 0 3 0Z"/><path d="M10 2a8 8 0 1 0 0 16A8 8 0 0 0 10 2ZM3.5 10a6.5 6.5 0 1 1 11.573 4.089c-.46-.707-1.197-1.323-2.183-1.768C11.862 11.814 10.963 11.5 10 11.5s-1.862.314-2.89.821c-.986.445-1.723 1.06-2.183 1.768A6.476 6.476 0 0 1 3.5 10Z"/></svg>,
     '/listings':     <svg width="18" height="18" viewBox="0 0 20 20" fill="currentColor"><path d="M3.25 4a.75.75 0 0 0 0 1.5h13.5a.75.75 0 0 0 0-1.5H3.25ZM3.25 8a.75.75 0 0 0 0 1.5h13.5a.75.75 0 0 0 0-1.5H3.25ZM3.25 12a.75.75 0 0 0 0 1.5h8.5a.75.75 0 0 0 0-1.5h-8.5Z"/></svg>,
     '/analytics':    <svg width="18" height="18" viewBox="0 0 20 20" fill="currentColor"><path d="M4.5 12.25a.75.75 0 0 1 .75.75v3.25a.75.75 0 0 1-1.5 0V13a.75.75 0 0 1 .75-.75ZM10 8.5a.75.75 0 0 1 .75.75v7a.75.75 0 0 1-1.5 0V9.25A.75.75 0 0 1 10 8.5ZM15.5 4.5a.75.75 0 0 1 .75.75v11a.75.75 0 0 1-1.5 0v-11a.75.75 0 0 1 .75-.75Z"/></svg>,
     '/browse':       <svg width="18" height="18" viewBox="0 0 20 20" fill="currentColor"><path d="M8.5 3a5.5 5.5 0 1 0 3.17 9.98l3.674 3.675a.75.75 0 1 0 1.06-1.06L12.731 12.23A5.5 5.5 0 0 0 8.5 3Zm-4 5.5a4 4 0 1 1 8 0 4 4 0 0 1-8 0Z"/></svg>,
-    '/online-store': <svg width="18" height="18" viewBox="0 0 20 20" fill="currentColor"><path d="M3.5 4A1.5 1.5 0 0 0 2 5.5v9A1.5 1.5 0 0 0 3.5 16h13a1.5 1.5 0 0 0 1.5-1.5v-9A1.5 1.5 0 0 0 16.5 4h-13Z"/></svg>,
-    '/wallet':       <svg width="18" height="18" viewBox="0 0 20 20" fill="currentColor"><path d="M2 5.5A2.5 2.5 0 0 1 4.5 3h11A2.5 2.5 0 0 1 18 5.5v9a2.5 2.5 0 0 1-2.5 2.5h-11A2.5 2.5 0 0 1 2 14.5v-9Z"/></svg>,
+    '/online-store': <svg width="18" height="18" viewBox="0 0 20 20" fill="currentColor"><path d="M4 3h12a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2h-3.5v2h1.75a.75.75 0 0 1 0 1.5h-8.5a.75.75 0 0 1 0-1.5H7.5v-2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2Z"/></svg>,
+    '/wallet':       <svg width="18" height="18" viewBox="0 0 20 20" fill="currentColor"><path d="M4.5 4A2.5 2.5 0 0 0 2 6.5V8h16V6.5A2.5 2.5 0 0 0 15.5 4h-11ZM18 9.5H2v4A2.5 2.5 0 0 0 4.5 16h11A2.5 2.5 0 0 0 18 13.5v-4Zm-5.5 2a1.5 1.5 0 1 1 3 0 1.5 1.5 0 0 1-3 0Z"/></svg>,
     '/settings':     <svg width="18" height="18" viewBox="0 0 20 20" fill="currentColor"><path d="M11.013 2.513a1.75 1.75 0 0 0-2.027 0l-1.5 1.134a1.75 1.75 0 0 1-.59.28l-1.84.44a1.75 1.75 0 0 0-1.433 1.79l.065 1.9a1.75 1.75 0 0 1-.165.67l-.8 1.7a1.75 1.75 0 0 0 .492 2.21l1.49 1.147a1.75 1.75 0 0 1 .485.572l.84 1.716a1.75 1.75 0 0 0 2.127.817l1.78-.608a1.75 1.75 0 0 1 1.13 0l1.78.608a1.75 1.75 0 0 0 2.127-.817l.84-1.716a1.75 1.75 0 0 1 .485-.572l1.49-1.147a1.75 1.75 0 0 0 .492-2.21l-.8-1.7a1.75 1.75 0 0 1-.165-.67l.065-1.9a1.75 1.75 0 0 0-1.434-1.79l-1.84-.44a1.75 1.75 0 0 1-.59-.28l-1.499-1.134ZM10 7.25a2.75 2.75 0 1 0 0 5.5 2.75 2.75 0 0 0 0-5.5Z"/></svg>,
   };
 
@@ -266,22 +265,20 @@ export default function Layout({ children, title }) {
     </div>
   );
 
-  // Sidebar nav — profile at BOTTOM (just name+email display, like Shopify image 4)
   const SidebarNav = () => (
     <div style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
-      {/* Scrollable nav */}
       <div style={{ flex: 1, overflowY: 'auto', padding: '8px 8px 0', scrollbarWidth: 'none' }}>
         {mainNav.map(item => <NavItem key={item.href} item={item} />)}
         <Divider />
         <SectionLabel label="Sales channels" />
         {salesNav.map(item => <NavItem key={item.href} item={item} />)}
-        <Divider />
         <SectionLabel label="Account" />
         {accountNav.map(item => <NavItem key={item.href} item={item} />)}
         <div style={{ height: 8 }} />
       </div>
-
-
+      <div style={{ padding: '0 8px 8px', borderTop: `1px solid ${P.border}`, paddingTop: 8, flexShrink: 0 }}>
+        <NavItem item={{ href: '/settings', label: 'Settings' }} />
+      </div>
     </div>
   );
 
