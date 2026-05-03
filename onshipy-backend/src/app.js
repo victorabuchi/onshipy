@@ -32,6 +32,8 @@ fastify.register(require('./routes/orders'),   { prefix: '/api/orders' });
 fastify.register(require('./routes/webhook'),  { prefix: '/api/webhook' });
 fastify.register(require('./routes/stores'),   { prefix: '/api/stores' });
 fastify.register(require('./routes/billing'),  { prefix: '/api/billing' });
+fastify.register(require('./routes/wallet'), { prefix: '/api/wallet' });
+
 
 fastify.get('/health', async () => ({
   status: 'ok',

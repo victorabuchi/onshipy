@@ -1,0 +1,183 @@
+require('dotenv').config();
+const db = require('../db/knex');
+const Stripe = require('stripe');
+
+module.exports = async function walletRoutes(fastify) {
+
+  const authenticate = async (req, reply) => {
+    try { await req.jwtVerify(); }
+    catch { return reply.status(401).send({ error: 'Unauthorized' }); }
+  };
+
+  const stripe = Stripe(process.env.STRIPE_SECRET_KEY);
+
+  // GET /api/wallet — get balance + transactions
+  fastify.get('/', { preHandler: authenticate }, async (req, reply) => {
+    const sellerId = req.user.id;
+    try {
+      const seller = await db('sellers').where({ id: sellerId }).first();
+      const transactions = await db('wallet_transactions')
+        .where({ seller_id: sellerId })
+        .orderBy('created_at', 'desc')
+        .limit(50);
+
+      return reply.send({
+        balance: parseFloat(seller.wallet_balance || 0),
+        auto_recharge: seller.wallet_auto_recharge || false,
+        auto_threshold: parseFloat(seller.wallet_auto_threshold || 10),
+        auto_amount: parseFloat(seller.wallet_auto_amount || 50),
+        transactions
+      });
+    } catch (err) {
+      return reply.status(500).send({ error: err.message });
+    }
+  });
+
+  // POST /api/wallet/topup — create Stripe checkout for wallet top-up
+  fastify.post('/topup', { preHandler: authenticate }, async (req, reply) => {
+    const { amount } = req.body;
+    const sellerId = req.user.id;
+
+    if (!amount || parseFloat(amount) < 5) {
+      return reply.status(400).send({ error: 'Minimum top-up is $5' });
+    }
+
+    try {
+      const seller = await db('sellers').where({ id: sellerId }).first();
+
+      // Create/reuse Stripe customer
+      let customerId = seller.stripe_customer_id;
+      if (!customerId) {
+        const customer = await stripe.customers.create({
+          email: seller.email,
+          name: seller.full_name,
+          metadata: { seller_id: sellerId }
+        });
+        customerId = customer.id;
+        await db('sellers').where({ id: sellerId }).update({ stripe_customer_id: customerId });
+      }
+
+      const amountCents = Math.round(parseFloat(amount) * 100);
+
+      const session = await stripe.checkout.sessions.create({
+        customer: customerId,
+        payment_method_types: ['card'],
+        line_items: [{
+          price_data: {
+            currency: 'usd',
+            product_data: {
+              name: 'Onshipy Wallet Top-up',
+              description: `Add $${parseFloat(amount).toFixed(2)} to your Onshipy wallet`
+            },
+            unit_amount: amountCents
+          },
+          quantity: 1
+        }],
+        mode: 'payment',
+        success_url: `${process.env.FRONTEND_URL}/wallet?topup=success&amount=${amount}`,
+        cancel_url: `${process.env.FRONTEND_URL}/wallet`,
+        metadata: { seller_id: sellerId, type: 'wallet_topup', amount: amount.toString() }
+      });
+
+      return reply.send({ url: session.url });
+    } catch (err) {
+      console.error('Wallet topup error:', err.message);
+      return reply.status(500).send({ error: err.message });
+    }
+  });
+
+  // PATCH /api/wallet/auto-recharge — update auto-recharge settings
+  fastify.patch('/auto-recharge', { preHandler: authenticate }, async (req, reply) => {
+    const { enabled, threshold, amount } = req.body;
+    const sellerId = req.user.id;
+    try {
+      await db('sellers').where({ id: sellerId }).update({
+        wallet_auto_recharge: enabled,
+        wallet_auto_threshold: threshold || 10,
+        wallet_auto_amount: amount || 50
+      });
+      return reply.send({ success: true });
+    } catch (err) {
+      return reply.status(500).send({ error: err.message });
+    }
+  });
+
+  // POST /api/wallet/webhook — handle Stripe wallet top-up webhook
+  // (add checkout.session.completed handling for wallet_topup type)
+  fastify.post('/webhook-topup', async (req, reply) => {
+    const sig = req.headers['stripe-signature'];
+    let event;
+    try {
+      event = stripe.webhooks.constructEvent(req.rawBody || req.body, sig, process.env.STRIPE_WEBHOOK_SECRET);
+    } catch (err) {
+      return reply.status(400).send({ error: err.message });
+    }
+
+    if (event.type === 'checkout.session.completed') {
+      const session = event.data.object;
+      if (session.metadata?.type === 'wallet_topup') {
+        const sellerId = session.metadata.seller_id;
+        const amount = parseFloat(session.metadata.amount);
+
+        try {
+          // Add to balance
+          const seller = await db('sellers').where({ id: sellerId }).first();
+          const newBalance = parseFloat(seller.wallet_balance || 0) + amount;
+
+          await db('sellers').where({ id: sellerId }).update({
+            wallet_balance: newBalance
+          });
+
+          // Record transaction
+          await db('wallet_transactions').insert({
+            seller_id: sellerId,
+            type: 'topup',
+            amount: amount,
+            balance_after: newBalance,
+            description: `Wallet top-up via Stripe`,
+            stripe_session_id: session.id,
+            created_at: new Date()
+          });
+
+          console.log(`✓ Wallet top-up: seller ${sellerId} +$${amount} → balance $${newBalance}`);
+        } catch (err) {
+          console.error('Wallet webhook error:', err.message);
+        }
+      }
+    }
+
+    return reply.send({ received: true });
+  });
+
+  // Internal: deduct from wallet for auto-buy (called by autoBuyWorker)
+  fastify.post('/deduct', { preHandler: authenticate }, async (req, reply) => {
+    const { amount, description, order_id } = req.body;
+    const sellerId = req.user.id;
+
+    try {
+      const seller = await db('sellers').where({ id: sellerId }).first();
+      const currentBalance = parseFloat(seller.wallet_balance || 0);
+
+      if (currentBalance < amount) {
+        return reply.status(400).send({ error: 'Insufficient wallet balance', balance: currentBalance });
+      }
+
+      const newBalance = currentBalance - amount;
+      await db('sellers').where({ id: sellerId }).update({ wallet_balance: newBalance });
+
+      await db('wallet_transactions').insert({
+        seller_id: sellerId,
+        type: 'debit',
+        amount: amount,
+        balance_after: newBalance,
+        description: description || 'Order fulfillment',
+        order_id: order_id || null,
+        created_at: new Date()
+      });
+
+      return reply.send({ success: true, balance: newBalance });
+    } catch (err) {
+      return reply.status(500).send({ error: err.message });
+    }
+  });
+};
