@@ -2,6 +2,23 @@ import { useState, useEffect, useRef } from 'react';
 import { createPortal } from 'react-dom';
 import { useRouter } from 'next/router';
 import Head from 'next/head';
+import {
+  InfoIcon,
+  PlanIcon,
+  ReceiptDollarIcon,
+  PersonIcon,
+  CreditCardIcon,
+  CartIcon,
+  PersonAddIcon,
+  DeliveryIcon,
+  TaxIcon,
+  LocationIcon,
+  NotificationIcon,
+  GlobeIcon,
+  LanguageIcon,
+  NoteIcon,
+  LockIcon,
+} from '@shopify/polaris-icons';
 
 const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000';
 
@@ -12,23 +29,22 @@ const P = {
   fontSize: '0.8125rem', fontWeight: '450', letterSpacing: '-0.00833em',
 };
 
-// Polaris-style SVG icons for each setting section
 const ICONS = {
-  general:           <svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor"><path d="M10 1a9 9 0 1 0 0 18A9 9 0 0 0 10 1Zm0 1.5a7.5 7.5 0 1 1 0 15 7.5 7.5 0 0 1 0-15ZM10 6a1 1 0 1 0 0 2 1 1 0 0 0 0-2Zm-.75 3.75a.75.75 0 0 0 0 1.5h.25v3.25h-.25a.75.75 0 0 0 0 1.5h2a.75.75 0 0 0 0-1.5h-.25v-4a.75.75 0 0 0-.75-.75h-1Z"/></svg>,
-  plan:              <svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor"><path d="M3 4a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4Zm2-.5a.5.5 0 0 0-.5.5v12a.5.5 0 0 0 .5.5h10a.5.5 0 0 0 .5-.5V4a.5.5 0 0 0-.5-.5H5ZM7 7.75A.75.75 0 0 1 7.75 7h4.5a.75.75 0 0 1 0 1.5h-4.5A.75.75 0 0 1 7 7.75Zm0 3A.75.75 0 0 1 7.75 10h4.5a.75.75 0 0 1 0 1.5h-4.5A.75.75 0 0 1 7 10.75Zm0 3A.75.75 0 0 1 7.75 13h2.5a.75.75 0 0 1 0 1.5h-2.5A.75.75 0 0 1 7 13.75Z"/></svg>,
-  billing:           <svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor"><path d="M2 5.5A2.5 2.5 0 0 1 4.5 3h11A2.5 2.5 0 0 1 18 5.5v9a2.5 2.5 0 0 1-2.5 2.5h-11A2.5 2.5 0 0 1 2 14.5v-9Zm2.5-1a1 1 0 0 0-1 1V7h13V5.5a1 1 0 0 0-1-1h-11ZM3.5 8.5v6a1 1 0 0 0 1 1h11a1 1 0 0 0 1-1v-6h-13Zm7.5 2.5a1 1 0 1 1 2 0 1 1 0 0 1-2 0Z"/></svg>,
-  users:             <svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor"><path d="M13 8a3 3 0 1 1-6 0 3 3 0 0 1 6 0Zm-1.5 0a1.5 1.5 0 1 0-3 0 1.5 1.5 0 0 0 3 0Z"/><path d="M10 2a8 8 0 1 0 0 16A8 8 0 0 0 10 2ZM3.5 10a6.5 6.5 0 1 1 11.573 4.089c-.46-.707-1.197-1.323-2.183-1.768C11.862 11.814 10.963 11.5 10 11.5s-1.862.314-2.89.821c-.986.445-1.723 1.06-2.183 1.768A6.476 6.476 0 0 1 3.5 10Z"/></svg>,
-  payments:          <svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor"><path d="M15.5 2h-11A2.5 2.5 0 0 0 2 4.5v11A2.5 2.5 0 0 0 4.5 18h11a2.5 2.5 0 0 0 2.5-2.5v-11A2.5 2.5 0 0 0 15.5 2ZM3.5 4.5A1 1 0 0 1 4.5 3.5h11a1 1 0 0 1 1 1v1h-13v-1Zm-1 2.5h15v8.5a1 1 0 0 1-1 1h-13a1 1 0 0 1-1-1V7Zm3.75 3.5a.75.75 0 0 0 0 1.5h5.5a.75.75 0 0 0 0-1.5h-5.5Z"/></svg>,
-  checkout:          <svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor"><path d="M4.5 3A1.5 1.5 0 0 0 3 4.5v.75c0 .414.336.75.75.75H4v9A1.5 1.5 0 0 0 5.5 16.5h9a1.5 1.5 0 0 0 1.5-1.5V6h.25A.75.75 0 0 0 17 5.25V4.5A1.5 1.5 0 0 0 15.5 3h-11Zm0 1.5h11v.5H4.5v-.5Zm1 2h9v8.5H5.5V6.5Zm3 2a.75.75 0 0 0 0 1.5h3a.75.75 0 0 0 0-1.5h-3Z"/></svg>,
-  'customer-accounts':<svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor"><path d="M7.5 3a4.5 4.5 0 1 0 0 9 4.5 4.5 0 0 0 0-9ZM4.5 7.5a3 3 0 1 1 6 0 3 3 0 0 1-6 0ZM12.5 10a2.5 2.5 0 1 0 0-5 2.5 2.5 0 0 0 0 5ZM1 15.25a6.25 6.25 0 0 1 12.5 0 .75.75 0 0 1-1.5 0A4.75 4.75 0 0 0 2.5 15.25a.75.75 0 0 1-1.5 0Zm12.5-1a5.25 5.25 0 0 1 5 5.5.75.75 0 0 1-1.5 0 3.75 3.75 0 0 0-3.5-3.75.75.75 0 0 1 0-1.5v-.25Z"/></svg>,
-  shipping:          <svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor"><path d="M2.5 5A1.5 1.5 0 0 0 1 6.5v7A1.5 1.5 0 0 0 2.5 15h.535a2.5 2.5 0 0 0 4.93 0h5.07a2.5 2.5 0 0 0 4.93 0H18a1 1 0 0 0 1-1v-3.382a1.5 1.5 0 0 0-.224-.79l-2-3.236A1.5 1.5 0 0 0 15.5 6H13V5.5A.5.5 0 0 0 12.5 5h-10ZM13 7.5h2.5l2 3.236V13.5h-.535a2.5 2.5 0 0 0-4.965 0H13V7.5ZM5.5 14a1 1 0 1 1 0 2 1 1 0 0 1 0-2Zm9 0a1 1 0 1 1 0 2 1 1 0 0 1 0-2Z"/></svg>,
-  taxes:             <svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor"><path d="M10 1a9 9 0 1 0 0 18A9 9 0 0 0 10 1ZM3.5 10a6.5 6.5 0 1 1 13 0 6.5 6.5 0 0 1-13 0Zm9.78-3.03a.75.75 0 0 0-1.06-1.06L6.97 12.16a.75.75 0 1 0 1.06 1.06l5.25-5.25ZM8 8a1 1 0 1 1-2 0 1 1 0 0 1 2 0Zm5 4a1 1 0 1 1-2 0 1 1 0 0 1 2 0Z"/></svg>,
-  locations:         <svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor"><path d="M10 1a7 7 0 0 1 7 7c0 3.866-7 11-7 11S3 11.866 3 8a7 7 0 0 1 7-7Zm0 1.5A5.5 5.5 0 0 0 4.5 8c0 2.9 5.5 8.855 5.5 8.855S15.5 10.9 15.5 8A5.5 5.5 0 0 0 10 2.5ZM10 6a2 2 0 1 1 0 4 2 2 0 0 1 0-4Z"/></svg>,
-  notifications:     <svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor"><path d="M10 1.75a6.25 6.25 0 0 0-6.25 6.25v2.063l-.864 1.726A1.75 1.75 0 0 0 4.45 14.25h2.3a3.25 3.25 0 0 0 6.5 0h2.3a1.75 1.75 0 0 0 1.564-2.461l-.864-1.726V8A6.25 6.25 0 0 0 10 1.75Zm2 12.5a1.75 1.75 0 0 1-3.5 0h3.5Z"/></svg>,
-  domains:           <svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor"><path d="M10 1a9 9 0 1 0 0 18A9 9 0 0 0 10 1Zm5.47 5.5h-2.644a11.65 11.65 0 0 0-.95-2.833A7.517 7.517 0 0 1 15.47 6.5ZM10 2.5c.43 0 1.167.763 1.764 2.418.178.493.324 1.027.437 1.582H7.799c.113-.555.259-1.09.437-1.582C8.833 3.263 9.57 2.5 10 2.5ZM6.124 3.667A11.65 11.65 0 0 0 5.174 6.5H2.53a7.517 7.517 0 0 1 3.594-2.833ZM2.05 8h3.027C5.026 8.49 5 9.004 5 9.5v1H2.05A7.5 7.5 0 0 1 2.05 8ZM2.05 12H5v.5c0 .496.026 1.01.077 1.5H2.05a7.499 7.499 0 0 1 0-2ZM6.577 14A9.61 9.61 0 0 1 6.5 12.5v-3h7v3c0 .512-.026 1.015-.077 1.5H6.577Zm.162 1.5H13.261c-.113.555-.259 1.09-.437 1.582C12.227 18.737 11.43 19.5 10 19.5c-.43 0-1.167-.763-1.764-2.418A9.653 9.653 0 0 1 6.739 15.5ZM14.5 12.5c0 .512-.026 1.015-.077 1.5h-1.846c.051-.485.077-.988.077-1.5v-3H15v1a9.612 9.612 0 0 1-.5 2Zm2.95-2h-2.373c.05-.49.077-1.004.077-1.5V8H18a7.5 7.5 0 0 1-.55 2.5Z"/></svg>,
-  languages:         <svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor"><path d="M10 1a9 9 0 1 0 0 18A9 9 0 0 0 10 1ZM3.5 8.5h3.013A15.76 15.76 0 0 1 6.5 10c0 .518.014 1.024.043 1.5H3.5a6.475 6.475 0 0 1 0-3ZM6.576 13h2.617c.15.815.361 1.543.624 2.155A7.513 7.513 0 0 1 6.576 13Zm6.848 0a7.514 7.514 0 0 1-3.241 2.155c.263-.612.475-1.34.624-2.155h2.617Zm.543-1.5c.03-.476.044-.982.044-1.5 0-.518-.014-1.024-.043-1.5H16.5a6.475 6.475 0 0 1 0 3h-2.533Zm-.543-4.5h-2.617A10.5 10.5 0 0 0 10 4.845 10.5 10.5 0 0 0 9.193 7H6.576A7.513 7.513 0 0 1 13.424 7ZM9.193 13h1.614c-.15.815-.36 1.543-.623 2.155A10.5 10.5 0 0 1 9.193 13Zm0-6h1.614c-.15-.815-.36-1.543-.623-2.155A10.5 10.5 0 0 0 9.193 7Z"/></svg>,
-  policies:          <svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor"><path d="M5.5 1A1.5 1.5 0 0 0 4 2.5v15A1.5 1.5 0 0 0 5.5 19h9a1.5 1.5 0 0 0 1.5-1.5v-15A1.5 1.5 0 0 0 14.5 1h-9ZM5.5 2.5h9v15h-9v-15ZM7 6.75A.75.75 0 0 1 7.75 6h4.5a.75.75 0 0 1 0 1.5h-4.5A.75.75 0 0 1 7 6.75Zm0 3A.75.75 0 0 1 7.75 9h4.5a.75.75 0 0 1 0 1.5h-4.5A.75.75 0 0 1 7 9.75Zm0 3A.75.75 0 0 1 7.75 12h2.5a.75.75 0 0 1 0 1.5h-2.5A.75.75 0 0 1 7 12.75Z"/></svg>,
-  security:          <svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor"><path d="M10.243 2.1a.75.75 0 0 0-.486 0l-7 2.625A.75.75 0 0 0 2.25 5.5C2.25 12.233 5.818 16.8 9.757 18.9a.75.75 0 0 0 .486 0C14.182 16.8 17.75 12.233 17.75 5.5a.75.75 0 0 0-.507-.775l-7-2.625ZM10 4.366l5.75 2.156C15.53 11.62 12.685 15.588 10 17.394 7.315 15.588 4.47 11.62 4.25 6.522L10 4.366Z"/></svg>,
+  general:             <InfoIcon           width={20} height={20} fill="currentColor" />,
+  plan:                <PlanIcon           width={20} height={20} fill="currentColor" />,
+  billing:             <ReceiptDollarIcon  width={20} height={20} fill="currentColor" />,
+  users:               <PersonIcon         width={20} height={20} fill="currentColor" />,
+  payments:            <CreditCardIcon     width={20} height={20} fill="currentColor" />,
+  checkout:            <CartIcon           width={20} height={20} fill="currentColor" />,
+  'customer-accounts': <PersonAddIcon      width={20} height={20} fill="currentColor" />,
+  shipping:            <DeliveryIcon       width={20} height={20} fill="currentColor" />,
+  taxes:               <TaxIcon            width={20} height={20} fill="currentColor" />,
+  locations:           <LocationIcon       width={20} height={20} fill="currentColor" />,
+  notifications:       <NotificationIcon   width={20} height={20} fill="currentColor" />,
+  domains:             <GlobeIcon          width={20} height={20} fill="currentColor" />,
+  languages:           <LanguageIcon       width={20} height={20} fill="currentColor" />,
+  policies:            <NoteIcon           width={20} height={20} fill="currentColor" />,
+  security:            <LockIcon           width={20} height={20} fill="currentColor" />,
 };
 
 const NAV = [
