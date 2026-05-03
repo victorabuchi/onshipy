@@ -3,6 +3,17 @@ import { createPortal } from 'react-dom';
 import { useRouter } from 'next/router';
 import Link from 'next/link';
 import Head from 'next/head';
+import {
+  HomeIcon as PIHome,
+  OrderIcon as PIOrder,
+  ProductIcon as PIProduct,
+  PersonIcon as PIPerson,
+  ListBulletedIcon as PIList,
+  ChartVerticalIcon as PIChart,
+  SearchIcon as PISearch,
+  StoreOnlineIcon as PIStore,
+  SettingsIcon as PISettings,
+} from '@shopify/polaris-icons';
 
 const P = {
   bg:            '#f1f1f1',
@@ -35,43 +46,31 @@ export default function Layout({ children, title }) {
   const [searchOpen, setSearchOpen] = useState(false);
 
   // All searchable pages/sections
-  // Polaris SVG icons for search results (no emojis)
-  const SearchIcon = ({ path }) => (
-    <svg width="18" height="18" viewBox="0 0 20 20" fill="rgba(97,97,97,1)" style={{ flexShrink: 0 }}>
-      <path d={path}/>
-    </svg>
+  const SearchIcon = ({ icon: Icon }) => (
+    <span style={{ flexShrink: 0, display: 'flex', alignItems: 'center', color: 'rgba(97,97,97,1)' }}>
+      <Icon width={18} height={18} fill="rgba(97,97,97,1)" />
+    </span>
   );
-  const ICON_HOME    = "M17.062 5.204 13.45 3.372A2.5 2.5 0 0 0 12.25 3h-4.5a2.5 2.5 0 0 0-1.2.372L2.938 5.204A2.5 2.5 0 0 0 2 7.368V15.5A1.5 1.5 0 0 0 3.5 17H7v-3.5a3 3 0 0 1 6 0V17h3.5a1.5 1.5 0 0 0 1.5-1.5V7.368a2.5 2.5 0 0 0-.938-1.964Z";
-  const ICON_ORDER   = "M7.5 3.5a.75.75 0 0 0-1.5 0v.75H4.5a1 1 0 0 0-1 1v11a1 1 0 0 0 1 1h11a1 1 0 0 0 1-1v-11a1 1 0 0 0-1-1H14V3.5a.75.75 0 0 0-1.5 0v.75h-5V3.5Z";
-  const ICON_PRODUCT = "M10.4 2.143a1 1 0 0 0-.8 0l-7 3.11A1 1 0 0 0 2 6.167V13.833a1 1 0 0 0 .6.924l7 3.11a1 1 0 0 0 .8 0l7-3.11A1 1 0 0 0 18 13.833V6.167a1 1 0 0 0-.6-.924l-7-3.11Z";
-  const ICON_PERSON  = "M13 8a3 3 0 1 1-6 0 3 3 0 0 1 6 0Zm-1.5 0a1.5 1.5 0 1 0-3 0 1.5 1.5 0 0 0 3 0ZM10 2a8 8 0 1 0 0 16A8 8 0 0 0 10 2ZM3.5 10a6.5 6.5 0 1 1 11.573 4.089c-.46-.707-1.197-1.323-2.183-1.768C11.862 11.814 10.963 11.5 10 11.5s-1.862.314-2.89.821c-.986.445-1.723 1.06-2.183 1.768A6.476 6.476 0 0 1 3.5 10Z";
-  const ICON_LIST    = "M3.25 4a.75.75 0 0 0 0 1.5h13.5a.75.75 0 0 0 0-1.5H3.25ZM3.25 8a.75.75 0 0 0 0 1.5h13.5a.75.75 0 0 0 0-1.5H3.25ZM3.25 12a.75.75 0 0 0 0 1.5h8.5a.75.75 0 0 0 0-1.5h-8.5Z";
-  const ICON_CHART   = "M4.5 12.25a.75.75 0 0 1 .75.75v3.25a.75.75 0 0 1-1.5 0V13a.75.75 0 0 1 .75-.75ZM10 8.5a.75.75 0 0 1 .75.75v7a.75.75 0 0 1-1.5 0V9.25A.75.75 0 0 1 10 8.5ZM15.5 4.5a.75.75 0 0 1 .75.75v11a.75.75 0 0 1-1.5 0v-11a.75.75 0 0 1 .75-.75Z";
-  const ICON_SEARCH  = "M8.5 3a5.5 5.5 0 1 0 3.17 9.98l3.674 3.675a.75.75 0 1 0 1.06-1.06L12.731 12.23A5.5 5.5 0 0 0 8.5 3Zm-4 5.5a4 4 0 1 1 8 0 4 4 0 0 1-8 0Z";
-  const ICON_STORE   = "M4 3h12a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2h-3.5v2h1.75a.75.75 0 0 1 0 1.5h-8.5a.75.75 0 0 1 0-1.5H7.5v-2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2Z";
-  const ICON_WALLET  = "M4.5 4A2.5 2.5 0 0 0 2 6.5V8h16V6.5A2.5 2.5 0 0 0 15.5 4h-11ZM18 9.5H2v4A2.5 2.5 0 0 0 4.5 16h11A2.5 2.5 0 0 0 18 13.5v-4Zm-5.5 2a1.5 1.5 0 1 1 3 0 1.5 1.5 0 0 1-3 0Z";
-  const ICON_SETTING = "M11.013 2.513a1.75 1.75 0 0 0-2.027 0l-1.5 1.134a1.75 1.75 0 0 1-.59.28l-1.84.44a1.75 1.75 0 0 0-1.433 1.79l.065 1.9a1.75 1.75 0 0 1-.165.67l-.8 1.7a1.75 1.75 0 0 0 .492 2.21l1.49 1.147a1.75 1.75 0 0 1 .485.572l.84 1.716a1.75 1.75 0 0 0 2.127.817l1.78-.608a1.75 1.75 0 0 1 1.13 0l1.78.608a1.75 1.75 0 0 0 2.127-.817l.84-1.716a1.75 1.75 0 0 1 .485-.572l1.49-1.147a1.75 1.75 0 0 0 .492-2.21l-.8-1.7a1.75 1.75 0 0 1-.165-.67l.065-1.9a1.75 1.75 0 0 0-1.434-1.79l-1.84-.44a1.75 1.75 0 0 1-.59-.28l-1.499-1.134ZM10 7.25a2.75 2.75 0 1 0 0 5.5 2.75 2.75 0 0 0 0-5.5Z";
 
   const SEARCH_ITEMS = [
-    { label: 'Home', desc: 'Dashboard overview', href: '/dashboard', icon: ICON_HOME },
-    { label: 'Orders', desc: 'Manage your orders', href: '/orders', icon: ICON_ORDER },
-    { label: 'Products', desc: 'Import and manage products', href: '/products', icon: ICON_PRODUCT },
-    { label: 'Inventory', desc: 'Track product inventory', href: '/products?section=inventory', icon: ICON_LIST },
-    { label: 'Customers', desc: 'View customer accounts', href: '/customers', icon: ICON_PERSON },
-    { label: 'Listings', desc: 'Your priced product listings', href: '/listings', icon: ICON_LIST },
-    { label: 'Analytics', desc: 'Sales and performance data', href: '/analytics', icon: ICON_CHART },
-    { label: 'Browse', desc: 'Discover brands to resell', href: '/browse', icon: ICON_SEARCH },
-    { label: 'Online Store', desc: 'Connect your Shopify store', href: '/online-store', icon: ICON_STORE },
-    { label: 'Wallet', desc: 'Billing and payments', href: '/wallet', icon: ICON_WALLET },
-    { label: 'Settings', desc: 'Store settings', href: '/settings', icon: ICON_SETTING },
-    { label: 'General settings', desc: 'Store name, email, URL', href: '/settings?section=general', icon: ICON_SETTING },
-    { label: 'Plan & billing', desc: 'Upgrade your plan', href: '/settings?section=plan', icon: ICON_WALLET },
-    { label: 'Domains', desc: 'Manage your domains', href: '/settings?section=domains', icon: ICON_STORE },
-    { label: 'Notifications', desc: 'Email notification settings', href: '/settings?section=notifications', icon: ICON_SETTING },
-    { label: 'Security', desc: 'Password and sessions', href: '/settings?section=security', icon: ICON_SETTING },
-    { label: 'Payments', desc: 'Payment providers', href: '/settings?section=payments', icon: ICON_WALLET },
-    { label: 'Users', desc: 'Your profile', href: '/settings?section=users', icon: ICON_PERSON },
-    { label: 'Policies', desc: 'Store policies', href: '/settings?section=policies', icon: ICON_LIST },
+    { label: 'Home',             desc: 'Dashboard overview',          href: '/dashboard',                  icon: PIHome },
+    { label: 'Orders',           desc: 'Manage your orders',          href: '/orders',                     icon: PIOrder },
+    { label: 'Products',         desc: 'Import and manage products',  href: '/products',                   icon: PIProduct },
+    { label: 'Inventory',        desc: 'Track product inventory',     href: '/products?section=inventory', icon: PIList },
+    { label: 'Customers',        desc: 'View customer accounts',      href: '/customers',                  icon: PIPerson },
+    { label: 'Listings',         desc: 'Your priced product listings',href: '/listings',                   icon: PIList },
+    { label: 'Analytics',        desc: 'Sales and performance data',  href: '/analytics',                  icon: PIChart },
+    { label: 'Browse',           desc: 'Discover brands to resell',   href: '/browse',                     icon: PISearch },
+    { label: 'Online Store',     desc: 'Connect your Shopify store',  href: '/online-store',               icon: PIStore },
+    { label: 'Settings',         desc: 'Store settings',              href: '/settings',                   icon: PISettings },
+    { label: 'General settings', desc: 'Store name, email, URL',      href: '/settings?section=general',   icon: PISettings },
+    { label: 'Plan & billing',   desc: 'Upgrade your plan',           href: '/settings?section=plan',      icon: PISettings },
+    { label: 'Domains',          desc: 'Manage your domains',         href: '/settings?section=domains',   icon: PIStore },
+    { label: 'Notifications',    desc: 'Email notification settings', href: '/settings?section=notifications', icon: PISettings },
+    { label: 'Security',         desc: 'Password and sessions',       href: '/settings?section=security',  icon: PISettings },
+    { label: 'Payments',         desc: 'Payment providers',           href: '/settings?section=payments',  icon: PISettings },
+    { label: 'Users',            desc: 'Your profile',                href: '/settings?section=users',     icon: PIPerson },
+    { label: 'Policies',         desc: 'Store policies',              href: '/settings?section=policies',  icon: PIList },
   ];
 
   const searchResults = searchQuery.length > 0
@@ -134,16 +133,16 @@ export default function Layout({ children, title }) {
   ];
 
   const icons = {
-    '/dashboard':    <svg width="18" height="18" viewBox="0 0 20 20" fill="currentColor"><path d="M17.062 5.204 13.45 3.372A2.5 2.5 0 0 0 12.25 3h-4.5a2.5 2.5 0 0 0-1.2.372L2.938 5.204A2.5 2.5 0 0 0 2 7.368V15.5A1.5 1.5 0 0 0 3.5 17H7v-3.5a3 3 0 0 1 6 0V17h3.5a1.5 1.5 0 0 0 1.5-1.5V7.368a2.5 2.5 0 0 0-.938-1.964Z"/></svg>,
-    '/orders':       <svg width="18" height="18" viewBox="0 0 20 20" fill="currentColor"><path d="M7.5 3.5a.75.75 0 0 0-1.5 0v.75H4.5a1 1 0 0 0-1 1v11a1 1 0 0 0 1 1h11a1 1 0 0 0 1-1v-11a1 1 0 0 0-1-1H14V3.5a.75.75 0 0 0-1.5 0v.75h-5V3.5Z"/></svg>,
-    '/products':     <svg width="18" height="18" viewBox="0 0 20 20" fill="currentColor"><path d="M10.4 2.143a1 1 0 0 0-.8 0l-7 3.11A1 1 0 0 0 2 6.167V13.833a1 1 0 0 0 .6.924l7 3.11a1 1 0 0 0 .8 0l7-3.11A1 1 0 0 0 18 13.833V6.167a1 1 0 0 0-.6-.924l-7-3.11Z"/></svg>,
-    '/customers':    <svg width="18" height="18" viewBox="0 0 20 20" fill="currentColor"><path d="M13 8a3 3 0 1 1-6 0 3 3 0 0 1 6 0Zm-1.5 0a1.5 1.5 0 1 0-3 0 1.5 1.5 0 0 0 3 0Z"/><path d="M10 2a8 8 0 1 0 0 16A8 8 0 0 0 10 2ZM3.5 10a6.5 6.5 0 1 1 11.573 4.089c-.46-.707-1.197-1.323-2.183-1.768C11.862 11.814 10.963 11.5 10 11.5s-1.862.314-2.89.821c-.986.445-1.723 1.06-2.183 1.768A6.476 6.476 0 0 1 3.5 10Z"/></svg>,
-    '/listings':     <svg width="18" height="18" viewBox="0 0 20 20" fill="currentColor"><path d="M3.25 4a.75.75 0 0 0 0 1.5h13.5a.75.75 0 0 0 0-1.5H3.25ZM3.25 8a.75.75 0 0 0 0 1.5h13.5a.75.75 0 0 0 0-1.5H3.25ZM3.25 12a.75.75 0 0 0 0 1.5h8.5a.75.75 0 0 0 0-1.5h-8.5Z"/></svg>,
-    '/analytics':    <svg width="18" height="18" viewBox="0 0 20 20" fill="currentColor"><path d="M4.5 12.25a.75.75 0 0 1 .75.75v3.25a.75.75 0 0 1-1.5 0V13a.75.75 0 0 1 .75-.75ZM10 8.5a.75.75 0 0 1 .75.75v7a.75.75 0 0 1-1.5 0V9.25A.75.75 0 0 1 10 8.5ZM15.5 4.5a.75.75 0 0 1 .75.75v11a.75.75 0 0 1-1.5 0v-11a.75.75 0 0 1 .75-.75Z"/></svg>,
-    '/browse':       <svg width="18" height="18" viewBox="0 0 20 20" fill="currentColor"><path d="M8.5 3a5.5 5.5 0 1 0 3.17 9.98l3.674 3.675a.75.75 0 1 0 1.06-1.06L12.731 12.23A5.5 5.5 0 0 0 8.5 3Zm-4 5.5a4 4 0 1 1 8 0 4 4 0 0 1-8 0Z"/></svg>,
-    '/online-store': <svg width="18" height="18" viewBox="0 0 20 20" fill="currentColor"><path d="M4 3h12a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2h-3.5v2h1.75a.75.75 0 0 1 0 1.5h-8.5a.75.75 0 0 1 0-1.5H7.5v-2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2Z"/></svg>,
+    '/dashboard':    <PIHome    width={18} height={18} fill="currentColor" />,
+    '/orders':       <PIOrder   width={18} height={18} fill="currentColor" />,
+    '/products':     <PIProduct width={18} height={18} fill="currentColor" />,
+    '/customers':    <PIPerson  width={18} height={18} fill="currentColor" />,
+    '/listings':     <PIList    width={18} height={18} fill="currentColor" />,
+    '/analytics':    <PIChart   width={18} height={18} fill="currentColor" />,
+    '/browse':       <PISearch  width={18} height={18} fill="currentColor" />,
+    '/online-store': <PIStore   width={18} height={18} fill="currentColor" />,
     '/wallet':       <svg width="18" height="18" viewBox="0 0 20 20" fill="currentColor"><path d="M4.5 4A2.5 2.5 0 0 0 2 6.5V8h16V6.5A2.5 2.5 0 0 0 15.5 4h-11ZM18 9.5H2v4A2.5 2.5 0 0 0 4.5 16h11A2.5 2.5 0 0 0 18 13.5v-4Zm-5.5 2a1.5 1.5 0 1 1 3 0 1.5 1.5 0 0 1-3 0Z"/></svg>,
-    '/settings':     <svg width="18" height="18" viewBox="0 0 20 20" fill="currentColor"><path d="M11.013 2.513a1.75 1.75 0 0 0-2.027 0l-1.5 1.134a1.75 1.75 0 0 1-.59.28l-1.84.44a1.75 1.75 0 0 0-1.433 1.79l.065 1.9a1.75 1.75 0 0 1-.165.67l-.8 1.7a1.75 1.75 0 0 0 .492 2.21l1.49 1.147a1.75 1.75 0 0 1 .485.572l.84 1.716a1.75 1.75 0 0 0 2.127.817l1.78-.608a1.75 1.75 0 0 1 1.13 0l1.78.608a1.75 1.75 0 0 0 2.127-.817l.84-1.716a1.75 1.75 0 0 1 .485-.572l1.49-1.147a1.75 1.75 0 0 0 .492-2.21l-.8-1.7a1.75 1.75 0 0 1-.165-.67l.065-1.9a1.75 1.75 0 0 0-1.434-1.79l-1.84-.44a1.75 1.75 0 0 1-.59-.28l-1.499-1.134ZM10 7.25a2.75 2.75 0 1 0 0 5.5 2.75 2.75 0 0 0 0-5.5Z"/></svg>,
+    '/settings':     <PISettings width={18} height={18} fill="currentColor" />,
   };
 
   const initials = seller?.full_name
@@ -200,8 +199,6 @@ export default function Layout({ children, title }) {
       {label}
     </div>
   );
-
-  const Divider = () => <div style={{ height: 1, background: P.border, margin: '6px 0' }} />;
 
   // Profile dropdown — attaches to topbar avatar (top RIGHT)
   const ProfileDropdown = () => (
@@ -269,7 +266,6 @@ export default function Layout({ children, title }) {
     <div style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
       <div style={{ flex: 1, overflowY: 'auto', padding: '8px 8px 0', scrollbarWidth: 'none' }}>
         {mainNav.map(item => <NavItem key={item.href} item={item} />)}
-        <Divider />
         <SectionLabel label="Sales channels" />
         {salesNav.map(item => <NavItem key={item.href} item={item} />)}
         <SectionLabel label="Account" />
@@ -336,7 +332,7 @@ export default function Layout({ children, title }) {
         }
         .sidebar {
           position: fixed; top: ${TOPBAR_H}px; left: 0; bottom: 0;
-          width: ${SIDEBAR_W}px; background: ${P.surface};
+          width: ${SIDEBAR_W}px; background: #f6f6f7;
           border-right: 1px solid ${P.border};
           z-index: 400; display: flex; flex-direction: column; overflow: hidden;
         }
@@ -411,7 +407,7 @@ export default function Layout({ children, title }) {
                   onMouseEnter={e => e.currentTarget.style.background = '#f7f7f7'}
                   onMouseLeave={e => e.currentTarget.style.background = 'transparent'}
                 >
-                  <SearchIcon path={item.icon}/>
+                  <SearchIcon icon={item.icon}/>
                   <div>
                     <div style={{ fontSize: P.fontSize, fontWeight: 500, color: P.text }}>{item.label}</div>
                     <div style={{ fontSize: '0.75rem', color: P.textSubdued }}>{item.desc}</div>
