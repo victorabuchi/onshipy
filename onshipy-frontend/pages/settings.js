@@ -454,10 +454,10 @@ export default function Settings() {
         .st-shell { display: flex; min-height: 100vh; padding-top: 56px; }
         .st-nav { width: 260px; flex-shrink: 0; background: #fff; border-right: 1px solid rgba(227,227,227,1); overflow-y: auto; position: sticky; top: 56px; height: calc(100vh - 56px); align-self: flex-start; }
         .st-content { flex: 1; padding: 24px 28px 60px; min-width: 0; background: #f1f1f1; }
-        .nav-row { display: flex; align-items: center; width: 100%; padding: 11px 16px; background: none; border: none; border-bottom: 1px solid rgba(227,227,227,1); cursor: pointer; font-family: inherit; gap: 12px; text-align: left; transition: background .1s; }
+        .nav-row { display: flex; align-items: center; width: 100%; padding: 11px 16px; background: none; border: none; cursor: pointer; font-family: inherit; gap: 12px; text-align: left; transition: background .1s; }
         .nav-row:hover { background: #f7f7f7; }
         .nav-row.active { background: #f0f0f0; }
-        .mob-back { display: none; align-items: center; gap: 8px; width: 100%; padding: 14px 16px; background: #fff; border: none; border-bottom: 1px solid rgba(227,227,227,1); cursor: pointer; font-size: 0.8125rem; font-family: inherit; color: rgba(97,97,97,1); }
+        .mob-back { display: none; align-items: center; gap: 8px; width: 100%; padding: 14px 16px; background: #fff; border: none; cursor: pointer; font-size: 0.8125rem; font-family: inherit; color: rgba(97,97,97,1); }
         @media (max-width: 767px) {
           .st-shell { flex-direction: column; }
           .st-nav { width: 100%; height: auto; position: static; border-right: none; }

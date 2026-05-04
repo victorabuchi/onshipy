@@ -306,7 +306,7 @@ export default function Layout({ children, title }) {
         {accountNav.map(item => <NavItem key={item.href} item={item} />)}
         <div style={{ height: 8 }} />
       </div>
-      <div style={{ padding: '0 8px 8px', borderTop: `1px solid ${P.border}`, paddingTop: 8, flexShrink: 0 }}>
+      <div style={{ padding: '0 8px 8px', flexShrink: 0 }}>
         <NavItem item={{ href: '/settings', label: 'Settings' }} />
       </div>
     </div>
