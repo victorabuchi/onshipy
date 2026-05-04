@@ -192,9 +192,9 @@ export default function Layout({ children, title }) {
         style={{
           borderRadius: 10,
           background: isActive ? '#fff' : 'transparent',
-          boxShadow: isActive ? '0 1px 4px rgba(0,0,0,0.12)' : 'none',
+          border: isActive ? '1px solid rgba(0,0,0,0.09)' : '1px solid transparent',
+          boxShadow: isActive ? '0 1px 3px rgba(0,0,0,0.1)' : 'none',
           marginBottom: 2,
-          overflow: 'hidden',
           transition: 'background .1s',
         }}
         onMouseEnter={e => { if (!isActive) e.currentTarget.style.background = 'rgba(0,0,0,0.06)'; }}
@@ -207,6 +207,7 @@ export default function Layout({ children, title }) {
           textDecoration: 'none', fontSize: P.fontSize,
           fontWeight: isActive ? '600' : P.fontWeight,
           letterSpacing: P.letterSpacing,
+          borderRadius: 10,
         }}>
           <span style={{ flexShrink: 0, color: isActive ? P.text : P.textSubdued, display: 'flex' }}>{icons[item.href]}</span>
           {item.label}
