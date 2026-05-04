@@ -188,25 +188,31 @@ export default function Layout({ children, title }) {
       (item.href !== '/dashboard' && router.pathname.startsWith(item.href));
     const showSub = isActive && item.sub?.length > 0;
     return (
-      <div>
+      <div
+        style={{
+          borderRadius: 10,
+          background: isActive ? '#fff' : 'transparent',
+          boxShadow: isActive ? '0 1px 4px rgba(0,0,0,0.12)' : 'none',
+          marginBottom: 2,
+          overflow: 'hidden',
+          transition: 'background .1s',
+        }}
+        onMouseEnter={e => { if (!isActive) e.currentTarget.style.background = 'rgba(0,0,0,0.06)'; }}
+        onMouseLeave={e => { if (!isActive) e.currentTarget.style.background = 'transparent'; }}
+      >
         <Link href={item.href} style={{
           display: 'flex', alignItems: 'center', gap: 8,
-          padding: '6px 10px', borderRadius: 8, marginBottom: 1,
-          background: isActive ? '#fff' : 'transparent',
-          boxShadow: isActive ? '0 1px 3px rgba(0,0,0,0.08)' : 'none',
+          padding: '7px 10px',
           color: isActive ? P.text : P.textSubdued,
           textDecoration: 'none', fontSize: P.fontSize,
           fontWeight: isActive ? '600' : P.fontWeight,
-          letterSpacing: P.letterSpacing, transition: 'background .1s, color .1s, box-shadow .1s',
-        }}
-          onMouseEnter={e => { if (!isActive) { e.currentTarget.style.background = 'rgba(0,0,0,0.05)'; e.currentTarget.style.color = P.text; }}}
-          onMouseLeave={e => { if (!isActive) { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.color = P.textSubdued; }}}
-        >
+          letterSpacing: P.letterSpacing,
+        }}>
           <span style={{ flexShrink: 0, color: isActive ? P.text : P.textSubdued, display: 'flex' }}>{icons[item.href]}</span>
           {item.label}
         </Link>
         {showSub && (
-          <div style={{ marginLeft: 26, marginBottom: 2 }}>
+          <div style={{ marginLeft: 26, paddingBottom: 4 }}>
             {item.sub.map(s => {
               const subActive = router.asPath === s.href ||
                 (router.query.section && `?section=${router.query.section}` === s.href.split('?')[1]);
@@ -216,9 +222,9 @@ export default function Layout({ children, title }) {
                   fontSize: P.fontSize, color: subActive ? P.text : P.textSubdued,
                   fontWeight: subActive ? '600' : P.fontWeight,
                   textDecoration: 'none', letterSpacing: P.letterSpacing,
-                  background: subActive ? '#e3e3e3' : 'transparent', transition: 'background .1s, color .1s',
+                  background: subActive ? 'rgba(0,0,0,0.06)' : 'transparent', transition: 'background .1s, color .1s',
                 }}
-                  onMouseEnter={e => { if (!subActive) { e.currentTarget.style.background = '#ebebeb'; e.currentTarget.style.color = P.text; }}}
+                  onMouseEnter={e => { if (!subActive) { e.currentTarget.style.background = 'rgba(0,0,0,0.04)'; e.currentTarget.style.color = P.text; }}}
                   onMouseLeave={e => { if (!subActive) { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.color = P.textSubdued; }}}
                 >{s.label}</Link>
               );
