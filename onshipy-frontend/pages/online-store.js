@@ -23,6 +23,9 @@ export default function OnlineStore() {
   const [oauthReturn, setOauthReturn] = useState(null); // 'connected' | 'failed' | null
 
   useEffect(() => {
+    // Always reset connecting on page load / return from OAuth
+    setConnecting(false);
+
     const t = localStorage.getItem('onshipy_token');
     if (!t) { router.push('/login'); return; }
     tokenRef.current = t;
@@ -164,11 +167,6 @@ export default function OnlineStore() {
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 16, flexWrap: 'wrap' }}>
         <p style={{ fontSize: P.fontSize, color: P.textSubdued, margin: 0, lineHeight: 1.6 }}>
           Connect your Shopify store to push products and sync orders automatically.
-          {seller?.store_name && (
-            <span style={{ display: 'block', marginTop: 4, fontSize: '0.75rem' }}>
-              Store detected: <strong style={{ color: P.text }}>{seller.store_name}</strong>
-            </span>
-          )}
         </p>
         <button
           onClick={handleConnect}
@@ -229,7 +227,7 @@ export default function OnlineStore() {
         {/* ── SHOPIFY CARD ── */}
         <div style={{ background: P.surface, borderRadius: 12, border: `1px solid ${P.border}`, overflow: 'hidden', marginBottom: 16 }}>
           {/* Header */}
-          <div style={{ padding: '16px 20px', borderBottom: `1px solid ${P.border}`, display: 'flex', alignItems: 'center', gap: 14 }}>
+          <div style={{ padding: '16px 20px', display: 'flex', alignItems: 'center', gap: 14 }}>
             <img src="/shopify-logo.png" width="44" height="44" alt="Shopify" style={{ borderRadius: 10, flexShrink: 0, objectFit: 'contain' }} />
             <div style={{ flex: 1 }}>
               <div style={{ fontWeight: 650, fontSize: '0.9375rem', color: P.text }}>Shopify</div>
