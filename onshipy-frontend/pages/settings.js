@@ -454,7 +454,7 @@ export default function Settings() {
         .st-shell { display: flex; min-height: 100vh; padding-top: 56px; background: #1a1a1a; }
         .st-nav { width: 260px; flex-shrink: 0; background: #e3e3e3; border-right: 1px solid rgba(227,227,227,1); overflow-y: auto; scrollbar-width: none; position: sticky; top: 56px; height: calc(100vh - 56px); align-self: flex-start; border-top-left-radius: 10px; }
         .st-nav::-webkit-scrollbar { display: none; }
-        .st-content { flex: 1; padding: 24px 28px 60px; min-width: 0; background: #f1f1f1; border-top-left-radius: 10px; }
+        .st-content { flex: 1; padding: 24px 28px 60px; min-width: 0; background: #f1f1f1; border-top-right-radius: 10px; }
         .nav-row { display: flex; align-items: center; width: calc(100% - 16px); margin: 2px 8px; padding: 10px 12px; background: none; border: 1px solid transparent; border-radius: 10px; cursor: pointer; font-family: inherit; gap: 12px; text-align: left; transition: background .1s, box-shadow .1s; }
         .nav-row:hover { background: rgba(0,0,0,0.06); }
         .nav-row.active { background: #fff; border-color: rgba(0,0,0,0.09); box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
