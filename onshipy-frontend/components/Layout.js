@@ -329,14 +329,17 @@ export default function Layout({ children, title }) {
 
       <style>{`
         *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-        html, body {
+        html {
+          background: #1a1a1a;
+        }
+        body {
           font-family: ${P.font};
           font-size: ${P.fontSize};
           line-height: ${P.lineHeight};
           font-weight: ${P.fontWeight};
           letter-spacing: ${P.letterSpacing};
           color: ${P.text};
-          background: ${P.bg};
+          background: #1a1a1a;
           min-height: 100vh;
           overflow-x: hidden;
           max-width: 100vw;
@@ -376,11 +379,13 @@ export default function Layout({ children, title }) {
           position: fixed; top: ${TOPBAR_H}px; left: 0; bottom: 0;
           width: ${SIDEBAR_W}px; background: #e3e3e3;
           border-right: 1px solid ${P.border};
+          border-top-left-radius: 10px; border-top-right-radius: 10px;
           z-index: 400; display: flex; flex-direction: column; overflow: hidden;
         }
         .main-content {
           margin-left: ${SIDEBAR_W}px; padding-top: ${TOPBAR_H}px;
           min-height: 100vh; background: ${P.bg};
+          border-top-left-radius: 10px;
           min-width: 0; overflow-x: hidden;
         }
         .mob-topbar { display: none; }
