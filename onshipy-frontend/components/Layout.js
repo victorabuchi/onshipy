@@ -32,6 +32,11 @@ const P = {
 const SIDEBAR_W = 248;
 const TOPBAR_H  = 56;
 
+const NOTIFICATIONS = [
+  { id: 1, type: 'update', title: 'Moms deserve more than one day', desc: 'Create gifts that sell beyond May 10', time: '3 weeks ago', read: false },
+  { id: 2, type: 'update', title: 'Videos on a budget [LIVE]', desc: 'Lighting, styling, and editing tips for better product vid...', time: '1 month ago', read: false },
+];
+
 export default function Layout({ children, title }) {
   const router = useRouter();
   const [seller, setSeller]     = useState(null);
@@ -40,8 +45,13 @@ export default function Layout({ children, title }) {
   const [mounted, setMounted] = useState(false);
   const [avatarModal, setAvatarModal] = useState(false);
   const [avatarUrl, setAvatarUrl] = useState(null);
+  const [notifOpen, setNotifOpen] = useState(false);
+  const [notifTab, setNotifTab] = useState('all');
+  const [notifications, setNotifications] = useState(NOTIFICATIONS);
   const profileRef = useRef(null);
   const searchRef = useRef(null);
+  const notifRef = useRef(null);
+  const tabsScrollRef = useRef(null);
   const [searchQuery, setSearchQuery] = useState('');
   const [searchOpen, setSearchOpen] = useState(false);
 
@@ -95,7 +105,7 @@ export default function Layout({ children, title }) {
     if (s) { try { setSeller(JSON.parse(s)); } catch {} }
   }, []);
 
-  useEffect(() => { setMenuOpen(false); setProfile(false); }, [router.pathname]);
+  useEffect(() => { setMenuOpen(false); setProfile(false); setNotifOpen(false); }, [router.pathname]);
 
   useEffect(() => {
     const fn = e => {
@@ -111,6 +121,30 @@ export default function Layout({ children, title }) {
     document.addEventListener('mousedown', fn);
     return () => document.removeEventListener('mousedown', fn);
   }, []);
+
+  useEffect(() => {
+    const fn = e => {
+      const portal = document.getElementById('notif-dropdown-portal');
+      if (notifRef.current && !notifRef.current.contains(e.target)) {
+        if (!portal || !portal.contains(e.target)) setNotifOpen(false);
+      }
+    };
+    document.addEventListener('mousedown', fn);
+    return () => document.removeEventListener('mousedown', fn);
+  }, []);
+
+  const unreadCount = notifications.filter(n => !n.read).length;
+
+  const filteredNotifs = notifTab === 'all'
+    ? notifications
+    : notifications.filter(n => {
+        if (notifTab === 'updates') return n.type === 'update';
+        if (notifTab === 'orders')  return n.type === 'order';
+        if (notifTab === 'account') return n.type === 'account';
+        return true;
+      });
+
+  const markAllRead = () => setNotifications(prev => prev.map(n => ({ ...n, read: true })));
 
   const handleLogout = () => {
     localStorage.removeItem('onshipy_token');
@@ -424,12 +458,21 @@ export default function Layout({ children, title }) {
         </div>
         {/* Actions — notification + profile avatar (profile dropdown top-right) */}
         <div className="topbar-actions">
-          <button style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'rgba(255,255,255,0.55)', display: 'flex', padding: 8, borderRadius: 8 }}
-            onMouseEnter={e => e.currentTarget.style.background = 'rgba(255,255,255,0.08)'}
-            onMouseLeave={e => e.currentTarget.style.background = 'none'}
-          >
-            <svg width="18" height="18" fill="none" stroke="currentColor" strokeWidth="1.75" viewBox="0 0 24 24"><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9M13.73 21a2 2 0 01-3.46 0"/></svg>
-          </button>
+          <div ref={notifRef} style={{ position: 'relative' }}>
+            <button
+              onClick={() => setNotifOpen(o => !o)}
+              style={{ background: notifOpen ? 'rgba(255,255,255,0.08)' : 'none', border: 'none', cursor: 'pointer', color: 'rgba(255,255,255,0.7)', display: 'flex', padding: 8, borderRadius: 8, position: 'relative' }}
+              onMouseEnter={e => e.currentTarget.style.background = 'rgba(255,255,255,0.08)'}
+              onMouseLeave={e => { if (!notifOpen) e.currentTarget.style.background = 'none'; }}
+            >
+              <svg width="18" height="18" fill="none" stroke="currentColor" strokeWidth="1.75" viewBox="0 0 24 24"><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9M13.73 21a2 2 0 01-3.46 0"/></svg>
+              {unreadCount > 0 && (
+                <span style={{ position: 'absolute', top: 5, right: 5, background: '#d82c0d', color: '#fff', borderRadius: '50%', width: 14, height: 14, fontSize: '0.5625rem', fontWeight: 700, display: 'flex', alignItems: 'center', justifyContent: 'center', lineHeight: 1, fontFamily: P.font }}>
+                  {unreadCount}
+                </span>
+              )}
+            </button>
+          </div>
           {/* Profile avatar — opens dropdown from top-right */}
           <ProfileDropdown />
         </div>
@@ -457,6 +500,113 @@ export default function Layout({ children, title }) {
       </aside>
 
       <main className="main-content">{children}</main>
+
+      {/* Notification dropdown portal */}
+      {mounted && notifOpen && createPortal(
+        <div id="notif-dropdown-portal" style={{
+          position: 'fixed', top: TOPBAR_H + 8, right: 60,
+          width: 400, background: '#fff', borderRadius: 12,
+          boxShadow: '0 8px 32px rgba(0,0,0,0.18)', border: `1px solid ${P.border}`,
+          zIndex: 99999, overflow: 'hidden', fontFamily: P.font,
+        }}>
+          {/* Header */}
+          <div style={{ padding: '14px 16px 12px', borderBottom: `1px solid ${P.border}` }}>
+            <div style={{ fontSize: '0.9375rem', fontWeight: 650, color: P.text }}>Notifications</div>
+          </div>
+
+          {/* Tabs with scroll arrows */}
+          <div style={{ display: 'flex', alignItems: 'stretch', borderBottom: `1px solid ${P.border}` }}>
+            <button
+              onClick={() => tabsScrollRef.current?.scrollBy({ left: -120, behavior: 'smooth' })}
+              style={{ padding: '0 8px', background: 'none', border: 'none', borderRight: `1px solid ${P.border}`, cursor: 'pointer', color: P.textSubdued, flexShrink: 0, display: 'flex', alignItems: 'center' }}
+            >
+              <svg width="14" height="14" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg>
+            </button>
+            <div ref={tabsScrollRef} style={{ display: 'flex', overflowX: 'auto', scrollbarWidth: 'none', flex: 1 }}>
+              {[
+                { key: 'all',     label: 'All' },
+                { key: 'updates', label: 'Updates', badge: unreadCount || null },
+                { key: 'orders',  label: 'Orders & Products' },
+                { key: 'account', label: 'Account' },
+              ].map(tab => (
+                <button key={tab.key} onClick={() => setNotifTab(tab.key)} style={{
+                  padding: '10px 14px', background: 'none', border: 'none', cursor: 'pointer',
+                  fontSize: P.fontSize, color: notifTab === tab.key ? P.text : P.textSubdued,
+                  fontWeight: notifTab === tab.key ? 600 : 400,
+                  borderBottom: notifTab === tab.key ? `2px solid ${P.text}` : '2px solid transparent',
+                  whiteSpace: 'nowrap', fontFamily: P.font, flexShrink: 0,
+                  display: 'flex', alignItems: 'center', gap: 5, marginBottom: -1,
+                }}>
+                  {tab.label}
+                  {tab.badge > 0 && (
+                    <span style={{ background: '#d82c0d', color: '#fff', borderRadius: 10, padding: '1px 5px', fontSize: '0.625rem', fontWeight: 700, lineHeight: 1.5 }}>{tab.badge}</span>
+                  )}
+                </button>
+              ))}
+            </div>
+            <button
+              onClick={() => tabsScrollRef.current?.scrollBy({ left: 120, behavior: 'smooth' })}
+              style={{ padding: '0 8px', background: 'none', border: 'none', borderLeft: `1px solid ${P.border}`, cursor: 'pointer', color: P.textSubdued, flexShrink: 0, display: 'flex', alignItems: 'center' }}
+            >
+              <svg width="14" height="14" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg>
+            </button>
+          </div>
+
+          {/* Notification items */}
+          <div style={{ maxHeight: 320, overflowY: 'auto' }}>
+            {filteredNotifs.length === 0 ? (
+              <div style={{ padding: '40px 16px', textAlign: 'center', color: P.textSubdued, fontSize: P.fontSize }}>
+                No notifications in this category
+              </div>
+            ) : filteredNotifs.map((notif, i) => (
+              <div key={notif.id}
+                onClick={() => setNotifications(prev => prev.map(n => n.id === notif.id ? { ...n, read: true } : n))}
+                style={{ padding: '14px 16px', borderBottom: i < filteredNotifs.length - 1 ? `1px solid ${P.border}` : 'none', cursor: 'pointer', background: notif.read ? 'transparent' : '#fafafa', transition: 'background .1s' }}
+                onMouseEnter={e => e.currentTarget.style.background = '#f3f3f3'}
+                onMouseLeave={e => e.currentTarget.style.background = notif.read ? 'transparent' : '#fafafa'}
+              >
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 6 }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 5 }}>
+                    <svg width="13" height="13" viewBox="0 0 13 13" fill="#d82c0d"><path d="M6.5 0l1.2 3.8H11l-2.7 2 1 3.3L6.5 7 3.7 9.1l1-3.3L2 3.8h3.3z"/></svg>
+                    <span style={{ fontSize: '0.75rem', color: '#d82c0d', fontWeight: 600 }}>
+                      {notif.type === 'update' ? 'Updates' : notif.type === 'order' ? 'Orders & Products' : 'Account'}
+                    </span>
+                  </div>
+                  <span style={{ fontSize: '0.75rem', color: P.textSubdued }}>{notif.time}</span>
+                </div>
+                <div style={{ display: 'flex', alignItems: 'flex-start', gap: 8 }}>
+                  {!notif.read && <span style={{ color: '#d82c0d', fontSize: 7, marginTop: 5, flexShrink: 0 }}>●</span>}
+                  <div>
+                    <div style={{ fontSize: P.fontSize, fontWeight: 600, color: P.text, marginBottom: 2 }}>{notif.title}</div>
+                    <div style={{ fontSize: '0.75rem', color: P.textSubdued, lineHeight: 1.5 }}>{notif.desc}</div>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+
+          {/* Footer */}
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '11px 16px', borderTop: `1px solid ${P.border}` }}>
+            <button
+              onClick={() => {}}
+              style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: P.fontSize, color: P.green, fontFamily: P.font, padding: 0, fontWeight: 500 }}
+              onMouseEnter={e => e.currentTarget.style.textDecoration = 'underline'}
+              onMouseLeave={e => e.currentTarget.style.textDecoration = 'none'}
+            >
+              See all notifications
+            </button>
+            <button
+              onClick={markAllRead}
+              style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: P.fontSize, color: P.green, fontFamily: P.font, padding: 0, fontWeight: 500 }}
+              onMouseEnter={e => e.currentTarget.style.textDecoration = 'underline'}
+              onMouseLeave={e => e.currentTarget.style.textDecoration = 'none'}
+            >
+              Mark all as read
+            </button>
+          </div>
+        </div>,
+        document.body
+      )}
 
       {/* Profile dropdown — inlined portal, NOT a sub-component */}
       {mounted && profileOpen && createPortal(
