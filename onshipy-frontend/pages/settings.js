@@ -3,7 +3,7 @@ import { createPortal } from 'react-dom';
 import { useRouter } from 'next/router';
 import Head from 'next/head';
 import {
-  InfoIcon,
+  StoreIcon,
   PlanIcon,
   ReceiptDollarIcon,
   PersonIcon,
@@ -30,7 +30,7 @@ const P = {
 };
 
 const ICONS = {
-  general:             <InfoIcon           width={20} height={20} fill="currentColor" />,
+  general:             <StoreIcon          width={20} height={20} fill="currentColor" />,
   plan:                <PlanIcon           width={20} height={20} fill="currentColor" />,
   billing:             <ReceiptDollarIcon  width={20} height={20} fill="currentColor" />,
   users:               <PersonIcon         width={20} height={20} fill="currentColor" />,
@@ -163,6 +163,13 @@ export default function Settings() {
   }, []);
 
   useEffect(() => { setMounted(true); }, []);
+
+  // Auto-open General when arriving at /settings with no section
+  useEffect(() => {
+    if (router.isReady && !router.query.section) {
+      router.replace('/settings?section=general', undefined, { shallow: true });
+    }
+  }, [router.isReady]);
 
   useEffect(() => {
     const fn = e => {
