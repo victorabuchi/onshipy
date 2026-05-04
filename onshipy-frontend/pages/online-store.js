@@ -118,12 +118,7 @@ export default function OnlineStore() {
         <div style={{ background: P.surface, borderRadius: 12, border: `1px solid ${P.border}`, overflow: 'hidden', marginBottom: 16 }}>
           {/* Header */}
           <div style={{ padding: '16px 20px', borderBottom: `1px solid ${P.border}`, display: 'flex', alignItems: 'center', gap: 14 }}>
-            {/* Shopify bag icon */}
-            <div style={{ width: 44, height: 44, borderRadius: 10, background: '#96bf48', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-              <svg width="24" height="24" viewBox="0 0 109 124" fill="white">
-                <path d="M74.7 14.8s-.3-1.2-1.4-1.2c-.5 0-1 .1-1 .1s-.6-.7-2.1-.7c-4.2.1-6.2 5.2-6.8 7.8-.1.3-.2 1-.2 1s-4.5.9-6 1.2c-1.8.3-1.9.5-2.1 2.2L51.5 91.6l35.9 6.7 19.4-4.7L94 18.7c0-.3-.3-.5-.6-.5-.7 0-5.5 1.1-6 1.2-1.1-2.5-7.5-4.6-12.7-4.6zM67.2 16.7c-.5 1.8-1.3 4.1-2.6 5.4 0 0-1.3-6.3 1-6.3.8 0 1.6.9 1.6.9zm-4.8-1.1c1.3 0 2.3 1.5 2.3 1.5S62 19 60.4 19.6c0 0-1.7-4 2-4zm-3.9 20.5l7.3-1.8s.5-1.7.6-2.4c.5-2.7 2.4-12.5 2.4-12.5l.4-.1 3.4-.7c-1.3 4-1.6 11.9-1.6 11.9l9.2-2.3s-7 .6-9.2 2.3c0 0 0 .1-.1.1-.3 1.6-.5 3.2-.7 4.7l-11.7 2.8z"/>
-              </svg>
-            </div>
+            <img src="/shopify-logo.png" width="44" height="44" alt="Shopify" style={{ borderRadius: 10, flexShrink: 0, objectFit: 'contain' }} />
             <div style={{ flex: 1 }}>
               <div style={{ fontWeight: 650, fontSize: '0.9375rem', color: P.text }}>Shopify</div>
               <div style={{ fontSize: P.fontSize, color: P.textSubdued, marginTop: 2 }}>Push products and sync orders automatically</div>
@@ -209,11 +204,11 @@ export default function OnlineStore() {
 
         {/* ── COMING SOON ── */}
         {[
-          { name: 'WooCommerce', desc: 'Connect your WordPress + WooCommerce store', color: '#7f54b3' },
-          { name: 'Etsy', desc: 'Sell handmade and vintage products', color: '#f1641e' },
+          { name: 'WooCommerce', desc: 'Connect your WordPress + WooCommerce store', logo: '/woocommerce-logo.png' },
+          { name: 'Etsy', desc: 'Sell handmade and vintage products', logo: '/Etsy-Logo.png' },
         ].map((ch, i) => (
           <div key={i} style={{ background: P.surface, borderRadius: 12, border: `1px solid ${P.border}`, padding: '16px 20px', marginBottom: 12, display: 'flex', alignItems: 'center', gap: 14, opacity: 0.6 }}>
-            <div style={{ width: 44, height: 44, borderRadius: 10, background: ch.color, flexShrink: 0 }}/>
+            <img src={ch.logo} width="44" height="44" alt={ch.name} style={{ borderRadius: 10, flexShrink: 0, objectFit: 'contain' }} />
             <div style={{ flex: 1 }}>
               <div style={{ fontWeight: 600, fontSize: '0.9375rem', color: P.text }}>{ch.name}</div>
               <div style={{ fontSize: P.fontSize, color: P.textSubdued }}>{ch.desc}</div>
