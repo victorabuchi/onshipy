@@ -16,6 +16,8 @@ export default function OnlineStore() {
   const [shopify, setShopify] = useState(null);   // null=loading | false=not connected | object=connected
   const [connecting, setConnecting] = useState(false);
   const [disconnecting, setDisconnecting] = useState(false);
+  const [showInput, setShowInput] = useState(false);
+  const [shopInput, setShopInput] = useState('');
   const [error, setError] = useState('');
   const [successMsg, setSuccessMsg] = useState('');
 
@@ -68,10 +70,12 @@ export default function OnlineStore() {
   };
 
   const handleConnect = async () => {
+    if (!shopInput.trim()) { setError('Enter your Shopify store name.'); return; }
     setError('');
     setConnecting(true);
     try {
-      const res = await fetch(`${API_BASE}/api/stores/shopify/install`, {
+      const shop = shopInput.trim().replace(/\.myshopify\.com$/, ''); // strip suffix if pasted
+      const res = await fetch(`${API_BASE}/api/stores/shopify/install?shop=${encodeURIComponent(shop)}`, {
         headers: { Authorization: `Bearer ${tokenRef.current}` },
       });
       const data = await res.json();
@@ -172,27 +176,46 @@ export default function OnlineStore() {
               </button>
             </div>
 
+          ) : showInput ? (
+            // Inline store input
+            <div style={{ display: 'flex', alignItems: 'center', gap: 6, flexShrink: 0 }}>
+              <div style={{ display: 'flex', border: `1px solid ${P.border}`, borderRadius: 8, overflow: 'hidden', background: P.surface }}>
+                <input
+                  autoFocus
+                  type="text"
+                  value={shopInput}
+                  onChange={e => setShopInput(e.target.value)}
+                  onKeyDown={e => { if (e.key === 'Enter') handleConnect(); if (e.key === 'Escape') { setShowInput(false); setShopInput(''); setError(''); } }}
+                  placeholder="yourstore"
+                  style={{ width: 120, padding: '6px 10px', border: 'none', outline: 'none', fontSize: '0.75rem', fontFamily: P.font, color: P.text, background: 'transparent' }}
+                />
+                <span style={{ padding: '6px 8px', background: P.bg, color: P.textSubdued, fontSize: '0.75rem', borderLeft: `1px solid ${P.border}`, whiteSpace: 'nowrap' }}>
+                  .myshopify.com
+                </span>
+              </div>
+              <button
+                onClick={handleConnect}
+                disabled={connecting || !shopInput.trim()}
+                style={{ padding: '6px 14px', background: connecting || !shopInput.trim() ? P.bg : '#96bf48', color: connecting || !shopInput.trim() ? P.textSubdued : '#fff', border: 'none', borderRadius: 8, cursor: connecting || !shopInput.trim() ? 'not-allowed' : 'pointer', fontSize: '0.75rem', fontWeight: 600, fontFamily: P.font, display: 'flex', alignItems: 'center', gap: 5, whiteSpace: 'nowrap' }}
+              >
+                {connecting && <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" style={{ animation: 'spin 0.8s linear infinite' }}><path d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" opacity=".2"/><path d="M21 12a9 9 0 00-9-9"/></svg>}
+                {connecting ? 'Connecting…' : 'Connect'}
+              </button>
+              <button
+                onClick={() => { setShowInput(false); setShopInput(''); setError(''); }}
+                style={{ padding: '6px 8px', background: 'none', border: `1px solid ${P.border}`, borderRadius: 8, cursor: 'pointer', fontSize: '0.75rem', color: P.textSubdued, fontFamily: P.font }}
+              >
+                Cancel
+              </button>
+            </div>
+
           ) : (
-            // Not connected
+            // Not connected — show connect button
             <button
-              onClick={handleConnect}
-              disabled={connecting}
-              style={{
-                flexShrink: 0, padding: '6px 16px',
-                background: connecting ? P.bg : '#96bf48',
-                color: connecting ? P.textSubdued : '#fff',
-                border: connecting ? `1px solid ${P.border}` : 'none',
-                borderRadius: 8, cursor: connecting ? 'not-allowed' : 'pointer',
-                fontSize: '0.75rem', fontWeight: 600, fontFamily: P.font,
-                display: 'flex', alignItems: 'center', gap: 6, whiteSpace: 'nowrap',
-              }}
+              onClick={() => setShowInput(true)}
+              style={{ flexShrink: 0, padding: '6px 16px', background: '#96bf48', color: '#fff', border: 'none', borderRadius: 8, cursor: 'pointer', fontSize: '0.75rem', fontWeight: 600, fontFamily: P.font, whiteSpace: 'nowrap' }}
             >
-              {connecting && (
-                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" style={{ animation: 'spin 0.8s linear infinite', flexShrink: 0 }}>
-                  <path d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" opacity=".2"/><path d="M21 12a9 9 0 00-9-9"/>
-                </svg>
-              )}
-              {connecting ? 'Connecting…' : 'Connect Shopify'}
+              Connect Shopify
             </button>
           )}
         </div>
