@@ -379,12 +379,12 @@ export default function Layout({ children, title }) {
           position: fixed; top: ${TOPBAR_H}px; left: 0; bottom: 0;
           width: ${SIDEBAR_W}px; background: #e3e3e3;
           border-right: 1px solid ${P.border};
-          border-top-left-radius: 10px; border-top-right-radius: 10px;
+          border-top-left-radius: 10px;
           z-index: 400; display: flex; flex-direction: column; overflow: hidden;
         }
         .main-content {
-          margin-left: ${SIDEBAR_W}px; padding-top: ${TOPBAR_H}px;
-          min-height: 100vh; background: ${P.bg};
+          margin-left: ${SIDEBAR_W}px; margin-top: ${TOPBAR_H}px;
+          min-height: calc(100vh - ${TOPBAR_H}px); background: ${P.bg};
           border-top-left-radius: 10px;
           min-width: 0; overflow-x: hidden;
         }
@@ -406,7 +406,7 @@ export default function Layout({ children, title }) {
           }
           .sidebar.open { transform: translateX(0); box-shadow: 4px 0 30px rgba(0,0,0,0.3); }
           .overlay { display: block; position: fixed; inset: 0; background: rgba(0,0,0,0.4); z-index: 550; }
-          .main-content { margin-left: 0; padding-top: 52px; width: 100%; }
+          .main-content { margin-left: 0; margin-top: 52px; width: 100%; border-top-left-radius: 0; }
         }
 
         @media (min-width: 768px) and (max-width: 1024px) {
