@@ -17,6 +17,34 @@ const Card = ({ children, style = {} }) => (
   </div>
 );
 
+const WalletIllustration = () => (
+  <svg width="160" height="128" viewBox="0 0 160 128" fill="none" xmlns="http://www.w3.org/2000/svg">
+    {/* Back card */}
+    <rect x="16" y="38" width="100" height="64" rx="8" fill="#e9e9e9"/>
+    {/* Mid card */}
+    <rect x="24" y="28" width="100" height="64" rx="8" fill="#f5f5f5"/>
+    {/* Front card */}
+    <rect x="32" y="18" width="100" height="64" rx="8" fill="white" stroke="#e0e0e0" strokeWidth="1.5"/>
+    {/* Card colour band */}
+    <rect x="32" y="18" width="100" height="22" rx="8" fill="#008060" opacity="0.15"/>
+    <rect x="32" y="30" width="100" height="10" fill="#008060" opacity="0.08"/>
+    {/* Chip */}
+    <rect x="46" y="46" width="18" height="14" rx="3" fill="#f0c040" opacity="0.85"/>
+    <line x1="46" y1="53" x2="64" y2="53" stroke="#d4a800" strokeWidth="1" opacity="0.6"/>
+    <line x1="55" y1="46" x2="55" y2="60" stroke="#d4a800" strokeWidth="1" opacity="0.6"/>
+    {/* Card number dots */}
+    <circle cx="78" cy="54" r="2.5" fill="#e9e9e9"/>
+    <circle cx="86" cy="54" r="2.5" fill="#e9e9e9"/>
+    <circle cx="94" cy="54" r="2.5" fill="#e9e9e9"/>
+    <circle cx="102" cy="54" r="2.5" fill="#e9e9e9"/>
+    {/* Balance line */}
+    <rect x="46" y="68" width="38" height="4" rx="2" fill="#e9e9e9"/>
+    {/* Green balance pill */}
+    <rect x="90" y="66" width="28" height="8" rx="4" fill="#cdfed4"/>
+    <rect x="93" y="68" width="14" height="4" rx="2" fill="#006847" opacity="0.5"/>
+  </svg>
+);
+
 const TX_ICONS = {
   topup:    { bg: '#cdfed4', color: '#006847', symbol: '+' },
   debit:    { bg: '#fee8eb', color: '#d82c0d', symbol: '−' },
@@ -228,10 +256,14 @@ export default function Wallet() {
           {loading ? (
             <div style={{ padding: '48px', textAlign: 'center', color: P.textSubdued }}>Loading...</div>
           ) : displayTx.length === 0 ? (
-            <div style={{ padding: '60px 40px', textAlign: 'center' }}>
-              <div style={{ width: 48, height: 48, background: P.bg, borderRadius: 12, margin: '0 auto 14px', display: 'flex', alignItems: 'center', justifyContent: 'center', border: `1px solid ${P.border}`, fontSize: 22 }}>💳</div>
-              <div style={{ fontWeight: 600, fontSize: '0.9375rem', color: P.text, marginBottom: 6 }}>No transactions yet</div>
-              <div style={{ color: P.textSubdued, marginBottom: 20 }}>Add funds to start fulfilling orders automatically</div>
+            <div style={{ textAlign: 'center', padding: '64px 40px' }}>
+              <div style={{ display: 'inline-flex', marginBottom: 20 }}>
+                <WalletIllustration />
+              </div>
+              <div style={{ fontWeight: 650, fontSize: '1rem', color: P.text, marginBottom: 6 }}>No transactions yet</div>
+              <div style={{ fontSize: P.fontSize, color: P.textSubdued, maxWidth: 360, margin: '0 auto 20px', lineHeight: 1.6 }}>
+                Add funds to start fulfilling orders automatically
+              </div>
               <button onClick={() => setTopupModal(true)}
                 style={{ padding: '8px 20px', background: P.text, color: '#fff', border: 'none', borderRadius: 8, cursor: 'pointer', fontSize: P.fontSize, fontWeight: 500, fontFamily: P.font }}>
                 Add funds
