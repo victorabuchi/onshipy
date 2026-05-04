@@ -192,13 +192,14 @@ export default function Layout({ children, title }) {
         <Link href={item.href} style={{
           display: 'flex', alignItems: 'center', gap: 8,
           padding: '6px 10px', borderRadius: 8, marginBottom: 1,
-          background: isActive ? '#e3e3e3' : 'transparent',
+          background: isActive ? '#fff' : 'transparent',
+          boxShadow: isActive ? '0 1px 3px rgba(0,0,0,0.08)' : 'none',
           color: isActive ? P.text : P.textSubdued,
           textDecoration: 'none', fontSize: P.fontSize,
           fontWeight: isActive ? '600' : P.fontWeight,
-          letterSpacing: P.letterSpacing, transition: 'background .1s, color .1s',
+          letterSpacing: P.letterSpacing, transition: 'background .1s, color .1s, box-shadow .1s',
         }}
-          onMouseEnter={e => { if (!isActive) { e.currentTarget.style.background = '#ebebeb'; e.currentTarget.style.color = P.text; }}}
+          onMouseEnter={e => { if (!isActive) { e.currentTarget.style.background = 'rgba(0,0,0,0.05)'; e.currentTarget.style.color = P.text; }}}
           onMouseLeave={e => { if (!isActive) { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.color = P.textSubdued; }}}
         >
           <span style={{ flexShrink: 0, color: isActive ? P.text : P.textSubdued, display: 'flex' }}>{icons[item.href]}</span>
