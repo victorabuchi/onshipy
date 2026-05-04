@@ -367,7 +367,7 @@ export default function Layout({ children, title }) {
         }
         .sidebar {
           position: fixed; top: ${TOPBAR_H}px; left: 0; bottom: 0;
-          width: ${SIDEBAR_W}px; background: #f6f6f7;
+          width: ${SIDEBAR_W}px; background: #e3e3e3;
           border-right: 1px solid ${P.border};
           z-index: 400; display: flex; flex-direction: column; overflow: hidden;
         }
