@@ -185,13 +185,8 @@ export default function Customers() {
 
             {/* Empty state — no customers at all */}
             {!loading && allCustomers.length === 0 && (
-              <div style={{ padding: '80px 40px', textAlign: 'center', flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
-                <div style={{ width: 64, height: 64, background: P.bg, borderRadius: 16, margin: '0 auto 16px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                  <svg width="32" height="32" viewBox="0 0 20 20" fill={P.border}>
-                    <path d="M13 8a3 3 0 1 1-6 0 3 3 0 0 1 6 0Zm-1.5 0a1.5 1.5 0 1 0-3 0 1.5 1.5 0 0 0 3 0Z"/>
-                    <path d="M10 2a8 8 0 1 0 0 16A8 8 0 0 0 10 2Z"/>
-                  </svg>
-                </div>
+              <div style={{ padding: '64px 40px', textAlign: 'center', flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
+                <img src="/empty-state-customers.svg" alt="" style={{ width: 160, height: 'auto', marginBottom: 20 }} />
                 <div style={{ fontWeight: 600, fontSize: '0.9375rem', color: P.text, marginBottom: 6 }}>Everything customers-related in one place</div>
                 <div style={{ fontSize: P.fontSize, color: P.textSubdued, marginBottom: 20 }}>Manage customer details, see order history, and track spending</div>
                 <div style={{ display: 'flex', gap: 8, justifyContent: 'center' }}>

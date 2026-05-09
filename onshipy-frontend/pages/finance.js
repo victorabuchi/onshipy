@@ -26,16 +26,7 @@ const CardHead = ({ title, subtitle }) => (
 
 const PayoutsEmptyState = () => (
   <div style={{ padding: '64px 24px', textAlign: 'center', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 16 }}>
-    <svg width="120" height="96" viewBox="0 0 120 96" fill="none">
-      <rect x="8" y="16" width="96" height="64" rx="8" fill="#f1f1f1" stroke={P.border} strokeWidth="1.5"/>
-      <rect x="8" y="16" width="96" height="20" rx="8" fill={P.green} opacity="0.15"/>
-      <rect x="8" y="26" width="96" height="10" fill={P.green} opacity="0.08"/>
-      <circle cx="28" cy="52" r="10" fill={P.green} opacity="0.2"/>
-      <line x1="46" y1="46" x2="90" y2="46" stroke={P.border} strokeWidth="2" strokeLinecap="round"/>
-      <line x1="46" y1="52" x2="78" y2="52" stroke={P.border} strokeWidth="2" strokeLinecap="round"/>
-      <line x1="46" y1="58" x2="84" y2="58" stroke={P.border} strokeWidth="2" strokeLinecap="round"/>
-      <rect x="24" y="64" width="72" height="12" rx="4" fill={P.green} opacity="0.12"/>
-    </svg>
+    <img src="/empty-state-finance.svg" alt="" style={{ width: 160, height: 'auto' }} />
     <div>
       <div style={{ fontWeight: 600, fontSize: '0.9375rem', color: P.text, marginBottom: 6 }}>Keep track of your payouts</div>
       <div style={{ fontSize: P.fontSize, color: P.textSubdued, maxWidth: 340, lineHeight: 1.6 }}>

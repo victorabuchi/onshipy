@@ -205,7 +205,8 @@ export default function Products() {
   };
 
   const SubEmptyState = ({ title, desc, actions }) => (
-    <div style={{ padding: '80px 40px', textAlign: 'center' }}>
+    <div style={{ padding: '64px 40px', textAlign: 'center', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+      <img src="/empty-state-products.svg" alt="" style={{ width: 160, height: 'auto', marginBottom: 20 }} />
       <div style={{ fontWeight: 650, fontSize: '1rem', color: P.text, marginBottom: 8 }}>{title}</div>
       <div style={{ fontSize: P.fontSize, color: P.textSubdued, marginBottom: 20, maxWidth: 400, margin: '0 auto 20px' }}>{desc}</div>
       <div style={{ display: 'flex', gap: 8, justifyContent: 'center' }}>{actions}</div>

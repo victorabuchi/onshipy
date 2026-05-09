@@ -44,30 +44,6 @@ const TABS = [
   { id: 'abandoned',   label: 'Abandoned checkouts' },
 ];
 
-const OrdersIllustration = () => (
-  <svg width="160" height="128" viewBox="0 0 160 128" fill="none" xmlns="http://www.w3.org/2000/svg">
-    {/* Back paper */}
-    <rect x="18" y="34" width="96" height="76" rx="5" fill="#e9e9e9"/>
-    {/* Mid paper */}
-    <rect x="26" y="24" width="96" height="76" rx="5" fill="#f5f5f5"/>
-    {/* Front white paper */}
-    <rect x="34" y="14" width="96" height="76" rx="5" fill="white" stroke="#e0e0e0" strokeWidth="1.5"/>
-    {/* Blue header bar */}
-    <rect x="34" y="14" width="96" height="20" rx="5" fill="#2fb3eb" opacity="0.18"/>
-    <rect x="46" y="21" width="28" height="5" rx="2.5" fill="#2fb3eb" opacity="0.7"/>
-    {/* Lines */}
-    <rect x="46" y="44" width="60" height="3.5" rx="1.75" fill="#e9e9e9"/>
-    <rect x="46" y="52" width="48" height="3.5" rx="1.75" fill="#e9e9e9"/>
-    <rect x="46" y="60" width="54" height="3.5" rx="1.75" fill="#e9e9e9"/>
-    {/* Green pill */}
-    <rect x="46" y="70" width="30" height="8" rx="4" fill="#cdfed4"/>
-    <rect x="48" y="72" width="12" height="4" rx="2" fill="#006847" opacity="0.5"/>
-    {/* Item thumbnail */}
-    <rect x="88" y="68" width="26" height="20" rx="4" fill="#00b894" opacity="0.2"/>
-    <rect x="90" y="70" width="22" height="16" rx="3" fill="#00b894" opacity="0.55"/>
-    <rect x="93" y="73" width="10" height="10" rx="2" fill="white" opacity="0.9"/>
-  </svg>
-);
 
 export default function Orders() {
   const router = useRouter();
@@ -264,9 +240,7 @@ export default function Orders() {
             {/* DRAFTS */}
             {tab === 'drafts' && (
               <div style={{ textAlign: 'center', padding: '64px 40px', animation: 'fadeIn .25s ease' }}>
-                <div style={{ display: 'inline-flex', marginBottom: 20 }}>
-                  <OrdersIllustration />
-                </div>
+                <img src="/empty-state-orders.svg" alt="" style={{ width: 160, height: 'auto', marginBottom: 20 }} />
                 <div style={{ fontWeight: 650, fontSize: '1rem', color: P.text, marginBottom: 6 }}>Manually create orders and invoices</div>
                 <div style={{ fontSize: P.fontSize, color: P.textSubdued, maxWidth: 360, margin: '0 auto 20px', lineHeight: 1.6 }}>
                   Use draft orders to take orders over the phone, email invoices to customers, and collect payments.
@@ -280,9 +254,7 @@ export default function Orders() {
             {/* ABANDONED */}
             {tab === 'abandoned' && (
               <div style={{ textAlign: 'center', padding: '64px 40px', animation: 'fadeIn .25s ease' }}>
-                <div style={{ display: 'inline-flex', marginBottom: 20 }}>
-                  <OrdersIllustration />
-                </div>
+                <img src="/empty-state-orders.svg" alt="" style={{ width: 160, height: 'auto', marginBottom: 20 }} />
                 <div style={{ fontWeight: 650, fontSize: '1rem', color: P.text, marginBottom: 6 }}>Abandoned checkouts will show here</div>
                 <div style={{ fontSize: P.fontSize, color: P.textSubdued, maxWidth: 360, margin: '0 auto 20px', lineHeight: 1.6 }}>
                   See when customers put an item in their cart but don't check out.

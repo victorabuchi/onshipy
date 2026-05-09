@@ -264,10 +264,8 @@ export default function Listings() {
 
           {/* Empty state when no listings */}
           {!loading && listings.length === 0 && (
-            <div style={{ background: P.surface, margin: '0 16px 16px', borderRadius: 12, border: `1px solid ${P.border}`, padding: '80px 40px', textAlign: 'center' }}>
-              <div style={{ width: 56, height: 56, background: P.bg, borderRadius: 14, margin: '0 auto 16px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                <svg width="28" height="28" viewBox="0 0 20 20" fill={P.border}><path d="M3.25 4a.75.75 0 0 0 0 1.5h13.5a.75.75 0 0 0 0-1.5H3.25ZM3.25 8a.75.75 0 0 0 0 1.5h13.5a.75.75 0 0 0 0-1.5H3.25ZM3.25 12a.75.75 0 0 0 0 1.5h8.5a.75.75 0 0 0 0-1.5h-8.5Z"/></svg>
-              </div>
+            <div style={{ background: P.surface, margin: '0 16px 16px', borderRadius: 12, border: `1px solid ${P.border}`, padding: '64px 40px', textAlign: 'center', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+              <img src="/empty-state-listings.svg" alt="" style={{ width: 160, height: 'auto', marginBottom: 20 }} />
               <div style={{ fontWeight: 600, fontSize: '0.9375rem', color: P.text, marginBottom: 6 }}>No listings yet</div>
               <div style={{ fontSize: P.fontSize, color: P.textSubdued, marginBottom: 20 }}>Import a product and set a selling price to create your first listing</div>
               <Btn variant="primary" onClick={() => router.push('/products')}>Go to Products</Btn>
