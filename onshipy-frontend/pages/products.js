@@ -56,6 +56,7 @@ export default function Products() {
   const [toast, setToast] = useState(null);
   const [search, setSearch] = useState('');
   const [selectedVariants, setSelectedVariants] = useState({});
+  const [confirmDelete, setConfirmDelete] = useState(false);
   const fileInputRef = useRef(null);
 
   useEffect(() => {
@@ -110,8 +111,11 @@ export default function Products() {
 
   const closePanel = () => { setSelected(null); setEditing(false); setActiveImage(0); };
 
-  const handleDelete = async () => {
-    if (!selected || !confirm('Delete this product?')) return;
+  const handleDelete = () => { if (selected) setConfirmDelete(true); };
+
+  const doDelete = async () => {
+    if (!selected) return;
+    setConfirmDelete(false);
     try {
       const res = await fetch(`${API_BASE}/api/products/${selected.id}`, {
         method: 'DELETE', headers: { Authorization: `Bearer ${tokenRef.current}` }
@@ -643,6 +647,19 @@ export default function Products() {
           </div>
         )}
       </div>
+
+      {confirmDelete && (
+        <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.45)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 9999 }}>
+          <div style={{ background: '#fff', borderRadius: 12, padding: '24px 28px', width: 340, boxShadow: '0 8px 32px rgba(0,0,0,0.18)', fontFamily: P.font }}>
+            <div style={{ fontWeight: 650, fontSize: '0.9375rem', color: P.text, marginBottom: 8 }}>Delete product?</div>
+            <div style={{ fontSize: P.fontSize, color: P.textSubdued, marginBottom: 20 }}>This will permanently remove the product. This action cannot be undone.</div>
+            <div style={{ display: 'flex', gap: 8, justifyContent: 'flex-end' }}>
+              <Btn onClick={() => setConfirmDelete(false)}>Cancel</Btn>
+              <Btn variant="danger" onClick={doDelete}>Delete</Btn>
+            </div>
+          </div>
+        </div>
+      )}
     </Layout>
   );
 }

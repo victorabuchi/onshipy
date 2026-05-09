@@ -60,6 +60,7 @@ export default function Dashboard() {
   const [listMessage, setListMessage] = useState('');
   const [editData, setEditData] = useState({});
   const [saving, setSaving] = useState(false);
+  const [deleteTarget, setDeleteTarget] = useState(null);
   const fileInputRef = useRef(null);
 
   useEffect(() => {
@@ -165,12 +166,15 @@ export default function Dashboard() {
     setSaving(false);
   };
 
-  const handleDelete = async (product) => {
-    if (!confirm('Delete this product?')) return;
+  const handleDelete = (product) => setDeleteTarget(product);
+
+  const confirmDelete = async () => {
+    if (!deleteTarget) return;
     try {
-      await fetch(`${API_BASE}/api/products/${product.id}`, { method: 'DELETE', headers: { Authorization: `Bearer ${tokenRef.current}` } });
+      await fetch(`${API_BASE}/api/products/${deleteTarget.id}`, { method: 'DELETE', headers: { Authorization: `Bearer ${tokenRef.current}` } });
       await fetchAll();
     } catch {}
+    setDeleteTarget(null);
   };
 
   const handleImageUpload = (e) => {
@@ -556,6 +560,19 @@ export default function Dashboard() {
                   <Btn onClick={closeModal} style={{ width: '100%' }}>Close</Btn>
                 </>
               )}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {deleteTarget && (
+        <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.45)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 9999 }}>
+          <div style={{ background: '#fff', borderRadius: 12, padding: '24px 28px', width: 340, boxShadow: '0 8px 32px rgba(0,0,0,0.18)', fontFamily: P.font }}>
+            <div style={{ fontWeight: 650, fontSize: '0.9375rem', color: P.text, marginBottom: 8 }}>Delete product?</div>
+            <div style={{ fontSize: P.fontSize, color: P.textSubdued, marginBottom: 20 }}>This will permanently remove the product. This action cannot be undone.</div>
+            <div style={{ display: 'flex', gap: 8, justifyContent: 'flex-end' }}>
+              <Btn onClick={() => setDeleteTarget(null)}>Cancel</Btn>
+              <Btn variant="danger" onClick={confirmDelete}>Delete</Btn>
             </div>
           </div>
         </div>
