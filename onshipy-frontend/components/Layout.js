@@ -33,8 +33,10 @@ const SIDEBAR_W = 248;
 const TOPBAR_H  = 56;
 
 const NOTIFICATIONS = [
-  { id: 1, type: 'update', title: 'Moms deserve more than one day', desc: 'Create gifts that sell beyond May 10', time: '3 weeks ago', read: false },
-  { id: 2, type: 'update', title: 'Videos on a budget [LIVE]', desc: 'Lighting, styling, and editing tips for better product vid...', time: '1 month ago', read: false },
+  { id: 1, type: 'update', title: 'Welcome to Onshipy!', desc: 'Start by importing your first product — paste any URL from Nike, ASOS, Amazon and more.', time: 'Just now', read: false },
+  { id: 2, type: 'update', title: 'How to import products', desc: 'Watch our quick tutorial on importing, pricing and pushing products to your store.', time: '1 hour ago', read: false },
+  { id: 3, type: 'update', title: 'Browse 100+ brands', desc: 'Discover trending products across 12 categories — Fashion, Sneakers, Electronics and more.', time: '1 day ago', read: true },
+  { id: 4, type: 'update', title: 'Connect your Shopify store', desc: 'Link your store with one click to push products and fulfil orders automatically.', time: '3 days ago', read: true },
 ];
 
 export default function Layout({ children, title }) {
@@ -51,7 +53,6 @@ export default function Layout({ children, title }) {
   const profileRef = useRef(null);
   const searchRef = useRef(null);
   const notifRef = useRef(null);
-  const tabsScrollRef = useRef(null);
   const [searchQuery, setSearchQuery] = useState('');
   const [searchOpen, setSearchOpen] = useState(false);
 
@@ -504,6 +505,19 @@ export default function Layout({ children, title }) {
           <svg width="13" height="13" fill="none" stroke="rgba(255,255,255,0.5)" strokeWidth="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
           <span style={{ fontSize: '0.8125rem', color: 'rgba(255,255,255,0.4)' }}>Search</span>
         </div>
+        <div ref={notifRef} style={{ position: 'relative', flexShrink: 0 }}>
+          <button
+            onClick={() => setNotifOpen(o => !o)}
+            style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'rgba(255,255,255,0.7)', display: 'flex', padding: '6px 8px', borderRadius: 8, position: 'relative' }}
+          >
+            <svg width="18" height="18" fill="none" stroke="currentColor" strokeWidth="1.75" viewBox="0 0 24 24"><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9M13.73 21a2 2 0 01-3.46 0"/></svg>
+            {unreadCount > 0 && (
+              <span style={{ position: 'absolute', top: 4, right: 4, background: '#d82c0d', color: '#fff', borderRadius: '50%', width: 14, height: 14, fontSize: '0.5625rem', fontWeight: 700, display: 'flex', alignItems: 'center', justifyContent: 'center', lineHeight: 1, fontFamily: P.font }}>
+                {unreadCount}
+              </span>
+            )}
+          </button>
+        </div>
         <ProfileDropdown />
       </header>
 
@@ -518,105 +532,70 @@ export default function Layout({ children, title }) {
       {/* Notification dropdown portal */}
       {mounted && notifOpen && createPortal(
         <div id="notif-dropdown-portal" style={{
-          position: 'fixed', top: TOPBAR_H + 8, right: 60,
-          width: 400, background: '#fff', borderRadius: 12,
-          boxShadow: '0 8px 32px rgba(0,0,0,0.18)', border: `1px solid ${P.border}`,
+          position: 'fixed', top: TOPBAR_H + 8, right: 14,
+          width: 'min(400px, calc(100vw - 28px)',
+          background: P.surface, borderRadius: 12,
+          boxShadow: '0 4px 20px rgba(0,0,0,0.15)', border: `1px solid ${P.border}`,
           zIndex: 99999, overflow: 'hidden', fontFamily: P.font,
         }}>
           {/* Header */}
-          <div style={{ padding: '14px 16px 12px', borderBottom: `1px solid ${P.border}` }}>
-            <div style={{ fontSize: '0.9375rem', fontWeight: 650, color: P.text }}>Notifications</div>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '14px 16px 12px', borderBottom: `1px solid ${P.border}` }}>
+            <span style={{ fontSize: '0.9375rem', fontWeight: 650, color: P.text, letterSpacing: '-0.02em' }}>Notifications</span>
+            {unreadCount > 0 && (
+              <button onClick={markAllRead} style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: P.fontSize, color: P.green, fontFamily: P.font, padding: 0, fontWeight: 500 }}>
+                Mark all as read
+              </button>
+            )}
           </div>
 
-          {/* Tabs with scroll arrows */}
-          <div style={{ display: 'flex', alignItems: 'stretch', borderBottom: `1px solid ${P.border}` }}>
-            <button
-              onClick={() => tabsScrollRef.current?.scrollBy({ left: -120, behavior: 'smooth' })}
-              style={{ padding: '0 8px', background: 'none', border: 'none', borderRight: `1px solid ${P.border}`, cursor: 'pointer', color: P.textSubdued, flexShrink: 0, display: 'flex', alignItems: 'center' }}
-            >
-              <svg width="14" height="14" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg>
-            </button>
-            <div ref={tabsScrollRef} style={{ display: 'flex', overflowX: 'auto', scrollbarWidth: 'none', flex: 1 }}>
-              {[
-                { key: 'all',     label: 'All' },
-                { key: 'updates', label: 'Updates', badge: unreadCount || null },
-                { key: 'orders',  label: 'Orders & Products' },
-                { key: 'account', label: 'Account' },
-              ].map(tab => (
-                <button key={tab.key} onClick={() => setNotifTab(tab.key)} style={{
-                  padding: '10px 14px', background: 'none', border: 'none', cursor: 'pointer',
-                  fontSize: P.fontSize, color: notifTab === tab.key ? P.text : P.textSubdued,
-                  fontWeight: notifTab === tab.key ? 600 : 400,
-                  borderBottom: notifTab === tab.key ? `2px solid ${P.text}` : '2px solid transparent',
-                  whiteSpace: 'nowrap', fontFamily: P.font, flexShrink: 0,
-                  display: 'flex', alignItems: 'center', gap: 5, marginBottom: -1,
-                }}>
-                  {tab.label}
-                  {tab.badge > 0 && (
-                    <span style={{ background: '#d82c0d', color: '#fff', borderRadius: 10, padding: '1px 5px', fontSize: '0.625rem', fontWeight: 700, lineHeight: 1.5 }}>{tab.badge}</span>
-                  )}
-                </button>
-              ))}
-            </div>
-            <button
-              onClick={() => tabsScrollRef.current?.scrollBy({ left: 120, behavior: 'smooth' })}
-              style={{ padding: '0 8px', background: 'none', border: 'none', borderLeft: `1px solid ${P.border}`, cursor: 'pointer', color: P.textSubdued, flexShrink: 0, display: 'flex', alignItems: 'center' }}
-            >
-              <svg width="14" height="14" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg>
-            </button>
+          {/* Tabs — no arrows, simple Polaris style */}
+          <div style={{ display: 'flex', borderBottom: `1px solid ${P.border}`, paddingLeft: 4 }}>
+            {[
+              { key: 'all',     label: 'All', badge: unreadCount || null },
+              { key: 'updates', label: 'Updates' },
+              { key: 'orders',  label: 'Orders' },
+            ].map(tab => (
+              <button key={tab.key} onClick={() => setNotifTab(tab.key)} style={{
+                padding: '10px 12px', background: 'none', border: 'none', cursor: 'pointer',
+                fontSize: P.fontSize, color: notifTab === tab.key ? P.text : P.textSubdued,
+                fontWeight: notifTab === tab.key ? 600 : P.fontWeight,
+                borderBottom: notifTab === tab.key ? `2px solid ${P.text}` : '2px solid transparent',
+                whiteSpace: 'nowrap', fontFamily: P.font,
+                display: 'flex', alignItems: 'center', gap: 5, marginBottom: -1,
+                transition: 'color .1s',
+              }}>
+                {tab.label}
+                {tab.badge > 0 && (
+                  <span style={{ background: '#d82c0d', color: '#fff', borderRadius: 10, padding: '1px 6px', fontSize: '0.625rem', fontWeight: 700, lineHeight: 1.6 }}>{tab.badge}</span>
+                )}
+              </button>
+            ))}
           </div>
 
-          {/* Notification items */}
-          <div style={{ maxHeight: 320, overflowY: 'auto' }}>
+          {/* Notification list */}
+          <div style={{ maxHeight: 340, overflowY: 'auto' }}>
             {filteredNotifs.length === 0 ? (
-              <div style={{ padding: '40px 16px', textAlign: 'center', color: P.textSubdued, fontSize: P.fontSize }}>
-                No notifications in this category
+              <div style={{ padding: '48px 16px', textAlign: 'center', color: P.textSubdued, fontSize: P.fontSize }}>
+                No notifications
               </div>
             ) : filteredNotifs.map((notif, i) => (
               <div key={notif.id}
                 onClick={() => setNotifications(prev => prev.map(n => n.id === notif.id ? { ...n, read: true } : n))}
-                style={{ padding: '14px 16px', borderBottom: i < filteredNotifs.length - 1 ? `1px solid ${P.border}` : 'none', cursor: 'pointer', background: notif.read ? 'transparent' : '#fafafa', transition: 'background .1s' }}
-                onMouseEnter={e => e.currentTarget.style.background = '#f3f3f3'}
-                onMouseLeave={e => e.currentTarget.style.background = notif.read ? 'transparent' : '#fafafa'}
+                style={{ display: 'flex', alignItems: 'flex-start', gap: 12, padding: '14px 16px', borderBottom: i < filteredNotifs.length - 1 ? `1px solid ${P.border}` : 'none', cursor: 'pointer', background: notif.read ? P.surface : '#f9fafb', transition: 'background .1s' }}
+                onMouseEnter={e => e.currentTarget.style.background = P.bg}
+                onMouseLeave={e => e.currentTarget.style.background = notif.read ? P.surface : '#f9fafb'}
               >
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 6 }}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 5 }}>
-                    <svg width="13" height="13" viewBox="0 0 13 13" fill="#d82c0d"><path d="M6.5 0l1.2 3.8H11l-2.7 2 1 3.3L6.5 7 3.7 9.1l1-3.3L2 3.8h3.3z"/></svg>
-                    <span style={{ fontSize: '0.75rem', color: '#d82c0d', fontWeight: 600 }}>
-                      {notif.type === 'update' ? 'Updates' : notif.type === 'order' ? 'Orders & Products' : 'Account'}
-                    </span>
+                {/* Unread dot */}
+                <div style={{ width: 8, height: 8, borderRadius: '50%', background: notif.read ? 'transparent' : P.green, flexShrink: 0, marginTop: 5 }} />
+                <div style={{ flex: 1, minWidth: 0 }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 8, marginBottom: 3 }}>
+                    <span style={{ fontSize: P.fontSize, fontWeight: notif.read ? P.fontWeight : 600, color: P.text, lineHeight: 1.4 }}>{notif.title}</span>
+                    <span style={{ fontSize: '0.6875rem', color: P.textSubdued, whiteSpace: 'nowrap', flexShrink: 0, marginTop: 1 }}>{notif.time}</span>
                   </div>
-                  <span style={{ fontSize: '0.75rem', color: P.textSubdued }}>{notif.time}</span>
-                </div>
-                <div style={{ display: 'flex', alignItems: 'flex-start', gap: 8 }}>
-                  {!notif.read && <span style={{ color: '#d82c0d', fontSize: 7, marginTop: 5, flexShrink: 0 }}>●</span>}
-                  <div>
-                    <div style={{ fontSize: P.fontSize, fontWeight: 600, color: P.text, marginBottom: 2 }}>{notif.title}</div>
-                    <div style={{ fontSize: '0.75rem', color: P.textSubdued, lineHeight: 1.5 }}>{notif.desc}</div>
-                  </div>
+                  <div style={{ fontSize: '0.75rem', color: P.textSubdued, lineHeight: 1.5 }}>{notif.desc}</div>
                 </div>
               </div>
             ))}
-          </div>
-
-          {/* Footer */}
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '11px 16px', borderTop: `1px solid ${P.border}` }}>
-            <button
-              onClick={() => {}}
-              style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: P.fontSize, color: P.green, fontFamily: P.font, padding: 0, fontWeight: 500 }}
-              onMouseEnter={e => e.currentTarget.style.textDecoration = 'underline'}
-              onMouseLeave={e => e.currentTarget.style.textDecoration = 'none'}
-            >
-              See all notifications
-            </button>
-            <button
-              onClick={markAllRead}
-              style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: P.fontSize, color: P.green, fontFamily: P.font, padding: 0, fontWeight: 500 }}
-              onMouseEnter={e => e.currentTarget.style.textDecoration = 'underline'}
-              onMouseLeave={e => e.currentTarget.style.textDecoration = 'none'}
-            >
-              Mark all as read
-            </button>
           </div>
         </div>,
         document.body
