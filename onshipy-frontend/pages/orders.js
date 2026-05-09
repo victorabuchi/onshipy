@@ -274,9 +274,7 @@ export default function Orders() {
                 {/* Empty state */}
                 {!loading && orders.length === 0 && (
                   <div style={{ textAlign: 'center', padding: '64px 40px', animation: 'fadeIn .25s ease' }}>
-                    <div style={{ display: 'inline-flex', marginBottom: 20 }}>
-                      <OrdersIllustration />
-                    </div>
+                    <img src="/empty-state-orders.svg" alt="" style={{ width: 160, height: 'auto', marginBottom: 20 }} />
                     <div style={{ fontWeight: 650, fontSize: '1rem', color: P.text, marginBottom: 8 }}>Your orders will show here</div>
                     <div style={{ fontSize: P.fontSize, color: P.textSubdued, maxWidth: 340, margin: '0 auto 20px', lineHeight: 1.6 }}>
                       This is where you'll fulfill orders, collect payments, and track order progress.
