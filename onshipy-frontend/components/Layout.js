@@ -406,7 +406,7 @@ export default function Layout({ children, title }) {
           }
           .sidebar.open { transform: translateX(0); box-shadow: 4px 0 30px rgba(0,0,0,0.3); }
           .overlay { display: block; position: fixed; inset: 0; background: rgba(0,0,0,0.4); z-index: 550; }
-          .main-content { margin-left: 0; margin-top: 52px; width: 100%; border-top-right-radius: 0; }
+          .main-content { margin-left: 0; margin-top: 52px; width: 100%; border-top-right-radius: 0; background: ${P.surface}; padding-bottom: 32px; }
         }
 
         @media (min-width: 768px) and (max-width: 1024px) {
