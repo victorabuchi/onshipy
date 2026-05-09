@@ -323,7 +323,7 @@ export default function Layout({ children, title }) {
   return (
     <>
       <Head>
-        <title>{title ? `${title} | Onshipy` : 'Onshipy'}</title>
+        <title>{title ? `${title} - Onshipy` : 'Onshipy'}</title>
         <link rel="icon" type="image/png" href="/favicon.png" />
       </Head>
 
