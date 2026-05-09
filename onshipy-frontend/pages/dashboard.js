@@ -237,7 +237,7 @@ export default function Dashboard() {
               <div key={i} className="stat-card" style={{
                 background: P.surface, borderRadius: 12, border: `1px solid ${P.border}`,
                 padding: '16px 20px', cursor: 'pointer', transition: 'box-shadow .15s',
-                flexShrink: 0, minWidth: 160, width: 160
+                flex: 1, flexShrink: 0, minWidth: 160,
               }} onClick={() => router.push(i === 0 ? '/analytics' : i === 1 ? '/analytics' : '/orders')}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 8 }}>
                   <span style={{ fontSize: P.fontSize, color: P.textSubdued, fontWeight: P.fontWeight }}>{s.label}</span>
@@ -426,7 +426,7 @@ export default function Dashboard() {
               <div key={i} className="quick-card" onClick={() => router.push(item.href)} style={{
                 background: P.surface, borderRadius: 12, border: `1px solid ${P.border}`,
                 padding: '16px 18px', cursor: 'pointer', transition: 'box-shadow .15s, background .1s',
-                flexShrink: 0, minWidth: 160, width: 160,
+                flex: 1, flexShrink: 0, minWidth: 160,
               }}>
                 <DarkIcon>{item.icon}</DarkIcon>
                 <div style={{ fontWeight: 500, fontSize: P.fontSize, color: P.text, marginBottom: 2 }}>{item.title}</div>
