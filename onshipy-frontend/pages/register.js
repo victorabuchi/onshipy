@@ -189,7 +189,7 @@ export default function Register() {
   return (
     <>
       <Head>
-        <title>Onshipy — Create account</title>
+        <title>Create account - Onshipy</title>
         <link rel="icon" href="/favicon.ico" />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
       </Head>

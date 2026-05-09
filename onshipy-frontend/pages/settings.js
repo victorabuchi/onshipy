@@ -480,7 +480,7 @@ export default function Settings() {
   return (
     <>
       <Head>
-        <title>Settings — Onshipy</title>
+        <title>Settings - Onshipy</title>
         <link rel="icon" type="image/png" href="/favicon.png"/>
       </Head>
       <style>{`

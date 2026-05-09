@@ -137,7 +137,7 @@ export default function Login() {
   return (
     <>
       <Head>
-        <title>Onshipy — Sign in</title>
+        <title>Sign in - Onshipy</title>
         <link rel="icon" href="/favicon.ico" />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <meta name="description" content="Sign in to Onshipy — sell anything from anywhere." />
