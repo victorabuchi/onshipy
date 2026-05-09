@@ -148,13 +148,19 @@ export default function Wallet() {
 
   return (
     <Layout title="Wallet">
+      <style>{`
+        @media (max-width: 767px) {
+          .wallet-wrap { padding-left: 16px !important; padding-right: 16px !important; }
+          .wallet-grid { grid-template-columns: 1fr !important; }
+        }
+      `}</style>
       {toast && (
         <div style={{ position: 'fixed', top: 68, right: 16, background: toast.err ? P.red : P.text, color: '#fff', padding: '10px 16px', borderRadius: 8, fontSize: P.fontSize, fontWeight: 500, zIndex: 9999, boxShadow: '0 4px 16px rgba(0,0,0,0.15)', fontFamily: P.font }}>
           {toast.err ? '' : '✓ '}{toast.msg}
         </div>
       )}
 
-      <div style={{ fontFamily: P.font, fontSize: P.fontSize, color: P.text, padding: '24px 28px 80px', maxWidth: 900 }}>
+      <div className="wallet-wrap" style={{ fontFamily: P.font, fontSize: P.fontSize, color: P.text, padding: '24px 28px 80px', maxWidth: 900 }}>
 
         {/* Header */}
         <div style={{ marginBottom: 24 }}>

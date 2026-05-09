@@ -123,9 +123,12 @@ export default function Customers() {
         .seg-tab { padding: 7px 14px; background: none; border: none; border-bottom: 2px solid transparent; font-size: ${P.fontSize}; color: ${P.textSubdued}; cursor: pointer; font-family: ${P.font}; letter-spacing: ${P.letterSpacing}; font-weight: ${P.fontWeight}; white-space: nowrap; }
         .seg-tab.active { color: ${P.text}; font-weight: 600; border-bottom-color: ${P.text}; }
         .seg-tab:hover { color: ${P.text}; }
+        @media (max-width: 767px) {
+          .cust-detail { position: fixed !important; inset: 0 !important; width: 100% !important; z-index: 200 !important; overflow-y: auto !important; }
+        }
       `}</style>
 
-      <div style={{ fontFamily: P.font, fontSize: P.fontSize, letterSpacing: P.letterSpacing, color: P.text, display: 'flex', height: 'calc(100vh - 56px)' }}>
+      <div style={{ fontFamily: P.font, fontSize: P.fontSize, letterSpacing: P.letterSpacing, color: P.text, display: 'flex', minHeight: 'calc(100vh - 56px)' }}>
 
         {/* ── Main panel ── */}
         <div style={{ flex: 1, overflowY: 'auto', background: P.bg, minWidth: 0, display: 'flex', flexDirection: 'column' }}>
@@ -267,7 +270,7 @@ export default function Customers() {
 
         {/* ── Customer detail panel ── */}
         {selected && (
-          <div style={{ width: 320, flexShrink: 0, background: P.surface, borderLeft: `1px solid ${P.border}`, overflowY: 'auto', display: 'flex', flexDirection: 'column' }}>
+          <div className="cust-detail" style={{ width: 320, flexShrink: 0, background: P.surface, borderLeft: `1px solid ${P.border}`, overflowY: 'auto', display: 'flex', flexDirection: 'column' }}>
             <div style={{ padding: '12px 16px', borderBottom: `1px solid ${P.border}`, display: 'flex', justifyContent: 'space-between', alignItems: 'center', position: 'sticky', top: 0, background: P.surface, zIndex: 10 }}>
               <span style={{ fontWeight: 600, fontSize: P.fontSize, color: P.text }}>Customer</span>
               <button onClick={() => setSelected(null)} style={{ background: 'none', border: 'none', fontSize: 18, cursor: 'pointer', color: P.textSubdued, lineHeight: 1, padding: '0 2px' }}>×</button>

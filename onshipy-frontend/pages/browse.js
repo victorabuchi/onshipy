@@ -581,22 +581,27 @@ export default function Browse() {
           .cat-card { background:#fff; border-radius:14px; border:1px solid ${P.border}; overflow:hidden; cursor:pointer; transition:box-shadow .18s,transform .18s; }
           .cat-card:hover { box-shadow:0 4px 18px rgba(0,0,0,0.1); transform:translateY(-2px); }
           @keyframes fadeUp { from{opacity:0;transform:translateY(10px)} to{opacity:1;transform:translateY(0)} }
+          @media (max-width: 767px) {
+            .browse-wrap { padding-left: 16px !important; padding-right: 16px !important; }
+            .browse-search { width: 100% !important; }
+            .browse-header { flex-direction: column !important; align-items: stretch !important; }
+          }
         `}</style>
 
         <div style={{ position: 'fixed', bottom: 24, right: 20, zIndex: 9999, display: 'flex', flexDirection: 'column', gap: 6 }}>
           {notifs.map(n => <ActivityPill key={n.id} item={n} visible={notifVisible} />)}
         </div>
 
-        <div style={{ padding: '24px 24px 60px', maxWidth: 1160, margin: '0 auto' }}>
+        <div className="browse-wrap" style={{ padding: '24px 24px 60px', maxWidth: 1160, margin: '0 auto' }}>
 
           {/* Header */}
-          <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', flexWrap: 'wrap', gap: 12, marginBottom: 24 }}>
+          <div className="browse-header" style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', flexWrap: 'wrap', gap: 12, marginBottom: 24 }}>
             <div>
               <h1 style={{ fontSize: '1.125rem', fontWeight: 650, color: P.text, margin: '0 0 3px', letterSpacing: '-0.02em' }}>Browse brands</h1>
               <p style={{ fontSize: P.fontSize, color: P.textSubdued, margin: 0 }}>Choose a category to discover top brands and import products directly</p>
             </div>
             {/* Search */}
-            <div style={{ display: 'flex', alignItems: 'center', gap: 8, background: '#fff', border: `1px solid ${P.border}`, borderRadius: 8, padding: '0 12px', height: 34, width: 220 }}>
+            <div className="browse-search" style={{ display: 'flex', alignItems: 'center', gap: 8, background: '#fff', border: `1px solid ${P.border}`, borderRadius: 8, padding: '0 12px', height: 34, width: 220 }}>
               <svg width="13" height="13" fill="none" stroke={P.textSubdued} strokeWidth="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
               <input value={search} onChange={e => setSearch(e.target.value)} placeholder="Filter categories..." style={{ border: 'none', outline: 'none', fontSize: P.fontSize, fontFamily: P.font, color: P.text, background: 'transparent', flex: 1 }} />
             </div>
@@ -680,13 +685,18 @@ export default function Browse() {
         @keyframes fadeIn { from{opacity:0} to{opacity:1} }
         @keyframes pulse  { 0%,100%{opacity:1} 50%{opacity:0.4} }
         .trend-slide { animation:fadeIn 0.45s ease; }
+        @media (max-width: 767px) {
+          .brand-wrap { padding-left: 16px !important; padding-right: 16px !important; }
+          .brand-search { width: 100% !important; }
+          .brand-header { flex-direction: column !important; align-items: stretch !important; }
+        }
       `}</style>
 
       <div style={{ position: 'fixed', bottom: 24, right: 20, zIndex: 9999, display: 'flex', flexDirection: 'column', gap: 6 }}>
         {notifs.map(n => <ActivityPill key={n.id} item={n} visible={notifVisible} />)}
       </div>
 
-      <div style={{ padding: '20px 24px 60px', maxWidth: 1160, margin: '0 auto' }}>
+      <div className="brand-wrap" style={{ padding: '20px 24px 60px', maxWidth: 1160, margin: '0 auto' }}>
 
         {/* Breadcrumb */}
         <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 16, fontSize: P.fontSize, color: P.textSubdued }}>
@@ -785,13 +795,13 @@ export default function Browse() {
 
         {/* All brands grid */}
         <div>
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 10, gap: 10, flexWrap: 'wrap' }}>
+          <div className="brand-header" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 10, gap: 10, flexWrap: 'wrap' }}>
             <div style={{ fontSize: '0.6875rem', fontWeight: 600, color: P.textSubdued, textTransform: 'uppercase', letterSpacing: '0.08em' }}>
               All brands ({nicheData.brands.length})
             </div>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 8, background: '#fff', border: `1px solid ${P.border}`, borderRadius: 8, padding: '0 10px', height: 30 }}>
+            <div className="brand-search" style={{ display: 'flex', alignItems: 'center', gap: 8, background: '#fff', border: `1px solid ${P.border}`, borderRadius: 8, padding: '0 10px', height: 30 }}>
               <svg width="12" height="12" fill="none" stroke={P.textSubdued} strokeWidth="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-              <input value={search} onChange={e => setSearch(e.target.value)} placeholder="Filter brands..." style={{ border: 'none', outline: 'none', fontSize: '0.75rem', fontFamily: P.font, color: P.text, background: 'transparent', width: 120 }} />
+              <input value={search} onChange={e => setSearch(e.target.value)} placeholder="Filter brands..." style={{ border: 'none', outline: 'none', fontSize: '0.75rem', fontFamily: P.font, color: P.text, background: 'transparent', flex: 1, minWidth: 0 }} />
             </div>
           </div>
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(148px, 1fr))', gap: 10 }}>

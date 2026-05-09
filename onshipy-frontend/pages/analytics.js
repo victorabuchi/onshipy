@@ -96,6 +96,16 @@ export default function Analytics() {
 
   return (
     <Layout title="Analytics">
+      <style>{`
+        @media (max-width: 767px) {
+          .an-grid-4 { grid-template-columns: 1fr 1fr !important; }
+          .an-grid-3 { grid-template-columns: 1fr 1fr !important; }
+          .an-grid-2 { grid-template-columns: 1fr !important; }
+          .an-grid-side { grid-template-columns: 1fr !important; }
+          .an-grid-conv { grid-template-columns: 1fr 1fr !important; }
+          .an-pad { padding-left: 16px !important; padding-right: 16px !important; }
+        }
+      `}</style>
       <div style={{ ...baseStyle, background: P.bg, minHeight: '100vh', padding: '0 0 40px' }}>
 
         {/* ── Page header ────────────────────────────────────────────────── */}
@@ -130,9 +140,9 @@ export default function Analytics() {
           </div>
         </div>
 
-        <div style={{ padding: '0 24px' }}>
+        <div className="an-pad" style={{ padding: '0 24px' }}>
           {/* ── Top 4 KPI cards ──────────────────────────────────────────── */}
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4,1fr)', gap: 12, marginBottom: 16 }}>
+          <div className="an-grid-4" style={{ display: 'grid', gridTemplateColumns: 'repeat(4,1fr)', gap: 12, marginBottom: 16 }}>
             <StatCard label="Gross sales" value={`$${totalRevenue.toFixed(2)}`} sub="—"/>
             <StatCard label="Returning customer rate" value={`${orders.length > 0 ? '0' : '0'} %`} sub="—"/>
             <StatCard label="Orders fulfilled" value={orders.filter(o => o.status === 'delivered').length} sub="—"/>
@@ -140,7 +150,7 @@ export default function Analytics() {
           </div>
 
           {/* ── Total sales over time + breakdown ──────────────────────── */}
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 320px', gap: 12, marginBottom: 12 }}>
+          <div className="an-grid-side" style={{ display: 'grid', gridTemplateColumns: '1fr 320px', gap: 12, marginBottom: 12 }}>
             <MiniChart label="Total sales over time" height={140}/>
 
             {/* Sales breakdown */}
@@ -168,14 +178,14 @@ export default function Analytics() {
           </div>
 
           {/* ── 3-column row ─────────────────────────────────────────────── */}
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 12, marginBottom: 12 }}>
+          <div className="an-grid-3" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 12, marginBottom: 12 }}>
             <MiniChart label="Total sales by sales channel" height={100}/>
             <MiniChart label="Average order value over time" height={100}/>
             <MiniChart label="Total sales by product" height={100}/>
           </div>
 
           {/* ── Sessions + conversion ─────────────────────────────────── */}
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 12, marginBottom: 12 }}>
+          <div className="an-grid-3" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 12, marginBottom: 12 }}>
             <MiniChart label="Sessions over time" color="#2fb3eb" height={100}/>
             <MiniChart label="Conversion rate over time" color="#2fb3eb" height={100}/>
             {/* Conversion breakdown */}
@@ -183,7 +193,7 @@ export default function Analytics() {
               <div style={{ fontSize: P.fontSize, color: P.textSubdued, marginBottom: 4, letterSpacing: P.letterSpacing }}>Conversion rate breakdown</div>
               <div style={{ fontSize: '1.25rem', fontWeight: 650, color: P.text, marginBottom: 2, letterSpacing: '-0.02em' }}>0 %</div>
               <div style={{ fontSize: P.fontSize, color: P.textSubdued, marginBottom: 16 }}>—</div>
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr 1fr', gap: 8 }}>
+              <div className="an-grid-conv" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr 1fr', gap: 8 }}>
                 {[
                   { label: 'Sessions', val: '100 %', sub: '2→0%' },
                   { label: 'Added to cart', val: '0 %', sub: '0→0%' },
@@ -204,7 +214,7 @@ export default function Analytics() {
           </div>
 
           {/* ── Onshipy-specific data ─────────────────────────────────── */}
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12, marginBottom: 12 }}>
+          <div className="an-grid-2" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12, marginBottom: 12 }}>
             {/* Store metrics */}
             <div style={{ background: P.surface, borderRadius: 12, border: `1px solid ${P.border}`, padding: '20px 24px' }}>
               <div style={{ fontSize: P.fontSize, fontWeight: 600, color: P.text, marginBottom: 16, letterSpacing: P.letterSpacing }}>Store metrics</div>
@@ -227,7 +237,7 @@ export default function Analytics() {
               <div style={{ fontSize: P.fontSize, fontWeight: 600, color: P.text, marginBottom: 16, letterSpacing: P.letterSpacing }}>Top listings by profit</div>
               {topListings.length === 0 ? (
                 <div style={{ color: P.textSubdued, fontSize: P.fontSize, padding: '24px 0', textAlign: 'center' }}>
-                  No listings yet. <span style={{ color: '#2b6cb0', cursor: 'pointer' }} onClick={() => router.push('/products')}>Add a listing →</span>
+                  No listings yet. <span style={{ color: '#2b6cb0', cursor: 'pointer' }} onClick={() => router.push('/products')}>Add a listing</span>
                 </div>
               ) : topListings.map((l, i) => {
                 const profit = (parseFloat(l.selling_price) - parseFloat(l.source_price_at_listing)).toFixed(2);

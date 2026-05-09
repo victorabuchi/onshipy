@@ -317,7 +317,7 @@ export default function Login() {
               )}
 
               <button className="sub-btn" type="submit" disabled={loading} style={{ marginTop:14 }}>
-                {loading ? 'Signing in...' : 'Sign in →'}
+                {loading ? 'Signing in...' : 'Sign in'}
               </button>
             </form>
 

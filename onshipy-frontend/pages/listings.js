@@ -169,6 +169,9 @@ export default function Listings() {
         .filter-tab.active { color: ${P.text}; font-weight: 600; border-bottom-color: ${P.text}; }
         .filter-tab:hover { color: ${P.text}; }
         @keyframes slideIn { from{opacity:0;transform:translateX(10px)} to{opacity:1;transform:translateX(0)} }
+        @media (max-width: 767px) {
+          .lst-detail { position: fixed !important; inset: 0 !important; width: 100% !important; z-index: 200 !important; overflow-y: auto !important; }
+        }
       `}</style>
 
       {/* Toast */}
@@ -178,7 +181,7 @@ export default function Listings() {
         </div>
       )}
 
-      <div style={{ fontFamily: P.font, fontSize: P.fontSize, letterSpacing: P.letterSpacing, color: P.text, display: 'flex', height: 'calc(100vh - 56px)' }}>
+      <div style={{ fontFamily: P.font, fontSize: P.fontSize, letterSpacing: P.letterSpacing, color: P.text, display: 'flex', minHeight: 'calc(100vh - 56px)' }}>
 
         {/* ── Main ── */}
         <div style={{ flex: 1, overflowY: 'auto', background: P.bg, minWidth: 0, display: 'flex', flexDirection: 'column' }}>
@@ -252,7 +255,7 @@ export default function Listings() {
                 </div>
                 {pushedCount < listings.length && (
                   <Btn variant="green" onClick={() => router.push('/online-store')} style={{ padding: '5px 14px', fontSize: P.fontSize }}>
-                    Push {listings.length - pushedCount} remaining →
+                    Push {listings.length - pushedCount} remaining
                   </Btn>
                 )}
               </div>
@@ -391,7 +394,7 @@ export default function Listings() {
 
         {/* ── Detail panel ── */}
         {selected && (
-          <div style={{ width: 320, flexShrink: 0, background: P.surface, borderLeft: `1px solid ${P.border}`, overflowY: 'auto', display: 'flex', flexDirection: 'column', animation: 'slideIn .25s ease' }}>
+          <div className="lst-detail" style={{ width: 320, flexShrink: 0, background: P.surface, borderLeft: `1px solid ${P.border}`, overflowY: 'auto', display: 'flex', flexDirection: 'column', animation: 'slideIn .25s ease' }}>
             <div style={{ padding: '12px 16px', borderBottom: `1px solid ${P.border}`, display: 'flex', justifyContent: 'space-between', alignItems: 'center', position: 'sticky', top: 0, background: P.surface, zIndex: 10 }}>
               <span style={{ fontWeight: 600, fontSize: P.fontSize, color: P.text }}>Listing details</span>
               <button onClick={() => setSelected(null)} style={{ background: 'none', border: 'none', fontSize: 18, cursor: 'pointer', color: P.textSubdued, lineHeight: 1 }}>×</button>

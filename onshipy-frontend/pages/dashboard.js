@@ -227,7 +227,7 @@ export default function Dashboard() {
           </div>
 
           {/* ── Stat cards ── */}
-          <div style={{ display: 'flex', gap: 12, marginBottom: 16, overflowX: 'auto', scrollbarWidth: 'none', WebkitOverflowScrolling: 'touch', paddingBottom: 2 }}>
+          <div style={{ display: 'flex', gap: 12, marginBottom: 16, overflowX: 'auto', scrollbarWidth: 'none', WebkitOverflowScrolling: 'touch', paddingBottom: 4 }}>
             {[
               { label: 'Sessions', value: '—' },
               { label: 'Total sales', value: `$${revenue}` },
@@ -237,7 +237,7 @@ export default function Dashboard() {
               <div key={i} className="stat-card" style={{
                 background: P.surface, borderRadius: 12, border: `1px solid ${P.border}`,
                 padding: '16px 20px', cursor: 'pointer', transition: 'box-shadow .15s',
-                flexShrink: 0, minWidth: 160
+                flexShrink: 0, minWidth: 160, width: 160
               }} onClick={() => router.push(i === 0 ? '/analytics' : i === 1 ? '/analytics' : '/orders')}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 8 }}>
                   <span style={{ fontSize: P.fontSize, color: P.textSubdued, fontWeight: P.fontWeight }}>{s.label}</span>
@@ -281,7 +281,7 @@ export default function Dashboard() {
                   <div style={{ fontSize: '0.75rem', color: P.textSubdued, marginTop: 1 }}>{step.desc} · ~{step.time}</div>
                 </div>
                 {!step.done
-                  ? <span style={{ fontSize: P.fontSize, color: P.green, fontWeight: 500 }}>Start →</span>
+                  ? <span style={{ fontSize: P.fontSize, color: P.green, fontWeight: 500 }}>Start</span>
                   : <span style={{ fontSize: '0.6875rem', padding: '2px 8px', background: '#cdfed4', color: '#006847', borderRadius: 20, fontWeight: 600 }}>Done</span>
                 }
               </div>
@@ -318,7 +318,7 @@ export default function Dashboard() {
             {message === 'success' && (
               <div style={{ marginTop: 10, padding: '8px 12px', background: '#cdfed4', border: '1px solid #92fcac', borderRadius: 8, fontSize: P.fontSize, color: '#006847', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                 <span>✓ Product imported successfully!</span>
-                <button onClick={() => router.push('/products')} style={{ background: 'none', border: 'none', color: '#006847', cursor: 'pointer', fontWeight: 600, fontSize: P.fontSize, fontFamily: P.font }}>View →</button>
+                <button onClick={() => router.push('/products')} style={{ background: 'none', border: 'none', color: '#006847', cursor: 'pointer', fontWeight: 600, fontSize: P.fontSize, fontFamily: P.font }}>View</button>
               </div>
             )}
             {message.startsWith('error:') && (
@@ -395,7 +395,7 @@ export default function Dashboard() {
                 {products.length > 5 && (
                   <div style={{ padding: '10px 20px', borderTop: `1px solid ${P.border}`, textAlign: 'center' }}>
                     <button onClick={() => router.push('/products')} style={{ background: 'none', border: 'none', color: P.green, cursor: 'pointer', fontSize: P.fontSize, fontWeight: 500, fontFamily: P.font }}>
-                      View all {products.length} products →
+                      View all {products.length} products
                     </button>
                   </div>
                 )}
@@ -404,7 +404,7 @@ export default function Dashboard() {
           </div>
 
           {/* ── Quick actions — Shopify style dark icon cards ── */}
-          <div style={{ display: 'flex', gap: 10, marginBottom: 12, overflowX: 'auto', scrollbarWidth: 'none' }}>
+          <div style={{ display: 'flex', gap: 12, marginBottom: 12, overflowX: 'auto', scrollbarWidth: 'none', WebkitOverflowScrolling: 'touch', paddingBottom: 4 }}>
             {[
               {
                 title: 'Browse brands', desc: 'Find products from top brands', href: '/browse',
@@ -426,6 +426,7 @@ export default function Dashboard() {
               <div key={i} className="quick-card" onClick={() => router.push(item.href)} style={{
                 background: P.surface, borderRadius: 12, border: `1px solid ${P.border}`,
                 padding: '16px 18px', cursor: 'pointer', transition: 'box-shadow .15s, background .1s',
+                flexShrink: 0, minWidth: 160, width: 160,
               }}>
                 <DarkIcon>{item.icon}</DarkIcon>
                 <div style={{ fontWeight: 500, fontSize: P.fontSize, color: P.text, marginBottom: 2 }}>{item.title}</div>

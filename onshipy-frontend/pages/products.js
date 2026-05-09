@@ -221,6 +221,9 @@ export default function Products() {
         .sub-tab:hover:not(.active) { color: ${P.text}; }
         @keyframes fadeIn { from{opacity:0;transform:translateY(4px)} to{opacity:1;transform:translateY(0)} }
         @keyframes spin { to { transform: rotate(360deg); } }
+        @media (max-width: 767px) {
+          .prod-detail { position: fixed !important; inset: 0 !important; width: 100% !important; z-index: 200 !important; overflow-y: auto !important; }
+        }
       `}</style>
 
       {toast && (
@@ -238,7 +241,7 @@ export default function Products() {
         </div>
       )}
 
-      <div style={{ fontFamily: P.font, fontSize: P.fontSize, letterSpacing: P.letterSpacing, color: P.text, display: 'flex', height: 'calc(100vh - 56px)' }}>
+      <div style={{ fontFamily: P.font, fontSize: P.fontSize, letterSpacing: P.letterSpacing, color: P.text, display: 'flex', minHeight: 'calc(100vh - 56px)' }}>
 
         {/* ── Main content ── */}
         <div style={{ flex: 1, overflowY: 'auto', background: P.bg, minWidth: 0 }}>
@@ -330,7 +333,7 @@ export default function Products() {
                         <div style={{ fontWeight: 600, fontSize: P.fontSize, color: P.text, marginBottom: 2 }}>Discover wholesale products with Onshipy Browse</div>
                         <div style={{ fontSize: '0.75rem', color: P.textSubdued }}>Import from Nike, ASOS, Amazon, Zara and thousands of brands worldwide</div>
                       </div>
-                      <Btn onClick={() => router.push('/browse')}>Browse brands →</Btn>
+                      <Btn onClick={() => router.push('/browse')}>Browse brands</Btn>
                     </div>
                   </div>
                 )}
@@ -482,7 +485,7 @@ export default function Products() {
 
         {/* ── Product detail panel ── */}
         {selected && section === 'products' && (
-          <div style={{ width: 420, flexShrink: 0, background: P.surface, borderLeft: `1px solid ${P.border}`, overflowY: 'auto', display: 'flex', flexDirection: 'column', animation: 'fadeIn .2s ease' }}>
+          <div className="prod-detail" style={{ width: 420, flexShrink: 0, background: P.surface, borderLeft: `1px solid ${P.border}`, overflowY: 'auto', display: 'flex', flexDirection: 'column', animation: 'fadeIn .2s ease' }}>
             <div style={{ padding: '12px 16px', borderBottom: `1px solid ${P.border}`, display: 'flex', justifyContent: 'space-between', alignItems: 'center', position: 'sticky', top: 0, background: P.surface, zIndex: 10 }}>
               <span style={{ fontWeight: 600, fontSize: P.fontSize, color: P.text }}>Product details</span>
               <div style={{ display: 'flex', gap: 6 }}>

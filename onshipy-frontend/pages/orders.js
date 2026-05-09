@@ -168,6 +168,9 @@ export default function Orders() {
         .ord-tab.active { color: ${P.text}; font-weight: 600; border-bottom-color: ${P.text}; }
         .ord-tab:hover:not(.active) { color: ${P.text}; }
         @keyframes fadeIn { from { opacity:0; transform:translateY(4px); } to { opacity:1; transform:translateY(0); } }
+        @media (max-width: 767px) {
+          .ord-detail { position: fixed !important; inset: 0 !important; width: 100% !important; z-index: 200 !important; overflow-y: auto !important; }
+        }
       `}</style>
 
       <div style={{ fontFamily: P.font, fontSize: P.fontSize, letterSpacing: P.letterSpacing, color: P.text, background: P.bg, minHeight: 'calc(100vh - 56px)', display: 'flex', gap: 0 }}
@@ -400,7 +403,7 @@ export default function Orders() {
 
         {/* ── Order detail side panel ── */}
         {selected && (
-          <div style={{ width: 320, flexShrink: 0, background: P.surface, borderLeft: `1px solid ${P.border}`, overflowY: 'auto' }}>
+          <div className="ord-detail" style={{ width: 320, flexShrink: 0, background: P.surface, borderLeft: `1px solid ${P.border}`, overflowY: 'auto' }}>
             <div style={{ padding: '12px 16px', borderBottom: `1px solid ${P.border}`, display: 'flex', justifyContent: 'space-between', alignItems: 'center', position: 'sticky', top: 0, background: P.surface, zIndex: 10 }}>
               <span style={{ fontWeight: 600, fontSize: P.fontSize, color: P.text }}>Order #{selected.storefront_order_id || selected.id.slice(0, 8).toUpperCase()}</span>
               <button onClick={() => setSelected(null)} style={{ background: 'none', border: 'none', fontSize: 18, cursor: 'pointer', color: P.textSubdued, lineHeight: 1 }}>×</button>

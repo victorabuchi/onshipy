@@ -92,7 +92,7 @@ function DemoVisual({ step }) {
           <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.4)', marginBottom: 3 }}>You pay</div>
           <div style={{ fontSize: 20, fontWeight: 700, color: '#fff' }}>€120</div>
         </div>
-        <div style={{ display: 'flex', alignItems: 'center', fontSize: 18, color: 'rgba(255,255,255,0.4)' }}>→</div>
+        <div style={{ display: 'flex', alignItems: 'center', fontSize: 18, color: 'rgba(255,255,255,0.25)' }}>·</div>
         <div style={{ flex: 1, background: 'rgba(255,255,255,0.05)', borderRadius: 9, padding: '10px 12px' }}>
           <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.4)', marginBottom: 3 }}>Customer pays</div>
           <div style={{ fontSize: 20, fontWeight: 700, color: '#fff' }}>€185</div>
@@ -388,7 +388,7 @@ export default function Register() {
               )}
 
               <button className="sub-btn" type="submit" disabled={loading}>
-                {loading ? 'Creating account...' : 'Create free account →'}
+                {loading ? 'Creating account...' : 'Create free account'}
               </button>
             </form>
 

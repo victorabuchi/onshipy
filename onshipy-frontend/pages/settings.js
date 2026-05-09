@@ -340,7 +340,7 @@ export default function Settings() {
         </Card>
         <Card><CardHead title="Billing history"/><div style={{ padding: '48px 40px', textAlign: 'center', color: P.textSubdued, fontSize: P.fontSize }}>
           {seller?.plan === 'free' ? 'No billing history yet' : (
-            <button onClick={handleManageBilling} style={{ background: 'none', border: 'none', color: P.green, cursor: 'pointer', fontSize: P.fontSize, fontWeight: 500, fontFamily: P.font }}>View invoices in Stripe →</button>
+            <button onClick={handleManageBilling} style={{ background: 'none', border: 'none', color: P.green, cursor: 'pointer', fontSize: P.fontSize, fontWeight: 500, fontFamily: P.font }}>View invoices in Stripe</button>
           )}
         </div></Card>
       </div>
