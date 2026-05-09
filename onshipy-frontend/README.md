@@ -1,4 +1,5 @@
 <div align="center">
+  <img src="https://onshipy.com/android-chrome-192x192.png" alt="Onshipy" width="80" height="80" />
   <h1>Onshipy</h1>
   <p><strong>Universal reselling &amp; dropshipping automation.</strong><br/>Import any product, set your price, sell through your own Shopify store.</p>
   <p>
