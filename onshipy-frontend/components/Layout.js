@@ -164,7 +164,7 @@ export default function Layout({ children, title }) {
   ];
   const salesNav   = [{ href: '/online-store', label: 'Online Store' }];
   const accountNav = [
-    { href: '/wallet', label: 'Wallet' },
+    { href: '/finance', label: 'Finance' },
   ];
 
   const icons = {
@@ -176,7 +176,7 @@ export default function Layout({ children, title }) {
     '/analytics':    <PIChart   width={18} height={18} fill="currentColor" />,
     '/browse':       <PISearch  width={18} height={18} fill="currentColor" />,
     '/online-store': <PIStore   width={18} height={18} fill="currentColor" />,
-    '/wallet':       <svg width="18" height="18" viewBox="0 0 20 20" fill="currentColor"><path d="M4.5 4A2.5 2.5 0 0 0 2 6.5V8h16V6.5A2.5 2.5 0 0 0 15.5 4h-11ZM18 9.5H2v4A2.5 2.5 0 0 0 4.5 16h11A2.5 2.5 0 0 0 18 13.5v-4Zm-5.5 2a1.5 1.5 0 1 1 3 0 1.5 1.5 0 0 1-3 0Z"/></svg>,
+    '/finance':      <svg width="18" height="18" viewBox="0 0 20 20" fill="currentColor"><path d="M10 1a9 9 0 1 0 0 18A9 9 0 0 0 10 1ZM6.5 9.5h7a.5.5 0 0 1 0 1h-7a.5.5 0 0 1 0-1Zm0-3h4a.5.5 0 0 1 0 1h-4a.5.5 0 0 1 0-1Zm0 6h5a.5.5 0 0 1 0 1h-5a.5.5 0 0 1 0-1Z"/></svg>,
     '/settings':     <PISettings width={18} height={18} fill="currentColor" />,
   };
 
@@ -366,11 +366,16 @@ export default function Layout({ children, title }) {
           padding: 0 16px; min-width: 0;
         }
         .topbar-search {
-          width: 100%; max-width: 480px;
+          width: 100%; max-width: 560px;
           display: flex; align-items: center; gap: 8px;
-          background: rgba(255,255,255,0.08);
-          border: 1px solid rgba(255,255,255,0.13);
-          border-radius: 624px; padding: 0 14px; height: 34px; cursor: text;
+          background: rgba(255,255,255,0.07);
+          border: 1px solid rgba(255,255,255,0.14);
+          border-radius: 8px; padding: 0 12px; height: 36px; cursor: text;
+          transition: border-color .15s, background .15s;
+        }
+        .topbar-search:hover {
+          background: rgba(255,255,255,0.11);
+          border-color: rgba(255,255,255,0.22);
         }
         .topbar-actions {
           display: flex; align-items: center; gap: 4px;
@@ -501,7 +506,7 @@ export default function Layout({ children, title }) {
             : <svg width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
           }
         </button>
-        <div style={{ flex: 1, margin: '0 10px', display: 'flex', alignItems: 'center', gap: 8, background: 'rgba(255,255,255,0.1)', border: '1px solid rgba(255,255,255,0.15)', borderRadius: 624, padding: '0 12px', height: 34 }}>
+        <div style={{ flex: 1, margin: '0 10px', display: 'flex', alignItems: 'center', gap: 8, background: 'rgba(255,255,255,0.07)', border: '1px solid rgba(255,255,255,0.14)', borderRadius: 8, padding: '0 12px', height: 36 }}>
           <svg width="13" height="13" fill="none" stroke="rgba(255,255,255,0.5)" strokeWidth="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
           <span style={{ fontSize: '0.8125rem', color: 'rgba(255,255,255,0.4)' }}>Search</span>
         </div>
