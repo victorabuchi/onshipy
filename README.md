@@ -10,6 +10,7 @@
   <p>
     <img src="https://img.shields.io/badge/Next.js-16-000000?style=flat-square&logo=next.js&logoColor=white" alt="Next.js" />
     <img src="https://img.shields.io/badge/React-19-61DAFB?style=flat-square&logo=react&logoColor=black" alt="React" />
+    <img src="https://img.shields.io/badge/Stripe-Billing-635BFF?style=flat-square&logo=stripe&logoColor=white" alt="Stripe" />
     <img src="https://img.shields.io/badge/Shopify-Polaris-96BF48?style=flat-square&logo=shopify&logoColor=white" alt="Shopify Polaris" />
     <img src="https://img.shields.io/badge/Deployed-Render-46E3B7?style=flat-square" alt="Render" />
     <img src="https://img.shields.io/badge/License-MIT-22c55e?style=flat-square" alt="MIT" />
@@ -29,36 +30,45 @@ Seller pastes URL → Onshipy scrapes product → Seller sets price → Push to 
 ## Features
 
 **Product Import**
-- Import from any website via URL — axios + cheerio scraper
+- Import from any website via URL using axios + cheerio scraper
 - Nike `__NEXT_DATA__` parser for accurate extraction
-- Auto-detects currency (USD, EUR, GBP, AUD, CAD, JPY, and more)
+- Auto-detects currency (USD, EUR, GBP, AUD, CAD, JPY and more)
 - Normalises EU decimal prices (`79,99€` → `€79.99`)
-- Edit title, description, and images after import
+- Edit title, description and images after import
 - Image lightbox with carousel
 
 **Pricing & Listings**
 - Set selling price manually or by profit margin %
 - Live profit calculator (you pay / customer pays / your profit)
-- Filter tabs — All, Active, On Shopify, Not pushed
+- Filter tabs: All, Active, On Shopify, Not pushed
 - Sortable listing table with margin progress bars
 
 **Store Integration**
 - One-click Shopify OAuth (no token copying)
 - Push single or all listings to Shopify in one click
 - Webhook endpoint for any custom storefront
-- WooCommerce, Etsy — coming soon
+- WooCommerce and Etsy coming soon
 
 **Browse**
-- 12 product categories: Fashion, Electronics, Beauty, Sports, Sneakers, Home, Watches, Bags, Amazon, Kids, Gaming, Food
-- 100+ brands with trending indicators
-- Auto-sliding trending spotlight
-- Live activity feed (imports, sales, profits)
+- 48 product categories: Fashion, Streetwear, Electronics, Beauty, Skincare, Fragrance, Sports, Sneakers, Home, Watches, Bags, Amazon, Kids, Gaming, Food, Luxury, Jewelry, Outdoors, Fitness, Travel, Music, Photography, Office, Pets, Baby, Cycling, Running, Golf, Camping, Surf & Skate, Sunglasses, Tech Accessories, Swimwear, Denim, Menswear, Womenswear, Sustainable, Resale & Vintage, Stationery, Cooking, Coffee & Tea, Hair Care, Automotive, Anime & Manga, Collectibles, and more
+- 900+ brands with trending indicators (20 brands per category)
+- Auto-sliding trending spotlight per category
+- Live activity feed showing real-time imports, sales and profits
 - Per-brand landing page with step-by-step import guide
+
+**Subscription Billing**
+- Free, Pro ($29/mo) and Enterprise ($99/mo) plans
+- Stripe Checkout with card, Apple Pay and Google Pay
+- Stripe Customer Portal for invoice history and plan management
+- Webhook-driven plan upgrades and downgrades (instant, no polling)
+- `checkout.session.completed`, `customer.subscription.updated`, `customer.subscription.deleted` and `invoice.payment_failed` events handled
+- Billing success page with auto-redirect to dashboard
+- Plan badge on dashboard and Settings showing live plan status
 
 **Analytics**
 - KPI strip: gross sales, returning customer rate, fulfilled orders, total orders
-- Total sales over time, sales breakdown, average order value
-- Sessions, conversion rate, conversion funnel breakdown
+- Total sales over time, sales breakdown and average order value
+- Sessions, conversion rate and conversion funnel breakdown
 - Top listings by profit, products by source
 
 **Orders**
@@ -68,19 +78,26 @@ Seller pastes URL → Onshipy scrapes product → Seller sets price → Push to 
 - Slide-in order detail panel (full-screen on mobile)
 
 **Customers**
-- Segment tabs — All, Returning, Purchased once, High value
+- Segment tabs: All, Returning, Purchased once, High value
 - Sortable table with colour-coded avatars
 - Customer detail panel with order history
 
+**Finance**
+- Revenue overview with Shopify SVG empty state
+- Ready for payout history and transaction ledger
+
 **Settings**
-- General, Plan & Billing, Users, Payments, Checkout, Notifications, Domains, Policies, Security
+- Sections: General, Plan, Billing, Users, Payments, Checkout, Notifications, Domains, Policies, Security
+- Plan section shows pricing cards with one-click Stripe Checkout upgrade
+- Billing section shows active plan, renewal date and Stripe Portal link
 - Google OAuth sign-in
-- Mobile-first: nav and content stack vertically on small screens
+- Mobile-first layout: nav and content stack vertically on small screens
 
 **UI**
 - Shopify Polaris design tokens throughout
-- Inter font · `rgba(48,48,48,1)` text · `font-weight: 450`
-- Dark `#1a1a1a` topbar + sidebar with white card layout
+- Inter font, `rgba(48,48,48,1)` text, `font-weight: 450`
+- Dark `#1a1a1a` topbar and sidebar with white card layout
+- Custom delete confirmation modal (no browser `confirm()` dialogs)
 - Horizontally scrollable stat and quick-action cards on mobile
 - Side panels become full-screen overlays on mobile (≤767px)
 - Fully responsive across all pages
@@ -96,7 +113,7 @@ Seller pastes URL → Onshipy scrapes product → Seller sets price → Push to 
 | Scraper | axios + cheerio |
 | Auth | JWT + Google OAuth2 |
 | Store | Shopify Admin API (OAuth) |
-| Payments | Stripe |
+| Payments | Stripe (Checkout, Billing Portal, Webhooks) |
 | Deployment | Render |
 | Domain | Namecheap → onshipy.com |
 
@@ -109,8 +126,10 @@ onshipy/
 │   │   ├── app.js
 │   │   ├── routes/
 │   │   │   ├── auth.js              # JWT + Google OAuth
+│   │   │   ├── billing.js           # Stripe Checkout, Portal, Webhooks
 │   │   │   ├── products.js          # Import, list, edit, delete
 │   │   │   ├── orders.js            # Order management
+│   │   │   ├── sellers.js           # Profile, password, /me
 │   │   │   ├── stores.js            # Shopify OAuth + push
 │   │   │   └── webhook.js           # Receive storefront orders
 │   │   ├── services/
@@ -123,16 +142,18 @@ onshipy/
     ├── components/
     │   └── Layout.js                # Sidebar, topbar, search, notifications
     ├── pages/
-    │   ├── dashboard.js             # Home — stats, getting started, quick actions
+    │   ├── dashboard.js             # Home: stats, getting started, quick actions
     │   ├── products.js              # Products + inventory, POs, transfers
     │   ├── listings.js              # Priced listings + push status
     │   ├── orders.js                # Orders + analytics bar
     │   ├── customers.js             # Customers + segments
     │   ├── analytics.js             # Full analytics dashboard
-    │   ├── browse.js                # Brand browser (12 categories, 100+ brands)
+    │   ├── browse.js                # Brand browser (48 categories, 900+ brands)
     │   ├── online-store.js          # Store connect + push table
-    │   ├── settings.js              # All settings sections
-    │   ├── wallet.js                # Wallet / billing
+    │   ├── finance.js               # Finance overview
+    │   ├── settings.js              # All settings sections incl. Plan + Billing
+    │   ├── billing/
+    │   │   └── success.js           # Post-checkout success page
     │   ├── login.js                 # Login + Google OAuth
     │   └── register.js              # Registration
     └── package.json
@@ -140,7 +161,7 @@ onshipy/
 
 ## Getting Started
 
-**Prerequisites:** Node.js 18+, PostgreSQL (Supabase), Shopify Partner account, Google OAuth credentials
+**Prerequisites:** Node.js 18+, PostgreSQL (Supabase), Shopify Partner account, Google OAuth credentials, Stripe account
 
 ```bash
 # Clone
@@ -174,6 +195,9 @@ FRONTEND_URL=https://onshipy.com
 SHOPIFY_CLIENT_ID=your_shopify_client_id
 SHOPIFY_CLIENT_SECRET=your_shopify_client_secret
 STRIPE_SECRET_KEY=sk_live_xxx
+STRIPE_PRO_PRICE_ID=price_xxx
+STRIPE_ENTERPRISE_PRICE_ID=price_xxx
+STRIPE_WEBHOOK_SECRET=whsec_xxx
 ENCRYPTION_KEY=32_char_encryption_key
 ```
 
@@ -218,6 +242,21 @@ NEXT_PUBLIC_API_URL=https://api.onshipy.com
 | `POST` | `/api/stores/shopify/push-all` | Push all unpushed listings |
 | `DELETE` | `/api/stores/shopify/disconnect` | Disconnect store |
 
+### Billing
+| Method | Endpoint | Description |
+|---|---|---|
+| `POST` | `/api/billing/checkout` | Create Stripe Checkout session |
+| `POST` | `/api/billing/portal` | Open Stripe Customer Portal |
+| `GET` | `/api/billing/status` | Get plan, subscription status and renewal date |
+| `POST` | `/api/billing/webhook` | Stripe webhook (raw body, signature verified) |
+
+### Sellers
+| Method | Endpoint | Description |
+|---|---|---|
+| `GET` | `/api/sellers/me` | Get current seller profile |
+| `PATCH` | `/api/sellers/me` | Update name, email, store details |
+| `POST` | `/api/sellers/change-password` | Change password |
+
 ### Webhook
 | Method | Endpoint | Description |
 |---|---|---|
@@ -227,6 +266,24 @@ NEXT_PUBLIC_API_URL=https://api.onshipy.com
 | Method | Endpoint | Description |
 |---|---|---|
 | `GET` | `/health` | Health check + env status |
+
+## Stripe Billing Flow
+
+```
+User clicks "Upgrade to Pro" in Settings → Plan
+        ↓
+POST /api/billing/checkout  (creates or reuses Stripe customer)
+        ↓
+Redirect to Stripe Checkout (card / Apple Pay / Google Pay)
+        ↓
+Stripe fires checkout.session.completed webhook
+        ↓
+Backend updates sellers.plan = 'pro' and subscription_status = 'active'
+        ↓
+User lands on /billing/success → redirected to dashboard
+```
+
+Cancellations, renewals and payment failures are handled automatically via `customer.subscription.updated`, `customer.subscription.deleted` and `invoice.payment_failed` webhook events.
 
 ## Deployment (Render)
 
@@ -253,6 +310,15 @@ CNAME   www  onshipy-frontend.onrender.com
 CNAME   api  onshipy-backend.onrender.com
 ```
 
+**Stripe Webhook (Dashboard → Developers → Webhooks)**
+```
+Endpoint URL:  https://api.onshipy.com/api/billing/webhook
+Events:        checkout.session.completed
+               customer.subscription.updated
+               customer.subscription.deleted
+               invoice.payment_failed
+```
+
 ## Engineering Notes
 
 - **Auth tokens in `useRef`** — prevents stale closure bugs in async fetch callbacks where `useState` would capture a stale token value
@@ -261,18 +327,21 @@ CNAME   api  onshipy-backend.onrender.com
 - **Shopify API via native `https` module** — more reliable than `fetch` on Render's infrastructure for outbound Shopify calls
 - **EU decimal normalisation** — `79,99€` is converted before `parseFloat` to avoid NaN prices
 - **Shopify OAuth nonce table** — prevents CSRF on the OAuth callback
+- **Stripe webhook raw body** — Fastify configured with `rawBody: true` on the webhook route so `stripe.webhooks.constructEvent` can verify the signature
+- **Stripe customer reuse** — `stripe_customer_id` stored on the seller row; same customer object reused across plan changes to preserve invoice history
 - **Mobile side panels** — detail panels become `position: fixed; inset: 0` overlays on screens ≤767px
+- **Custom delete modal** — native `window.confirm()` replaced with in-page modal on dashboard and products pages
 
 ## Database Schema
 
 ```sql
-sellers              -- user accounts + plan
-imported_products    -- scraped products
-product_listings     -- priced listings
-customer_orders      -- orders received via webhook / storefront
-auto_buy_jobs        -- automation queue for the auto-buy worker
-shipments            -- tracking information
-webhook_events       -- raw incoming webhook payloads
+sellers                 -- user accounts, plan, stripe_customer_id, stripe_subscription_id
+imported_products       -- scraped products
+product_listings        -- priced listings
+customer_orders         -- orders received via webhook / storefront
+auto_buy_jobs           -- automation queue for the auto-buy worker
+shipments               -- tracking information
+webhook_events          -- raw incoming webhook payloads
 ```
 
 ## Roadmap
@@ -282,22 +351,25 @@ webhook_events       -- raw incoming webhook payloads
 - [x] Shopify OAuth one-click connect + product push
 - [x] Auto-buy worker engine
 - [x] Google OAuth
-- [x] Custom domains (onshipy.com · api.onshipy.com)
+- [x] Custom domains (onshipy.com / api.onshipy.com)
 - [x] Shopify Polaris UI (exact design tokens)
-- [x] Browse — 12 categories, 100+ brands, live activity feed
-- [x] Full analytics dashboard with KPI strip + sparklines
-- [x] Orders, Customers, Listings, Products pages
-- [x] Settings (9 sections)
+- [x] Browse — 48 categories, 900+ brands, live activity feed
+- [x] Full analytics dashboard with KPI strip and sparklines
+- [x] Orders, Customers, Listings, Products, Finance pages
+- [x] Settings with 9 sections including Plan and Billing
+- [x] Stripe subscription billing (Free / Pro $29 / Enterprise $99)
+- [x] Stripe Checkout, Customer Portal and Webhook handling
+- [x] Billing success page with plan activation
+- [x] Custom delete confirmation modals
 - [x] Fully responsive — mobile side panels, scrollable cards
 
 **Planned**
-- [ ] Stripe subscription billing (Free · Pro $29 · Enterprise $99)
 - [ ] Paystack (African market)
-- [ ] WooCommerce · Etsy · Amazon integrations
+- [ ] WooCommerce, Etsy and Amazon integrations
 - [ ] AI product description generator
 - [ ] Price monitoring background job
-- [ ] Real auto-buy checkout automation (per-domain)
-- [ ] Browser extension · Mobile app
+- [ ] Real auto-buy checkout automation (per domain)
+- [ ] Browser extension and mobile app
 
 ## License
 
