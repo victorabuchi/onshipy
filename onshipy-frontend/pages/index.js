@@ -1,12 +1,12 @@
-import { useEffect } from 'react';
-import { useRouter } from 'next/router';
+export async function getServerSideProps() {
+  return {
+    redirect: {
+      destination: '/register',
+      permanent: false,
+    },
+  };
+}
 
 export default function Home() {
-  const router = useRouter();
-  useEffect(() => {
-    const token = localStorage.getItem('onshipy_token');
-    if (token) router.replace('/dashboard');
-    else router.replace('/register');
-  }, []);
   return null;
 }

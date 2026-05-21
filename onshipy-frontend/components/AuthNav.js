@@ -18,12 +18,8 @@ export default function AuthNav({ startHref = '/register' }) {
     }}>
 
       {/* Logo */}
-      <Link href="/" style={{ display:'flex', alignItems:'center', gap:8, textDecoration:'none', marginRight:32, flexShrink:0 }}>
-        <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
-          <path d="M12 2L21 7V17L12 22L3 17V7L12 2Z" stroke="#008060" strokeWidth="2" strokeLinejoin="round" fill="rgba(0,128,96,0.12)"/>
-          <polyline points="3 7 12 12 21 7" stroke="#008060" strokeWidth="2" strokeLinejoin="round"/>
-          <line x1="12" y1="22" x2="12" y2="12" stroke="#008060" strokeWidth="2" strokeLinecap="round"/>
-        </svg>
+      <Link href="/" style={{ display:'flex', alignItems:'center', gap:9, textDecoration:'none', marginRight:32, flexShrink:0 }}>
+        <img src="/favicon-32x32.png" alt="Onshipy" width={22} height={22} style={{ filter:'brightness(0) invert(1)', flexShrink:0 }} />
         <span style={{ fontSize:17, fontWeight:800, color:'#fff', letterSpacing:'-0.4px' }}>Onshipy</span>
       </Link>
 
