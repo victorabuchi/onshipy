@@ -1,57 +1,65 @@
-import { useState, useEffect } from 'react';
-import Head from 'next/head';
+import { useState } from 'react';
+import { useRouter } from 'next/router';
 import Link from 'next/link';
-import AuthNav from '../components/AuthNav';
+import Head from 'next/head';
 
-const ACTIVITIES = [
-  { name: 'Marcus J.',  country: 'US', action: 'sale',      item: "Nike Air Force 1 '07",       profit: '+€80',  price: null,    time: '2s ago',  img: 15 },
-  { name: 'Amara T.',   country: 'NG', action: 'import',    item: 'Gucci GG Marmont Belt',       profit: null,    price: '€380',  time: '18s ago', img: 44 },
-  { name: 'Yuki N.',    country: 'JP', action: 'sale',      item: 'Jordan 1 Retro High OG',      profit: '+€95',  price: null,    time: '35s ago', img: 22 },
-  { name: 'Sofia R.',   country: 'ES', action: 'shopify',   item: null,                          profit: null,    price: null,    time: '51s ago', img: 33 },
-  { name: 'Liam O.',    country: 'CA', action: 'sale',      item: 'Apple AirPods Pro 2',         profit: '+€55',  price: null,    time: '1m ago',  img: 11 },
-  { name: 'Diego M.',   country: 'BR', action: 'import',    item: 'Balenciaga Triple S',         profit: null,    price: '€720',  time: '1m ago',  img: 55 },
-  { name: 'Priya L.',   country: 'IN', action: 'sale',      item: 'Off-White Zip Hoodie',        profit: '+€148', price: null,    time: '2m ago',  img: 29 },
-  { name: 'Cole M.',    country: 'US', action: 'import',    item: 'New Balance 550 White',       profit: null,    price: '€89',   time: '2m ago',  img: 8  },
-  { name: 'Riku S.',    country: 'FI', action: 'sale',      item: 'Zara Linen Blazer',           profit: '+€51',  price: null,    time: '3m ago',  img: 61 },
-  { name: 'Lea V.',     country: 'DE', action: 'milestone', item: null,                          profit: '+€500', price: null,    time: '3m ago',  img: 37 },
-  { name: 'Noah B.',    country: 'ZA', action: 'import',    item: 'Puma Suede Classic Plus',     profit: null,    price: '€74',   time: '4m ago',  img: 48 },
-  { name: 'Jessie K.',  country: 'GB', action: 'sale',      item: 'Supreme Box Logo Hoodie',     profit: '+€211', price: null,    time: '4m ago',  img: 17 },
-  { name: 'Kwame A.',   country: 'GH', action: 'shopify',   item: null,                          profit: null,    price: null,    time: '5m ago',  img: 59 },
-  { name: 'Isabela C.', country: 'BR', action: 'import',    item: 'Dior Saddle Bag Mini',        profit: null,    price: '€1,250',time: '5m ago',  img: 26 },
-  { name: 'Tariq M.',   country: 'AE', action: 'sale',      item: 'Rolex Submariner Replica',    profit: '+€340', price: null,    time: '6m ago',  img: 68 },
+const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000';
+
+const DIAL_CODES = [
+  { code:'US', dial:'+1',   label:'US +1'   },
+  { code:'GB', dial:'+44',  label:'GB +44'  },
+  { code:'NG', dial:'+234', label:'NG +234' },
+  { code:'GH', dial:'+233', label:'GH +233' },
+  { code:'CA', dial:'+1',   label:'CA +1'   },
+  { code:'ZA', dial:'+27',  label:'ZA +27'  },
+  { code:'AU', dial:'+61',  label:'AU +61'  },
+  { code:'DE', dial:'+49',  label:'DE +49'  },
+  { code:'FR', dial:'+33',  label:'FR +33'  },
+  { code:'IN', dial:'+91',  label:'IN +91'  },
+  { code:'JP', dial:'+81',  label:'JP +81'  },
+  { code:'BR', dial:'+55',  label:'BR +55'  },
+  { code:'AE', dial:'+971', label:'AE +971' },
 ];
 
-const FLAGS = { US:'🇺🇸', GB:'🇬🇧', NG:'🇳🇬', JP:'🇯🇵', ES:'🇪🇸', CA:'🇨🇦', BR:'🇧🇷', IN:'🇮🇳', ZA:'🇿🇦', DE:'🇩🇪', FI:'🇫🇮', GH:'🇬🇭', AE:'🇦🇪' };
-
-const STEPS = [
-  { label: 'Paste any product URL',      sub: 'From Nike, ASOS, Amazon, Zara and 900 more brands' },
-  { label: 'Product imported instantly', sub: 'Title, price and images pulled in seconds'          },
-  { label: 'Set your selling price',     sub: 'See your profit in real time before you list it'   },
-  { label: 'Push to your Shopify store', sub: 'One click publishes the listing to your store'     },
-  { label: 'Customer buys. You profit.', sub: 'We handle the purchase and shipping automatically' },
-];
+function EyeIcon({ open }) {
+  return open
+    ? <svg width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path d="M17.94 17.94A10.07 10.07 0 0112 20c-7 0-11-8-11-8a18.45 18.45 0 015.06-5.94"/><path d="M9.9 4.24A9.12 9.12 0 0112 4c7 0 11 8 11 8a18.5 18.5 0 01-2.16 3.19"/><line x1="1" y1="1" x2="23" y2="23"/></svg>
+    : <svg width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>;
+}
 
 export default function Register() {
-  const [feed, setFeed]   = useState([]);
-  const [step, setStep]   = useState(0);
-  const [vis, setVis]     = useState(true);
+  const router = useRouter();
+  const [form, setForm]       = useState({ full_name:'', email:'', password:'', confirm:'', phone:'' });
+  const [dial, setDial]       = useState(DIAL_CODES[0]);
+  const [showPw, setShowPw]   = useState(false);
+  const [showCf, setShowCf]   = useState(false);
+  const [agreed, setAgreed]   = useState(false);
+  const [error, setError]     = useState('');
+  const [loading, setLoading] = useState(false);
 
-  useEffect(() => {
-    const q = [...ACTIVITIES].sort(() => Math.random() - 0.5);
-    let i = 0;
-    const push = () => { setFeed(prev => [{ ...q[i % q.length], id: Date.now() }, ...prev].slice(0, 4)); i++; };
-    push();
-    const feedIv = setInterval(push, 3200);
-    return () => clearInterval(feedIv);
-  }, []);
-
-  useEffect(() => {
-    const iv = setInterval(() => {
-      setVis(false);
-      setTimeout(() => { setStep(s => (s + 1) % STEPS.length); setVis(true); }, 350);
-    }, 4000);
-    return () => clearInterval(iv);
-  }, []);
+  const handleSubmit = async e => {
+    e.preventDefault();
+    if (form.password !== form.confirm) { setError('Passwords do not match.'); return; }
+    if (!agreed) { setError('Please agree to the Terms of Service and Privacy Policy.'); return; }
+    setLoading(true); setError('');
+    try {
+      const res = await fetch(`${API_BASE}/api/auth/register`, {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          full_name:  form.full_name,
+          email:      form.email,
+          password:   form.password,
+          store_name: form.full_name ? form.full_name + "'s Store" : 'My Store',
+          phone:      dial.dial + form.phone,
+        }),
+      });
+      const data = await res.json();
+      if (!res.ok) { setError(data.error || 'Registration failed'); setLoading(false); return; }
+      localStorage.setItem('onshipy_token',  data.token);
+      localStorage.setItem('onshipy_seller', JSON.stringify(data.seller));
+      router.push('/dashboard');
+    } catch { setError('Cannot connect to server.'); setLoading(false); }
+  };
 
   return (
     <>
@@ -64,125 +72,192 @@ export default function Register() {
       <style>{`
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
         *, *::before, *::after { box-sizing:border-box; margin:0; padding:0; }
-        html, body { width:100%; min-height:100vh; background:#1a1a1a; font-family:'Inter',-apple-system,BlinkMacSystemFont,sans-serif; -webkit-font-smoothing:antialiased; }
+        html, body { width:100%; min-height:100vh; background:#f5f5f5; font-family:'Inter',-apple-system,BlinkMacSystemFont,sans-serif; -webkit-font-smoothing:antialiased; }
 
-        @keyframes fadeUp  { from{opacity:0;transform:translateY(8px)} to{opacity:1;transform:translateY(0)} }
-        @keyframes gridPan { from{background-position:0 0} to{background-position:0 48px} }
-        @keyframes pulse   { 0%,100%{opacity:1} 50%{opacity:0.4} }
+        @keyframes spin { to { transform:rotate(360deg); } }
 
-        .rg-page  { display:flex; flex-direction:column; min-height:100vh; background:#1a1a1a; }
-        .rg-body  { flex:1; display:flex; justify-content:center; align-items:flex-start; padding:48px 24px 40px; position:relative; overflow:hidden; }
-        .rg-grid  { position:absolute; inset:0; pointer-events:none; background-image:linear-gradient(rgba(255,255,255,0.025) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,0.025) 1px,transparent 1px); background-size:48px 48px; animation:gridPan 10s linear infinite; }
-        .rg-ga    { position:absolute; top:0%; left:15%; width:420px; height:420px; border-radius:50%; background:radial-gradient(circle,rgba(0,128,96,0.1) 0%,transparent 70%); pointer-events:none; }
-        .rg-gb    { position:absolute; bottom:5%; right:8%; width:280px; height:280px; border-radius:50%; background:radial-gradient(circle,rgba(255,255,255,0.04) 0%,transparent 70%); pointer-events:none; }
+        .rg-page { min-height:100vh; background:#f5f5f5; display:flex; flex-direction:column; }
 
-        .rg-inner { max-width:680px; width:100%; position:relative; z-index:1; }
-        .rg-badge { display:inline-flex; align-items:center; gap:6px; padding:5px 12px; background:rgba(0,128,96,0.12); border:1px solid rgba(0,128,96,0.25); border-radius:20px; font-size:11px; color:rgba(0,184,108,0.9); font-weight:600; margin-bottom:20px; }
-        .rg-title { font-size:40px; font-weight:800; color:#fff; line-height:1.1; letter-spacing:-1.2px; margin-bottom:12px; }
-        .rg-sub   { font-size:15px; color:rgba(255,255,255,0.38); line-height:1.7; margin-bottom:32px; max-width:460px; }
+        /* ── Top bar ── */
+        .rg-nav { height:58px; background:#fff; border-bottom:1px solid #e8e8e8; display:flex; align-items:center; justify-content:space-between; padding:0 32px; flex-shrink:0; }
+        .rg-logo { display:flex; align-items:center; gap:8px; text-decoration:none; }
+        .rg-logo-text { font-size:18px; font-weight:800; color:#1a1a1a; letter-spacing:-0.4px; }
+        .rg-nav-links { display:flex; align-items:center; gap:4px; }
+        .rg-nav-link { padding:6px 12px; font-size:13px; font-weight:500; color:#555; text-decoration:none; border-radius:7px; transition:color .15s, background .15s; }
+        .rg-nav-link:hover { color:#1a1a1a; background:#f5f5f5; }
+        .rg-nav-btns { display:flex; align-items:center; gap:8px; }
+        .rg-signin-btn { padding:7px 16px; font-size:13px; font-weight:600; color:#333; background:none; border:1.5px solid #ddd; border-radius:8px; cursor:pointer; font-family:inherit; text-decoration:none; transition:border-color .15s; }
+        .rg-signin-btn:hover { border-color:#aaa; }
+        .rg-free-btn { padding:8px 18px; font-size:13px; font-weight:700; color:#fff; background:#1a1a1a; border:none; border-radius:24px; cursor:pointer; font-family:inherit; text-decoration:none; transition:opacity .15s; }
+        .rg-free-btn:hover { opacity:.85; }
 
-        .demo-card  { background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.08); border-radius:16px; padding:24px; margin-bottom:28px; }
-        .step-badge { display:inline-flex; align-items:center; gap:6px; padding:3px 10px; background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.09); border-radius:20px; font-size:10px; color:rgba(255,255,255,0.4); text-transform:uppercase; letter-spacing:.07em; margin-bottom:12px; }
-        .step-title { font-size:20px; font-weight:800; color:#fff; line-height:1.2; letter-spacing:-0.4px; margin-bottom:4px; }
-        .step-sub   { font-size:13px; color:rgba(255,255,255,0.4); line-height:1.6; margin-bottom:16px; }
-        .step-dots  { display:flex; gap:6px; }
-        .dot        { width:6px; height:6px; border-radius:50%; background:rgba(255,255,255,0.18); transition:all .3s; cursor:pointer; }
-        .dot.on     { background:#fff; width:18px; border-radius:3px; }
+        /* ── Body ── */
+        .rg-body { flex:1; display:flex; align-items:flex-start; justify-content:center; padding:32px 16px 48px; }
+        .rg-card { background:#fff; border-radius:16px; border:1px solid #e8e8e8; padding:36px 36px 40px; width:100%; max-width:460px; box-shadow:0 2px 16px rgba(0,0,0,0.05); }
 
-        .brands-row { display:flex; gap:6px; flex-wrap:wrap; }
-        .brand-chip { padding:'3px 10px'; background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.08); border-radius:20px; font-size:10px; color:rgba(255,255,255,0.35); }
+        .rg-heading { font-size:24px; font-weight:800; color:#1a1a1a; letter-spacing:-0.5px; margin-bottom:4px; }
+        .rg-subhead { font-size:13px; color:#888; margin-bottom:24px; }
 
-        .cta-row   { display:flex; gap:10px; margin-bottom:36px; }
-        .cta-green { padding:12px 28px; background:#008060; color:#fff; font-size:14px; font-weight:700; border:none; border-radius:24px; cursor:pointer; font-family:inherit; text-decoration:none; display:inline-flex; align-items:center; gap:7px; transition:opacity .15s; }
-        .cta-green:hover { opacity:.88; }
-        .cta-ghost { padding:12px 24px; background:rgba(255,255,255,0.06); color:#fff; font-size:14px; font-weight:600; border:1px solid rgba(255,255,255,0.12); border-radius:24px; cursor:pointer; font-family:inherit; text-decoration:none; display:inline-flex; align-items:center; transition:background .15s; }
-        .cta-ghost:hover { background:rgba(255,255,255,0.1); }
+        .g-btn { width:100%; padding:10px 16px; background:#fff; border:1.5px solid #ddd; border-radius:10px; color:#333; font-size:13px; font-weight:600; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:10px; font-family:inherit; transition:border-color .15s, box-shadow .15s; margin-bottom:16px; }
+        .g-btn:hover { border-color:#bbb; box-shadow:0 1px 4px rgba(0,0,0,0.07); }
 
-        .feed-label { font-size:9px; font-weight:600; color:rgba(255,255,255,0.25); text-transform:uppercase; letter-spacing:.1em; display:flex; align-items:center; gap:6px; margin-bottom:10px; }
-        .pdot       { width:6px; height:6px; border-radius:50%; background:#00b86c; flex-shrink:0; animation:pulse 1.8s infinite; }
-        .feed-list  { display:flex; flex-direction:column; gap:6px; }
-        .feed-row   { display:flex; align-items:center; gap:10px; background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.07); border-radius:10px; padding:10px 13px; animation:fadeUp .3s ease; }
+        .divider { display:flex; align-items:center; gap:10px; margin-bottom:16px; }
+        .divider-line { flex:1; height:1px; background:#ebebeb; }
+        .divider-text { font-size:11px; color:#aaa; }
+
+        .sec { font-size:9px; font-weight:700; color:#aaa; text-transform:uppercase; letter-spacing:.1em; margin:16px 0 10px; display:flex; align-items:center; gap:8px; }
+        .sec::after { content:''; flex:1; height:1px; background:#ebebeb; }
+
+        .field { margin-bottom:10px; }
+        .lbl   { font-size:11px; font-weight:500; color:#666; margin-bottom:4px; display:block; }
+        .inp   { width:100%; padding:9px 12px; background:#fafafa; border:1.5px solid #e5e5e5; border-radius:9px; font-size:13px; color:#1a1a1a; font-family:inherit; outline:none; transition:border-color .2s, box-shadow .2s; }
+        .inp::placeholder { color:#c0c0c0; }
+        .inp:focus { border-color:#008060; box-shadow:0 0 0 3px rgba(0,128,96,0.1); background:#fff; }
+        .inp-note { font-size:10px; color:#bbb; margin-top:3px; }
+
+        .phone-row { display:flex; gap:6px; }
+        .cc-sel    { padding:9px 8px; background:#fafafa; border:1.5px solid #e5e5e5; border-radius:9px; font-size:12px; color:#333; font-family:inherit; outline:none; cursor:pointer; flex-shrink:0; width:94px; appearance:none; -webkit-appearance:none; transition:border-color .2s; }
+        .cc-sel:focus { border-color:#008060; box-shadow:0 0 0 3px rgba(0,128,96,0.1); }
+
+        .pw-wrap      { position:relative; }
+        .pw-wrap .inp { padding-right:40px; }
+        .pw-eye       { position:absolute; right:11px; top:50%; transform:translateY(-50%); background:none; border:none; cursor:pointer; color:#bbb; display:flex; padding:3px; transition:color .15s; }
+        .pw-eye:hover { color:#666; }
+
+        .check-row  { display:flex; align-items:flex-start; gap:9px; margin:14px 0; }
+        .check-box  { width:16px; height:16px; border-radius:4px; border:1.5px solid #ddd; background:#fafafa; cursor:pointer; flex-shrink:0; margin-top:1px; display:flex; align-items:center; justify-content:center; transition:all .15s; }
+        .check-box.on { background:#1a1a1a; border-color:#1a1a1a; }
+        .check-label { font-size:11px; color:#888; line-height:1.55; }
+        .check-label a { color:#008060; text-decoration:none; font-weight:500; }
+        .check-label a:hover { text-decoration:underline; }
+
+        .cta-btn { width:100%; padding:11px; background:#1a1a1a; color:#fff; border:none; border-radius:10px; font-size:14px; font-weight:700; cursor:pointer; font-family:inherit; display:flex; align-items:center; justify-content:center; gap:7px; transition:opacity .15s, transform .15s; margin-top:4px; }
+        .cta-btn:hover:not(:disabled) { opacity:.87; transform:translateY(-1px); }
+        .cta-btn:disabled { opacity:.35; cursor:not-allowed; transform:none; }
+
+        .err-box { padding:9px 12px; background:#fef2f2; border:1px solid #fecaca; border-radius:8px; margin-bottom:12px; font-size:12px; color:#c0392b; }
+
+        @media (max-width:540px) {
+          .rg-nav-links { display:none; }
+          .rg-card { padding:24px 20px 28px; border-radius:12px; }
+          .rg-heading { font-size:20px; }
+        }
       `}</style>
 
       <div className="rg-page">
-        <AuthNav startHref="/sign-up" />
 
+        {/* Top navigation */}
+        <nav className="rg-nav">
+          <Link href="/" className="rg-logo">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
+              <path d="M12 2L21 7V17L12 22L3 17V7L12 2Z" stroke="#008060" strokeWidth="2" strokeLinejoin="round" fill="rgba(0,128,96,0.1)"/>
+              <polyline points="3 7 12 12 21 7" stroke="#008060" strokeWidth="2" strokeLinejoin="round"/>
+              <line x1="12" y1="22" x2="12" y2="12" stroke="#008060" strokeWidth="2" strokeLinecap="round"/>
+            </svg>
+            <span className="rg-logo-text">Onshipy</span>
+          </Link>
+
+          <div className="rg-nav-links">
+            {['Why Onshipy','Products','Pricing','Enterprise'].map(l => (
+              <a key={l} href="#" className="rg-nav-link">{l}</a>
+            ))}
+          </div>
+
+          <div className="rg-nav-btns">
+            <Link href="/login" className="rg-signin-btn">Log in</Link>
+            <Link href="/sign-up" className="rg-free-btn">Start for free</Link>
+          </div>
+        </nav>
+
+        {/* Form body */}
         <div className="rg-body">
-          <div className="rg-grid" />
-          <div className="rg-ga" />
-          <div className="rg-gb" />
+          <div className="rg-card">
+            <h1 className="rg-heading">Create your account</h1>
+            <p className="rg-subhead">Free plan. No credit card required.</p>
 
-          <div className="rg-inner">
-            <div className="rg-badge">
-              <span style={{ width:6, height:6, borderRadius:'50%', background:'#00b86c', animation:'pulse 2s infinite', flexShrink:0 }}/>
-              Free to start · No credit card required
+            <button className="g-btn" onClick={() => window.location.href = `${API_BASE}/api/auth/google`}>
+              <svg width="16" height="16" viewBox="0 0 24 24">
+                <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
+                <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
+                <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/>
+                <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
+              </svg>
+              Continue with Google
+            </button>
+
+            <div className="divider">
+              <div className="divider-line"/><span className="divider-text">or with email</span><div className="divider-line"/>
             </div>
 
-            <div className="rg-title">
-              Your dropshipping<br />
-              <span style={{ color:'rgba(255,255,255,0.25)' }}>business starts here.</span>
-            </div>
-            <p className="rg-sub">
-              Import products from 1,000+ stores, set your price, and sell on Shopify. We handle the purchasing and shipping automatically.
+            <form onSubmit={handleSubmit}>
+              <div className="sec">Account</div>
+
+              <div className="field">
+                <label className="lbl">Full name</label>
+                <input className="inp" required placeholder="Your full name" value={form.full_name} onChange={e => setForm({...form, full_name:e.target.value})} />
+              </div>
+
+              <div className="field">
+                <label className="lbl">Email address</label>
+                <input className="inp" type="email" required placeholder="you@example.com" value={form.email} onChange={e => setForm({...form, email:e.target.value})} />
+                <div className="inp-note">OTP verification will be sent to this address</div>
+              </div>
+
+              <div className="sec">Phone</div>
+
+              <div className="field">
+                <label className="lbl">Phone number</label>
+                <div className="phone-row">
+                  <select className="cc-sel" value={dial.code} onChange={e => setDial(DIAL_CODES.find(c => c.code === e.target.value) || DIAL_CODES[0])}>
+                    {DIAL_CODES.map(c => <option key={c.code} value={c.code}>{c.label}</option>)}
+                  </select>
+                  <input className="inp" type="tel" placeholder="8012345678" value={form.phone} style={{ flex:1 }} onChange={e => setForm({...form, phone:e.target.value.replace(/\D/g,'')})} />
+                </div>
+                <div className="inp-note">Required for payment verification</div>
+              </div>
+
+              <div className="sec">Security</div>
+
+              <div className="field">
+                <label className="lbl">Password</label>
+                <div className="pw-wrap">
+                  <input className="inp" type={showPw?'text':'password'} required minLength={8} placeholder="Min. 8 characters" value={form.password} onChange={e => setForm({...form, password:e.target.value})} />
+                  <button type="button" className="pw-eye" onClick={() => setShowPw(v=>!v)}><EyeIcon open={showPw}/></button>
+                </div>
+              </div>
+
+              <div className="field">
+                <label className="lbl">Confirm password</label>
+                <div className="pw-wrap">
+                  <input className="inp" type={showCf?'text':'password'} required placeholder="Repeat password" value={form.confirm} onChange={e => setForm({...form, confirm:e.target.value})} />
+                  <button type="button" className="pw-eye" onClick={() => setShowCf(v=>!v)}><EyeIcon open={showCf}/></button>
+                </div>
+              </div>
+
+              <div className="check-row">
+                <div className={`check-box${agreed?' on':''}`} onClick={() => setAgreed(v=>!v)}>
+                  {agreed && <svg width="9" height="9" viewBox="0 0 12 12" fill="none"><polyline points="2 6 5 9 10 3" stroke="#fff" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"/></svg>}
+                </div>
+                <span className="check-label">I agree to the <a href="#">Terms of Service</a> and <a href="#">Privacy Policy</a></span>
+              </div>
+
+              {error && <div className="err-box">{error}</div>}
+
+              <button className="cta-btn" type="submit" disabled={loading}>
+                {loading
+                  ? <><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" style={{ animation:'spin 0.8s linear infinite' }}><path d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" opacity=".2"/><path d="M21 12a9 9 0 00-9-9"/></svg> Creating account…</>
+                  : 'Create account'
+                }
+              </button>
+            </form>
+
+            <p style={{ textAlign:'center', marginTop:18, fontSize:13, color:'#999' }}>
+              Already have an account?{' '}
+              <Link href="/login" style={{ color:'#008060', fontWeight:600, textDecoration:'none' }}>Sign in</Link>
             </p>
-
-            {/* Step demo */}
-            <div className="demo-card">
-              <div style={{ opacity:vis?1:0, transform:vis?'translateY(0)':'translateY(-5px)', transition:'all .35s ease' }}>
-                <div className="step-badge">
-                  <span style={{ width:5, height:5, borderRadius:'50%', background:'#00b86c', animation:'pulse 2s infinite', flexShrink:0 }}/>
-                  Step {step + 1} of {STEPS.length}
-                </div>
-                <div className="step-title">{STEPS[step].label}</div>
-                <div className="step-sub">{STEPS[step].sub}</div>
-              </div>
-
-              <div style={{ display:'flex', gap:6, flexWrap:'wrap' }}>
-                {['nike.com','asos.com','amazon.com','zara.com','gucci.com','+900 brands'].map((s, i) => (
-                  <span key={i} style={{ padding:'3px 10px', background:'rgba(255,255,255,0.05)', border:'1px solid rgba(255,255,255,0.08)', borderRadius:20, fontSize:10, color:'rgba(255,255,255,0.35)' }}>{s}</span>
-                ))}
-              </div>
-
-              <div className="step-dots" style={{ marginTop:16 }}>
-                {STEPS.map((_,i) => <div key={i} className={`dot${step===i?' on':''}`} onClick={() => setStep(i)} />)}
-              </div>
-            </div>
-
-            <div className="cta-row">
-              <Link href="/sign-up" className="cta-green">
-                Start for free
-                <svg width="14" height="14" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
-              </Link>
-              <Link href="/sign-in" className="cta-ghost">Already have an account?</Link>
-            </div>
-
-            <div className="feed-label"><span className="pdot"/> Live activity</div>
-            <div className="feed-list">
-              {feed.map(n => (
-                <div key={n.id} className="feed-row">
-                  <div style={{ position:'relative', width:32, height:32, borderRadius:'50%', flexShrink:0, background:'rgba(255,255,255,0.1)', border:'1.5px solid rgba(255,255,255,0.1)', display:'flex', alignItems:'center', justifyContent:'center' }}>
-                    <span style={{ fontSize:11, fontWeight:700, color:'rgba(255,255,255,0.7)', lineHeight:1, userSelect:'none', zIndex:0 }}>{n.name.split(' ').map(w=>w[0]).join('')}</span>
-                    <img style={{ position:'absolute', inset:0, width:'100%', height:'100%', borderRadius:'50%', objectFit:'cover', zIndex:1 }} src={`https://i.pravatar.cc/40?img=${n.img}`} alt={n.name} onError={e => { e.currentTarget.style.opacity='0'; }} />
-                  </div>
-                  <div style={{ flex:1, minWidth:0 }}>
-                    <div style={{ display:'flex', alignItems:'center', gap:5, marginBottom:2 }}>
-                      <span style={{ fontSize:12, fontWeight:600, color:'#fff', flexShrink:0 }}>{n.name}</span>
-                      <span style={{ fontSize:12 }}>{FLAGS[n.country] || ''}</span>
-                      <span style={{ marginLeft:'auto', fontSize:10, color:'rgba(255,255,255,0.22)', flexShrink:0 }}>{n.time}</span>
-                    </div>
-                    <div style={{ fontSize:11, color:'rgba(255,255,255,0.38)', overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap' }}>
-                      {n.action==='sale'      && <><span style={{ color:'#69f0ae', fontWeight:600 }}>{n.profit}</span> profit · sold {n.item}</>}
-                      {n.action==='import'    && <>Imported {n.item} · <span style={{ color:'rgba(255,255,255,0.55)' }}>{n.price}</span></>}
-                      {n.action==='shopify'   && <span style={{ color:'#95BF47' }}>Connected Shopify store</span>}
-                      {n.action==='milestone' && <><span style={{ color:'#ffd54f', fontWeight:600 }}>{n.profit}</span> total earnings milestone</>}
-                    </div>
-                  </div>
-                </div>
-              ))}
-            </div>
-
           </div>
         </div>
+
       </div>
     </>
   );
