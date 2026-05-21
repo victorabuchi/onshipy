@@ -37,7 +37,7 @@ function EyeIcon({ open }) {
     : <svg width="15" height="15" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>;
 }
 
-export default function Login() {
+export default function SignIn() {
   const router = useRouter();
   const [form, setForm]       = useState({ email: '', password: '' });
   const [showPw, setShowPw]   = useState(false);
@@ -106,26 +106,22 @@ export default function Login() {
         @keyframes pulse   { 0%,100%{opacity:1} 50%{opacity:0.4} }
         @keyframes countUp { from{opacity:0;transform:translateY(4px)} to{opacity:1;transform:translateY(0)} }
 
-        .lg-shell  { display:flex; flex-direction:column; min-height:100vh; }
-        .lg-panels { display:flex; flex:1; }
+        .si-shell  { display:flex; flex-direction:column; min-height:100vh; }
+        .si-panels { display:flex; flex:1; }
 
-        .left {
-          background:#1a1a1a; flex:1; display:flex; flex-direction:column;
-          padding:32px 40px 28px; position:relative; overflow:hidden;
-        }
-        .left-grid { position:absolute; inset:0; pointer-events:none; z-index:0; background-image: linear-gradient(rgba(255,255,255,0.025) 1px,transparent 1px), linear-gradient(90deg,rgba(255,255,255,0.025) 1px,transparent 1px); background-size:48px 48px; animation:gridPan 10s linear infinite; }
+        .left { background:#1a1a1a; flex:1; display:flex; flex-direction:column; padding:32px 40px 28px; position:relative; overflow:hidden; }
+        .left-grid { position:absolute; inset:0; pointer-events:none; z-index:0; background-image:linear-gradient(rgba(255,255,255,0.025) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,0.025) 1px,transparent 1px); background-size:48px 48px; animation:gridPan 10s linear infinite; }
         .left-glow-a { position:absolute; top:5%; left:10%; width:320px; height:320px; border-radius:50%; background:radial-gradient(circle,rgba(0,128,96,0.12) 0%,transparent 70%); pointer-events:none; z-index:0; }
         .left-glow-b { position:absolute; bottom:10%; right:5%; width:220px; height:220px; border-radius:50%; background:radial-gradient(circle,rgba(255,255,255,0.04) 0%,transparent 70%); pointer-events:none; z-index:0; }
 
         .hero-area  { flex:1; display:flex; flex-direction:column; justify-content:center; position:relative; z-index:1; margin:20px 0; }
         .hero-title { font-size:28px; font-weight:800; color:#fff; line-height:1.18; letter-spacing:-0.8px; margin-bottom:8px; }
         .hero-sub   { font-size:13px; color:rgba(255,255,255,0.38); line-height:1.7; margin-bottom:24px; }
-
-        .stats-row { display:flex; gap:0; border-radius:10px; overflow:hidden; border:1px solid rgba(255,255,255,0.08); margin-bottom:20px; }
-        .stat-cell { flex:1; padding:11px 14px; background:rgba(255,255,255,0.03); border-right:1px solid rgba(255,255,255,0.07); }
+        .stats-row  { display:flex; gap:0; border-radius:10px; overflow:hidden; border:1px solid rgba(255,255,255,0.08); margin-bottom:20px; }
+        .stat-cell  { flex:1; padding:11px 14px; background:rgba(255,255,255,0.03); border-right:1px solid rgba(255,255,255,0.07); }
         .stat-cell:last-child { border-right:none; }
-        .stat-val  { font-size:16px; font-weight:800; color:#fff; animation:countUp .4s ease; }
-        .stat-lbl  { font-size:9px; color:rgba(255,255,255,0.3); margin-top:2px; }
+        .stat-val   { font-size:16px; font-weight:800; color:#fff; animation:countUp .4s ease; }
+        .stat-lbl   { font-size:9px; color:rgba(255,255,255,0.3); margin-top:2px; }
 
         .feed-area  { position:relative; z-index:1; }
         .feed-label { font-size:9px; font-weight:600; color:rgba(255,255,255,0.25); text-transform:uppercase; letter-spacing:.1em; display:flex; align-items:center; gap:6px; margin-bottom:8px; }
@@ -133,11 +129,7 @@ export default function Login() {
         .feed-list  { display:flex; flex-direction:column; gap:5px; }
         .feed-row   { display:flex; align-items:center; gap:9px; background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.07); border-radius:9px; padding:8px 11px; animation:fadeUp .3s ease; }
 
-        .right {
-          width:480px; flex-shrink:0; background:${ash};
-          display:flex; align-items:center; justify-content:center;
-          padding:36px 40px 48px; overflow-y:auto;
-        }
+        .right { width:480px; flex-shrink:0; background:${ash}; display:flex; align-items:center; justify-content:center; padding:36px 40px 48px; overflow-y:auto; }
         .form-shell { width:100%; max-width:360px; }
 
         .tabs    { display:flex; border-bottom:2px solid rgba(0,0,0,0.07); margin-bottom:24px; }
@@ -170,17 +162,17 @@ export default function Login() {
         .err-box { padding:9px 12px; background:rgba(220,38,38,0.06); border:1px solid rgba(220,38,38,0.2); border-radius:8px; margin-bottom:12px; font-size:12px; color:#c0392b; }
 
         @media (max-width:900px) {
-          .lg-panels { flex-direction:column; }
+          .si-panels { flex-direction:column; }
           .left  { padding:24px 24px 20px; min-height:auto; }
           .hero-title { font-size:22px; }
           .right { width:100%; padding:28px 20px 48px; align-items:flex-start; }
         }
       `}</style>
 
-      <div className="lg-shell">
+      <div className="si-shell">
         <AuthNav />
 
-        <div className="lg-panels">
+        <div className="si-panels">
 
           {/* LEFT PANEL */}
           <div className="left">
@@ -239,7 +231,7 @@ export default function Login() {
 
               <div className="tabs">
                 <button className="tab-btn on">Login</button>
-                <button className="tab-btn" onClick={() => router.push('/register')}>Sign Up</button>
+                <button className="tab-btn" onClick={() => router.push('/sign-up')}>Sign Up</button>
               </div>
 
               <button className="g-btn" onClick={() => window.location.href = `${API_BASE}/api/auth/google`} style={{ marginBottom:14 }}>
@@ -285,7 +277,7 @@ export default function Login() {
 
               <p style={{ textAlign:'center', marginTop:16, fontSize:12, color:sub }}>
                 No account yet?{' '}
-                <Link href="/register" style={{ color:green, fontWeight:600, textDecoration:'none' }}>Create one free</Link>
+                <Link href="/sign-up" style={{ color:green, fontWeight:600, textDecoration:'none' }}>Create one free</Link>
               </p>
 
             </div>

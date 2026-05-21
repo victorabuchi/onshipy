@@ -1,0 +1,66 @@
+import Link from 'next/link';
+
+const NAV_LINKS = ['Why Onshipy', 'Products', 'Pricing', 'Enterprise'];
+
+export default function AuthNav() {
+  return (
+    <nav style={{
+      background: '#1a1a1a',
+      height: 60,
+      display: 'flex',
+      alignItems: 'center',
+      padding: '0 32px',
+      borderBottom: '1px solid rgba(255,255,255,0.07)',
+      position: 'relative',
+      zIndex: 100,
+      flexShrink: 0,
+      fontFamily: "'Inter',-apple-system,BlinkMacSystemFont,sans-serif",
+    }}>
+
+      {/* Logo */}
+      <Link href="/" style={{ display:'flex', alignItems:'center', gap:8, textDecoration:'none', marginRight:32, flexShrink:0 }}>
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
+          <path d="M12 2L21 7V17L12 22L3 17V7L12 2Z" stroke="#008060" strokeWidth="2" strokeLinejoin="round" fill="rgba(0,128,96,0.12)"/>
+          <polyline points="3 7 12 12 21 7" stroke="#008060" strokeWidth="2" strokeLinejoin="round"/>
+          <line x1="12" y1="22" x2="12" y2="12" stroke="#008060" strokeWidth="2" strokeLinecap="round"/>
+        </svg>
+        <span style={{ fontSize:17, fontWeight:800, color:'#fff', letterSpacing:'-0.4px' }}>Onshipy</span>
+      </Link>
+
+      {/* Nav links */}
+      <div style={{ display:'flex', alignItems:'center', gap:2, flex:1 }}>
+        {NAV_LINKS.map(label => (
+          <a
+            key={label}
+            href="#"
+            style={{ padding:'6px 11px', fontSize:13, fontWeight:500, color:'rgba(255,255,255,0.6)', textDecoration:'none', borderRadius:7, transition:'color 0.15s', whiteSpace:'nowrap' }}
+            onMouseEnter={e => e.currentTarget.style.color = '#fff'}
+            onMouseLeave={e => e.currentTarget.style.color = 'rgba(255,255,255,0.6)'}
+          >
+            {label}
+          </a>
+        ))}
+      </div>
+
+      {/* Action buttons */}
+      <div style={{ display:'flex', alignItems:'center', gap:8, flexShrink:0 }}>
+        <Link
+          href="/sign-in"
+          style={{ padding:'7px 16px', fontSize:13, fontWeight:600, color:'rgba(255,255,255,0.75)', textDecoration:'none', borderRadius:8, transition:'color 0.15s', whiteSpace:'nowrap' }}
+          onMouseEnter={e => e.currentTarget.style.color = '#fff'}
+          onMouseLeave={e => e.currentTarget.style.color = 'rgba(255,255,255,0.75)'}
+        >
+          Log in
+        </Link>
+        <Link
+          href="/sign-up"
+          style={{ padding:'8px 20px', fontSize:13, fontWeight:700, color:'#1a1a1a', background:'#fff', textDecoration:'none', borderRadius:24, whiteSpace:'nowrap', transition:'opacity 0.15s' }}
+          onMouseEnter={e => e.currentTarget.style.opacity = '0.88'}
+          onMouseLeave={e => e.currentTarget.style.opacity = '1'}
+        >
+          Start for free
+        </Link>
+      </div>
+    </nav>
+  );
+}

@@ -115,14 +115,8 @@ function DemoVisual({ step }) {
         ))}
       </div>
       <div style={{ background:'rgba(0,184,108,0.09)', border:'1px solid rgba(0,184,108,0.25)', borderRadius:9, padding:'11px 14px', display:'flex', justifyContent:'space-between', alignItems:'center' }}>
-        <div>
-          <div style={{ fontSize:9, color:dimText, marginBottom:2 }}>Your profit per sale</div>
-          <div style={{ fontSize:22, fontWeight:800, color:'#69f0ae' }}>+€80.01</div>
-        </div>
-        <div style={{ textAlign:'right' }}>
-          <div style={{ fontSize:17, fontWeight:700, color:'#69f0ae' }}>40%</div>
-          <div style={{ fontSize:9, color:dimText }}>margin</div>
-        </div>
+        <div><div style={{ fontSize:9, color:dimText, marginBottom:2 }}>Your profit per sale</div><div style={{ fontSize:22, fontWeight:800, color:'#69f0ae' }}>+€80.01</div></div>
+        <div style={{ textAlign:'right' }}><div style={{ fontSize:17, fontWeight:700, color:'#69f0ae' }}>40%</div><div style={{ fontSize:9, color:dimText }}>margin</div></div>
       </div>
     </div>
   );
@@ -133,18 +127,12 @@ function DemoVisual({ step }) {
         <div style={{ width:30, height:30, borderRadius:8, background:'rgba(0,184,108,0.15)', display:'flex', alignItems:'center', justifyContent:'center', flexShrink:0 }}>
           <svg width="15" height="15" viewBox="0 0 20 20" fill="#69f0ae"><path d="M10 1a9 9 0 1 0 0 18A9 9 0 0 0 10 1Zm4.78 6.97-5.5 5.5a.75.75 0 0 1-1.06 0l-2.5-2.5a.75.75 0 1 1 1.06-1.06L8.75 11.94l4.97-4.97a.75.75 0 0 1 1.06 1.06Z"/></svg>
         </div>
-        <div>
-          <div style={{ fontSize:12, fontWeight:600, color:'#fff' }}>Pushed to Shopify</div>
-          <div style={{ fontSize:9, color:dimText, marginTop:1 }}>Nike Air Force 1 &apos;07 is now live on your store</div>
-        </div>
+        <div><div style={{ fontSize:12, fontWeight:600, color:'#fff' }}>Pushed to Shopify</div><div style={{ fontSize:9, color:dimText, marginTop:1 }}>Nike Air Force 1 &apos;07 is now live on your store</div></div>
       </div>
       <div style={{ display:'flex', flexDirection:'column', gap:5 }}>
         {[{ name:'Shopify', color:'#95BF47', ok:true },{ name:'WooCommerce', color:'#7F54B3', ok:false },{ name:'Etsy', color:'#F45800', ok:false }].map((s,i) => (
           <div key={i} style={{ display:'flex', justifyContent:'space-between', alignItems:'center', background:dimBg, borderRadius:8, padding:'8px 12px', border:i===0?'1px solid rgba(149,191,71,0.3)':`1px solid ${dimBd}` }}>
-            <div style={{ display:'flex', alignItems:'center', gap:8 }}>
-              <div style={{ width:7, height:7, borderRadius:'50%', background:s.color }}/>
-              <span style={{ fontSize:11, color:'#fff', fontWeight:500 }}>{s.name}</span>
-            </div>
+            <div style={{ display:'flex', alignItems:'center', gap:8 }}><div style={{ width:7, height:7, borderRadius:'50%', background:s.color }}/><span style={{ fontSize:11, color:'#fff', fontWeight:500 }}>{s.name}</span></div>
             <span style={{ fontSize:9, color:s.ok?'#95BF47':dimText, fontWeight:s.ok?600:400 }}>{s.ok?'Connected':'Coming soon'}</span>
           </div>
         ))}
@@ -163,9 +151,7 @@ function DemoVisual({ step }) {
           </div>
         ))}
       </div>
-      <div style={{ background:dimBg, borderRadius:8, padding:'8px 12px', border:`1px solid ${dimBd}`, fontSize:10, color:dimText }}>
-        Purchased automatically from nike.com · Shipping to customer
-      </div>
+      <div style={{ background:dimBg, borderRadius:8, padding:'8px 12px', border:`1px solid ${dimBd}`, fontSize:10, color:dimText }}>Purchased automatically from nike.com · Shipping to customer</div>
     </div>
   );
 
@@ -178,7 +164,7 @@ function EyeIcon({ open }) {
     : <svg width="15" height="15" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>;
 }
 
-export default function Register() {
+export default function SignUp() {
   const router = useRouter();
   const [form, setForm]       = useState({ full_name:'', email:'', password:'', confirm:'', phone:'' });
   const [dial, setDial]       = useState(DIAL_CODES[0]);
@@ -202,10 +188,7 @@ export default function Register() {
   useEffect(() => {
     const q = [...ACTIVITIES].sort(() => Math.random() - 0.5);
     let i = 0;
-    const push = () => {
-      setFeed(prev => [{ ...q[i % q.length], id: Date.now() }, ...prev].slice(0, 4));
-      i++;
-    };
+    const push = () => { setFeed(prev => [{ ...q[i % q.length], id: Date.now() }, ...prev].slice(0, 4)); i++; };
     push();
     const iv = setInterval(push, 3000);
     return () => clearInterval(iv);
@@ -259,22 +242,13 @@ export default function Register() {
         @keyframes gridPan { from{background-position:0 0} to{background-position:0 48px} }
         @keyframes pulse   { 0%,100%{opacity:1} 50%{opacity:0.4} }
 
-        .reg-shell   { display:flex; flex-direction:column; min-height:100vh; }
-        .reg-panels  { display:flex; flex:1; }
+        .su-shell  { display:flex; flex-direction:column; min-height:100vh; }
+        .su-panels { display:flex; flex:1; }
 
-        .left {
-          background:#1a1a1a; flex:1; display:flex; flex-direction:column;
-          padding:32px 40px 28px; position:relative; overflow:hidden;
-        }
-        .left-grid {
-          position:absolute; inset:0; pointer-events:none; z-index:0;
-          background-image:
-            linear-gradient(rgba(255,255,255,0.025) 1px, transparent 1px),
-            linear-gradient(90deg, rgba(255,255,255,0.025) 1px, transparent 1px);
-          background-size:48px 48px; animation:gridPan 10s linear infinite;
-        }
-        .left-glow-a { position:absolute; top:5%; left:10%; width:320px; height:320px; border-radius:50%; background:radial-gradient(circle, rgba(0,128,96,0.12) 0%, transparent 70%); pointer-events:none; z-index:0; }
-        .left-glow-b { position:absolute; bottom:10%; right:5%; width:220px; height:220px; border-radius:50%; background:radial-gradient(circle, rgba(255,255,255,0.04) 0%, transparent 70%); pointer-events:none; z-index:0; }
+        .left { background:#1a1a1a; flex:1; display:flex; flex-direction:column; padding:32px 40px 28px; position:relative; overflow:hidden; }
+        .left-grid { position:absolute; inset:0; pointer-events:none; z-index:0; background-image:linear-gradient(rgba(255,255,255,0.025) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,0.025) 1px,transparent 1px); background-size:48px 48px; animation:gridPan 10s linear infinite; }
+        .left-glow-a { position:absolute; top:5%; left:10%; width:320px; height:320px; border-radius:50%; background:radial-gradient(circle,rgba(0,128,96,0.12) 0%,transparent 70%); pointer-events:none; z-index:0; }
+        .left-glow-b { position:absolute; bottom:10%; right:5%; width:220px; height:220px; border-radius:50%; background:radial-gradient(circle,rgba(255,255,255,0.04) 0%,transparent 70%); pointer-events:none; z-index:0; }
 
         .demo-area  { flex:1; display:flex; flex-direction:column; justify-content:center; position:relative; z-index:1; margin:20px 0; }
         .step-badge { display:inline-flex; align-items:center; gap:6px; padding:4px 10px; background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.09); border-radius:20px; font-size:10px; color:rgba(255,255,255,0.4); text-transform:uppercase; letter-spacing:.07em; margin-bottom:10px; }
@@ -291,11 +265,7 @@ export default function Register() {
         .feed-list  { display:flex; flex-direction:column; gap:5px; }
         .feed-row   { display:flex; align-items:center; gap:9px; background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.07); border-radius:9px; padding:8px 11px; animation:fadeUp .3s ease; }
 
-        .right {
-          width:480px; flex-shrink:0; background:${ash};
-          display:flex; align-items:flex-start; justify-content:center;
-          padding:36px 40px 48px; overflow-y:auto;
-        }
+        .right { width:480px; flex-shrink:0; background:${ash}; display:flex; align-items:flex-start; justify-content:center; padding:36px 40px 48px; overflow-y:auto; }
         .form-shell { width:100%; max-width:360px; }
 
         .tabs    { display:flex; border-bottom:2px solid rgba(0,0,0,0.07); margin-bottom:24px; }
@@ -342,17 +312,17 @@ export default function Register() {
         .err-box { padding:9px 12px; background:rgba(220,38,38,0.06); border:1px solid rgba(220,38,38,0.2); border-radius:8px; margin-bottom:12px; font-size:12px; color:#c0392b; }
 
         @media (max-width:900px) {
-          .reg-panels { flex-direction:column; }
+          .su-panels { flex-direction:column; }
           .left  { padding:24px 24px 20px; min-height:auto; }
           .step-title { font-size:18px; }
           .right { width:100%; padding:28px 20px 48px; }
         }
       `}</style>
 
-      <div className="reg-shell">
+      <div className="su-shell">
         <AuthNav />
 
-        <div className="reg-panels">
+        <div className="su-panels">
 
           {/* LEFT PANEL */}
           <div className="left">
@@ -412,7 +382,7 @@ export default function Register() {
             <div className="form-shell">
 
               <div className="tabs">
-                <button className="tab-btn" onClick={() => router.push('/login')}>Login</button>
+                <button className="tab-btn" onClick={() => router.push('/sign-in')}>Login</button>
                 <button className="tab-btn on">Sign Up</button>
               </div>
 
@@ -493,7 +463,7 @@ export default function Register() {
               <p style={{ textAlign:'center', marginTop:14, fontSize:11, color:'rgba(100,100,100,0.7)' }}>Free plan · No credit card required</p>
               <p style={{ textAlign:'center', marginTop:10, fontSize:12, color:sub }}>
                 Already have an account?{' '}
-                <Link href="/login" style={{ color:green, fontWeight:600, textDecoration:'none' }}>Sign in</Link>
+                <Link href="/sign-in" style={{ color:green, fontWeight:600, textDecoration:'none' }}>Sign in</Link>
               </p>
 
             </div>
