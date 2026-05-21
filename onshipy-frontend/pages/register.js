@@ -5,102 +5,108 @@ import Head from 'next/head';
 
 const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000';
 
-// ── Realistic activity feed ─────────────────────────────────────────────────
+// ── Activity feed data ────────────────────────────────────────────────────────
 const ACTIVITIES = [
-  { user: 'Cole M.',   country: 'US', action: 'imported', item: 'Nike Air Max 270',       price: '$119',  profit: null,    time: '2s ago'  },
-  { user: 'Jessie K.', country: 'GB', action: 'sale',     item: 'Adidas Ultraboost 23',   price: '$185',  profit: '+$62',  time: '14s ago' },
-  { user: 'Amara T.',  country: 'NG', action: 'imported', item: 'Gucci GG Belt',           price: '$420',  profit: null,    time: '31s ago' },
-  { user: 'Riku S.',   country: 'JP', action: 'sale',     item: 'Zara Linen Blazer',       price: '$149',  profit: '+$51',  time: '48s ago' },
-  { user: 'Sofia R.',  country: 'ES', action: 'sale',     item: 'New Balance 550',         price: '$110',  profit: '+$38',  time: '1m ago'  },
-  { user: 'Liam O.',   country: 'CA', action: 'imported', item: 'Apple AirPods Pro 2',     price: '$249',  profit: null,    time: '1m ago'  },
-  { user: 'Yuki N.',   country: 'JP', action: 'sale',     item: 'ASOS Ribbed Dress',       price: '$79',   profit: '+$27',  time: '2m ago'  },
-  { user: 'Diego M.',  country: 'BR', action: 'sale',     item: 'Jordan 1 Retro High OG',  price: '$280',  profit: '+$94',  time: '2m ago'  },
-  { user: 'Priya L.',  country: 'IN', action: 'imported', item: 'Balenciaga Triple S',     price: '$895',  profit: null,    time: '3m ago'  },
-  { user: 'Noah B.',   country: 'ZA', action: 'sale',     item: 'Puma Suede Classic',      price: '$89',   profit: '+$29',  time: '3m ago'  },
-  { user: 'Lea V.',    country: 'DE', action: 'imported', item: 'Supreme Box Logo Tee',    price: '$198',  profit: null,    time: '4m ago'  },
-  { user: 'Marcus J.', country: 'US', action: 'sale',     item: 'Off-White Zip Hoodie',    price: '$450',  profit: '+$148', time: '4m ago'  },
+  { name: 'Marcus J.',  country: 'US', action: 'sale',      item: "Nike Air Force 1 '07",       profit: '+€80',  price: null,   time: '2s ago',  img: 15 },
+  { name: 'Amara T.',   country: 'NG', action: 'import',    item: 'Gucci GG Marmont Belt',       profit: null,    price: '€380', time: '18s ago', img: 44 },
+  { name: 'Yuki N.',    country: 'JP', action: 'sale',      item: 'Jordan 1 Retro High OG',      profit: '+€95',  price: null,   time: '35s ago', img: 22 },
+  { name: 'Sofia R.',   country: 'ES', action: 'shopify',   item: null,                           profit: null,    price: null,   time: '51s ago', img: 33 },
+  { name: 'Liam O.',    country: 'CA', action: 'sale',      item: 'Apple AirPods Pro 2',          profit: '+€55',  price: null,   time: '1m ago',  img: 11 },
+  { name: 'Diego M.',   country: 'BR', action: 'import',    item: 'Balenciaga Triple S',          profit: null,    price: '€720', time: '1m ago',  img: 55 },
+  { name: 'Priya L.',   country: 'IN', action: 'sale',      item: 'Off-White Zip Hoodie',         profit: '+€148', price: null,   time: '2m ago',  img: 29 },
+  { name: 'Cole M.',    country: 'US', action: 'import',    item: 'New Balance 550 White',        profit: null,    price: '€89',  time: '2m ago',  img: 8  },
+  { name: 'Riku S.',    country: 'FI', action: 'sale',      item: 'Zara Linen Blazer',            profit: '+€51',  price: null,   time: '3m ago',  img: 61 },
+  { name: 'Lea V.',     country: 'DE', action: 'milestone', item: null,                           profit: '+€500', price: null,   time: '3m ago',  img: 37 },
+  { name: 'Noah B.',    country: 'ZA', action: 'import',    item: 'Puma Suede Classic Plus',      profit: null,    price: '€74',  time: '4m ago',  img: 48 },
+  { name: 'Jessie K.',  country: 'GB', action: 'sale',      item: 'Supreme Box Logo Hoodie',      profit: '+€211', price: null,   time: '4m ago',  img: 17 },
+  { name: 'Kwame A.',   country: 'GH', action: 'shopify',   item: null,                           profit: null,    price: null,   time: '5m ago',  img: 59 },
+  { name: 'Isabela C.', country: 'BR', action: 'import',    item: 'Dior Saddle Bag Mini',         profit: null,    price: '€1,250',time:'5m ago',  img: 26 },
+  { name: 'Tariq M.',   country: 'AE', action: 'sale',      item: 'Rolex Submariner Replica',     profit: '+€340', price: null,   time: '6m ago',  img: 68 },
 ];
 
-const COUNTRY_FLAGS = { US:'🇺🇸', GB:'🇬🇧', NG:'🇳🇬', JP:'🇯🇵', ES:'🇪🇸', CA:'🇨🇦', BR:'🇧🇷', IN:'🇮🇳', ZA:'🇿🇦', DE:'🇩🇪', FI:'🇫🇮' };
+const FLAGS = { US:'🇺🇸', GB:'🇬🇧', NG:'🇳🇬', JP:'🇯🇵', ES:'🇪🇸', CA:'🇨🇦', BR:'🇧🇷', IN:'🇮🇳', ZA:'🇿🇦', DE:'🇩🇪', FI:'🇫🇮', GH:'🇬🇭', AE:'🇦🇪' };
 
 // ── Demo steps ───────────────────────────────────────────────────────────────
-const DEMO_STEPS = [
-  { id: 0, label: 'Copy any product link',      sublabel: 'From Nike, ASOS, Amazon, Zara & 1000+ stores', visual: 'copy'   },
-  { id: 1, label: 'Import in one click',        sublabel: 'Onshipy scrapes title, price, images instantly', visual: 'import' },
-  { id: 2, label: 'Set your selling price',     sublabel: 'Choose your markup — see profit in real time',   visual: 'price'  },
-  { id: 3, label: 'Push to your store',         sublabel: 'One click to Shopify, WooCommerce & more',       visual: 'push'   },
-  { id: 4, label: 'Customer buys. You profit.', sublabel: 'We auto-purchase & ship. Zero effort.',          visual: 'profit' },
+const STEPS = [
+  { label: 'Paste any product URL',    sub: 'From Nike, ASOS, Amazon, Zara and 900 more brands', visual: 'copy'    },
+  { label: 'Product imported instantly', sub: 'Title, price and images pulled in seconds',         visual: 'import'  },
+  { label: 'Set your selling price',   sub: 'See your profit in real time before you list it',    visual: 'price'   },
+  { label: 'Push to your Shopify store', sub: 'One click publishes the listing to your store',    visual: 'push'    },
+  { label: 'Customer buys. You profit.', sub: 'We handle the purchase and shipping automatically',visual: 'profit'  },
 ];
 
-// ── Country codes for phone picker ───────────────────────────────────────────
-const COUNTRY_CODES = [
-  { code: 'US', dial: '+1',  label: 'US +1'  },
-  { code: 'GB', dial: '+44', label: 'GB +44' },
-  { code: 'CA', dial: '+1',  label: 'CA +1'  },
-  { code: 'NG', dial: '+234',label: 'NG +234'},
-  { code: 'GH', dial: '+233',label: 'GH +233'},
-  { code: 'ZA', dial: '+27', label: 'ZA +27' },
-  { code: 'AU', dial: '+61', label: 'AU +61' },
-  { code: 'DE', dial: '+49', label: 'DE +49' },
-  { code: 'FR', dial: '+33', label: 'FR +33' },
-  { code: 'IN', dial: '+91', label: 'IN +91' },
-  { code: 'JP', dial: '+81', label: 'JP +81' },
-  { code: 'BR', dial: '+55', label: 'BR +55' },
-  { code: 'MX', dial: '+52', label: 'MX +52' },
-  { code: 'AE', dial: '+971',label: 'AE +971'},
+// ── Country dial codes ────────────────────────────────────────────────────────
+const DIAL_CODES = [
+  { code:'US', dial:'+1',   label:'US +1'   },
+  { code:'GB', dial:'+44',  label:'GB +44'  },
+  { code:'CA', dial:'+1',   label:'CA +1'   },
+  { code:'NG', dial:'+234', label:'NG +234' },
+  { code:'GH', dial:'+233', label:'GH +233' },
+  { code:'ZA', dial:'+27',  label:'ZA +27'  },
+  { code:'AU', dial:'+61',  label:'AU +61'  },
+  { code:'DE', dial:'+49',  label:'DE +49'  },
+  { code:'FR', dial:'+33',  label:'FR +33'  },
+  { code:'IN', dial:'+91',  label:'IN +91'  },
+  { code:'JP', dial:'+81',  label:'JP +81'  },
+  { code:'BR', dial:'+55',  label:'BR +55'  },
+  { code:'AE', dial:'+971', label:'AE +971' },
 ];
 
+// ── Demo visuals ──────────────────────────────────────────────────────────────
 function DemoVisual({ step }) {
-  const [typed, setTyped]         = useState('');
-  const [showCheck, setShowCheck] = useState(false);
-  const url = 'https://nike.com/t/air-max-270';
+  const [typed, setTyped]     = useState('');
+  const [showOk, setShowOk]   = useState(false);
+  const url = 'https://nike.com/t/air-force-1-07';
 
   useEffect(() => {
-    setTyped(''); setShowCheck(false);
+    setTyped(''); setShowOk(false);
     if (step !== 0) return;
     let i = 0;
     const iv = setInterval(() => {
       setTyped(url.slice(0, i + 1)); i++;
-      if (i >= url.length) { clearInterval(iv); setTimeout(() => setShowCheck(true), 300); }
-    }, 40);
+      if (i >= url.length) { clearInterval(iv); setTimeout(() => setShowOk(true), 350); }
+    }, 38);
     return () => clearInterval(iv);
   }, [step]);
 
+  const dimText  = 'rgba(255,255,255,0.38)';
+  const dimBg    = 'rgba(255,255,255,0.05)';
+  const dimBd    = 'rgba(255,255,255,0.08)';
+
   if (step === 0) return (
     <div style={{ width:'100%' }}>
-      <div style={{ fontSize:10, color:'rgba(255,255,255,0.4)', marginBottom:6, textTransform:'uppercase', letterSpacing:'0.1em' }}>Product URL</div>
-      <div style={{ background:'rgba(255,255,255,0.06)', border:'1px solid rgba(255,255,255,0.12)', borderRadius:10, padding:'10px 12px', display:'flex', alignItems:'center', gap:8 }}>
-        <svg width="14" height="14" fill="none" stroke="rgba(255,255,255,0.4)" strokeWidth="2" viewBox="0 0 24 24"><path d="M10 13a5 5 0 007.54.54l3-3a5 5 0 00-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 00-7.54-.54l-3 3a5 5 0 007.07 7.07l1.71-1.71"/></svg>
-        <span style={{ fontSize:12, color:'#fff', flex:1, fontFamily:'monospace' }}>{typed}<span style={{ opacity:0.5 }}>|</span></span>
-        {showCheck && <div style={{ width:20, height:20, borderRadius:'50%', background:'#00c853', display:'flex', alignItems:'center', justifyContent:'center', flexShrink:0 }}>
-          <svg width="10" height="10" viewBox="0 0 12 12" fill="none"><polyline points="2 6 5 9 10 3" stroke="#fff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/></svg>
+      <div style={{ fontSize:9, color:dimText, marginBottom:5, textTransform:'uppercase', letterSpacing:'0.1em' }}>Product URL</div>
+      <div style={{ background:dimBg, border:`1px solid ${dimBd}`, borderRadius:9, padding:'9px 12px', display:'flex', alignItems:'center', gap:8 }}>
+        <svg width="13" height="13" fill="none" stroke={dimText} strokeWidth="2" viewBox="0 0 24 24"><path d="M10 13a5 5 0 007.54.54l3-3a5 5 0 00-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 00-7.54-.54l-3 3a5 5 0 007.07 7.07l1.71-1.71"/></svg>
+        <span style={{ fontSize:12, color:'#fff', flex:1, fontFamily:'monospace', letterSpacing:-0.3 }}>{typed}<span style={{ opacity:0.4 }}>|</span></span>
+        {showOk && <div style={{ width:18, height:18, borderRadius:'50%', background:'#00b86c', display:'flex', alignItems:'center', justifyContent:'center', flexShrink:0 }}>
+          <svg width="9" height="9" viewBox="0 0 12 12" fill="none"><polyline points="2 6 5 9 10 3" stroke="#fff" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"/></svg>
         </div>}
       </div>
-      <div style={{ marginTop:10, display:'flex', gap:5, flexWrap:'wrap' }}>
-        {['nike.com','asos.com','amazon.com','zara.com','+1000 stores'].map((s,i) => (
-          <span key={i} style={{ padding:'3px 9px', background:'rgba(255,255,255,0.05)', border:'1px solid rgba(255,255,255,0.09)', borderRadius:20, fontSize:10, color:'rgba(255,255,255,0.45)' }}>{s}</span>
+      <div style={{ marginTop:9, display:'flex', gap:5, flexWrap:'wrap' }}>
+        {['nike.com','asos.com','amazon.com','zara.com','+900 brands'].map((s,i) => (
+          <span key={i} style={{ padding:'2px 8px', background:dimBg, border:`1px solid ${dimBd}`, borderRadius:20, fontSize:9, color:dimText }}>{s}</span>
         ))}
       </div>
     </div>
   );
 
   if (step === 1) return (
-    <div style={{ width:'100%' }}>
-      <div style={{ display:'flex', gap:12, alignItems:'flex-start' }}>
-        <div style={{ width:64, height:64, borderRadius:10, flexShrink:0, background:'rgba(255,255,255,0.04)', border:'1px solid rgba(255,255,255,0.1)', display:'flex', alignItems:'center', justifyContent:'center', overflow:'hidden' }}>
-          <img src="/nike-shoe.svg" alt="Nike shoe" style={{ width:52, height:52, objectFit:'contain' }} onError={e => { e.target.style.display='none'; e.target.parentNode.innerHTML='<span style="font-size:28px">👟</span>'; }} />
-        </div>
-        <div style={{ flex:1 }}>
-          <div style={{ fontWeight:700, fontSize:13, color:'#fff', marginBottom:3 }}>Nike Air Max 270</div>
-          <div style={{ fontSize:11, color:'rgba(255,255,255,0.45)', marginBottom:8 }}>nike.com · 8 images scraped</div>
-          <div style={{ display:'flex', gap:6 }}>
-            {[{ label:'Source price', val:'€120', color:'rgba(255,255,255,0.7)' },{ label:'Status', val:'Imported', color:'#69f0ae' }].map((m,i) => (
-              <div key={i} style={{ background:'rgba(255,255,255,0.05)', borderRadius:7, padding:'6px 9px' }}>
-                <div style={{ fontSize:9, color:'rgba(255,255,255,0.3)', marginBottom:2 }}>{m.label}</div>
-                <div style={{ fontSize:12, fontWeight:600, color:m.color }}>{m.val}</div>
-              </div>
-            ))}
-          </div>
+    <div style={{ display:'flex', gap:12, alignItems:'flex-start' }}>
+      <div style={{ width:60, height:60, borderRadius:10, flexShrink:0, background:'rgba(255,255,255,0.04)', border:`1px solid ${dimBd}`, display:'flex', alignItems:'center', justifyContent:'center', overflow:'hidden' }}>
+        <img src="/nike-shoe.svg" alt="Nike Air Force 1" style={{ width:50, height:50, objectFit:'contain' }}
+          onError={e => { e.target.style.display='none'; e.target.parentNode.innerHTML='<span style="font-size:26px">👟</span>'; }} />
+      </div>
+      <div style={{ flex:1 }}>
+        <div style={{ fontWeight:700, fontSize:13, color:'#fff', marginBottom:2 }}>Nike Air Force 1 &apos;07 Men&apos;s Shoes</div>
+        <div style={{ fontSize:10, color:dimText, marginBottom:8 }}>nike.com · 9 images scraped</div>
+        <div style={{ display:'flex', gap:6 }}>
+          {[{ l:'Source price', v:'€119.99', c:'rgba(255,255,255,0.75)' },{ l:'Status', v:'Imported', c:'#69f0ae' }].map((m,i) => (
+            <div key={i} style={{ background:dimBg, borderRadius:7, padding:'6px 9px', border:`1px solid ${dimBd}` }}>
+              <div style={{ fontSize:9, color:dimText, marginBottom:2 }}>{m.l}</div>
+              <div style={{ fontSize:12, fontWeight:600, color:m.c }}>{m.v}</div>
+            </div>
+          ))}
         </div>
       </div>
     </div>
@@ -109,22 +115,22 @@ function DemoVisual({ step }) {
   if (step === 2) return (
     <div style={{ width:'100%' }}>
       <div style={{ display:'flex', gap:8, marginBottom:10 }}>
-        {[{ label:'You pay', val:'€120', sub:'source price' },{ label:'Customer pays', val:'€185', sub:'your listing' }].map((c,i) => (
-          <div key={i} style={{ flex:1, background:'rgba(255,255,255,0.05)', borderRadius:9, padding:'10px 12px' }}>
-            <div style={{ fontSize:10, color:'rgba(255,255,255,0.4)', marginBottom:4 }}>{c.label}</div>
-            <div style={{ fontSize:20, fontWeight:700, color:'#fff' }}>{c.val}</div>
-            <div style={{ fontSize:9, color:'rgba(255,255,255,0.3)', marginTop:2 }}>{c.sub}</div>
+        {[{ l:'You pay', v:'€119.99', sub:'source price' },{ l:'Customer pays', v:'€200.00', sub:'your listing price' }].map((c,i) => (
+          <div key={i} style={{ flex:1, background:dimBg, borderRadius:9, padding:'10px 12px', border:`1px solid ${dimBd}` }}>
+            <div style={{ fontSize:9, color:dimText, marginBottom:3 }}>{c.l}</div>
+            <div style={{ fontSize:18, fontWeight:700, color:'#fff' }}>{c.v}</div>
+            <div style={{ fontSize:8, color:dimText, marginTop:2 }}>{c.sub}</div>
           </div>
         ))}
       </div>
-      <div style={{ background:'rgba(0,200,83,0.08)', border:'1px solid rgba(0,200,83,0.25)', borderRadius:9, padding:'11px 14px', display:'flex', justifyContent:'space-between', alignItems:'center' }}>
+      <div style={{ background:'rgba(0,184,108,0.09)', border:'1px solid rgba(0,184,108,0.25)', borderRadius:9, padding:'11px 14px', display:'flex', justifyContent:'space-between', alignItems:'center' }}>
         <div>
-          <div style={{ fontSize:10, color:'rgba(255,255,255,0.4)', marginBottom:2 }}>Your profit per sale</div>
-          <div style={{ fontSize:22, fontWeight:800, color:'#69f0ae' }}>+€65</div>
+          <div style={{ fontSize:9, color:dimText, marginBottom:2 }}>Your profit per sale</div>
+          <div style={{ fontSize:22, fontWeight:800, color:'#69f0ae' }}>+€80.01</div>
         </div>
         <div style={{ textAlign:'right' }}>
-          <div style={{ fontSize:18, fontWeight:700, color:'#69f0ae' }}>35%</div>
-          <div style={{ fontSize:9, color:'rgba(255,255,255,0.3)' }}>margin</div>
+          <div style={{ fontSize:17, fontWeight:700, color:'#69f0ae' }}>40%</div>
+          <div style={{ fontSize:9, color:dimText }}>margin</div>
         </div>
       </div>
     </div>
@@ -132,21 +138,23 @@ function DemoVisual({ step }) {
 
   if (step === 3) return (
     <div style={{ width:'100%' }}>
-      <div style={{ fontSize:10, color:'rgba(255,255,255,0.35)', marginBottom:8, textTransform:'uppercase', letterSpacing:'0.06em' }}>Sales channels</div>
-      <div style={{ display:'flex', flexDirection:'column', gap:6 }}>
-        {[
-          { name:'Shopify',     color:'#95BF47', connected:true  },
-          { name:'WooCommerce', color:'#7F54B3', connected:false },
-          { name:'Etsy',        color:'#F45800', connected:false },
-        ].map((s,i) => (
-          <div key={i} style={{ display:'flex', justifyContent:'space-between', alignItems:'center', background:'rgba(255,255,255,0.04)', borderRadius:8, padding:'9px 12px', border:i===0?'1px solid rgba(149,191,71,0.3)':'1px solid rgba(255,255,255,0.06)' }}>
+      <div style={{ display:'flex', alignItems:'center', gap:10, background:'rgba(0,184,108,0.07)', border:'1px solid rgba(0,184,108,0.2)', borderRadius:10, padding:'12px 14px', marginBottom:9 }}>
+        <div style={{ width:30, height:30, borderRadius:8, background:'rgba(0,184,108,0.15)', display:'flex', alignItems:'center', justifyContent:'center', flexShrink:0 }}>
+          <svg width="15" height="15" viewBox="0 0 20 20" fill="#69f0ae"><path d="M10 1a9 9 0 1 0 0 18A9 9 0 0 0 10 1Zm4.78 6.97-5.5 5.5a.75.75 0 0 1-1.06 0l-2.5-2.5a.75.75 0 1 1 1.06-1.06L8.75 11.94l4.97-4.97a.75.75 0 0 1 1.06 1.06Z"/></svg>
+        </div>
+        <div>
+          <div style={{ fontSize:12, fontWeight:600, color:'#fff' }}>Pushed to Shopify</div>
+          <div style={{ fontSize:9, color:dimText, marginTop:1 }}>Nike Air Force 1 &apos;07 is now live on your store</div>
+        </div>
+      </div>
+      <div style={{ display:'flex', flexDirection:'column', gap:5 }}>
+        {[{ name:'Shopify', color:'#95BF47', ok:true },{ name:'WooCommerce', color:'#7F54B3', ok:false },{ name:'Etsy', color:'#F45800', ok:false }].map((s,i) => (
+          <div key={i} style={{ display:'flex', justifyContent:'space-between', alignItems:'center', background:dimBg, borderRadius:8, padding:'8px 12px', border:i===0?'1px solid rgba(149,191,71,0.3)':1===0?`1px solid ${dimBd}`:`1px solid ${dimBd}` }}>
             <div style={{ display:'flex', alignItems:'center', gap:8 }}>
-              <div style={{ width:8, height:8, borderRadius:'50%', background:s.color }}/>
-              <span style={{ fontSize:12, color:'#fff', fontWeight:500 }}>{s.name}</span>
+              <div style={{ width:7, height:7, borderRadius:'50%', background:s.color }}/>
+              <span style={{ fontSize:11, color:'#fff', fontWeight:500 }}>{s.name}</span>
             </div>
-            <span style={{ fontSize:10, color:s.connected?'#95BF47':'rgba(255,255,255,0.25)', fontWeight:s.connected?600:400 }}>
-              {s.connected ? 'Connected' : 'Coming soon'}
-            </span>
+            <span style={{ fontSize:9, color:s.ok?'#95BF47':dimText, fontWeight:s.ok?600:400 }}>{s.ok?'Connected':'Coming soon'}</span>
           </div>
         ))}
       </div>
@@ -155,22 +163,17 @@ function DemoVisual({ step }) {
 
   if (step === 4) return (
     <div style={{ width:'100%' }}>
-      <div style={{ display:'flex', alignItems:'center', gap:10, background:'rgba(0,200,83,0.06)', border:'1px solid rgba(0,200,83,0.2)', borderRadius:10, padding:'12px 14px', marginBottom:10 }}>
-        <div style={{ width:32, height:32, borderRadius:8, background:'rgba(0,200,83,0.15)', display:'flex', alignItems:'center', justifyContent:'center', flexShrink:0 }}>
-          <svg width="16" height="16" viewBox="0 0 20 20" fill="#69f0ae"><path d="M10 1a9 9 0 1 0 0 18A9 9 0 0 0 10 1Zm4.78 6.97-5.5 5.5a.75.75 0 0 1-1.06 0l-2.5-2.5a.75.75 0 1 1 1.06-1.06L8.75 11.94l4.97-4.97a.75.75 0 0 1 1.06 1.06Z"/></svg>
-        </div>
-        <div>
-          <div style={{ fontSize:12, fontWeight:600, color:'#fff' }}>Order received & fulfilled</div>
-          <div style={{ fontSize:10, color:'rgba(255,255,255,0.4)', marginTop:1 }}>Auto-purchased and shipped. You did nothing.</div>
-        </div>
-      </div>
-      <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr 1fr', gap:7 }}>
-        {[{ label:'You paid', val:'€120', color:'rgba(255,255,255,0.7)' },{ label:'Customer paid', val:'€185', color:'rgba(255,255,255,0.7)' },{ label:'Your profit', val:'+€65', color:'#69f0ae' }].map((s,i) => (
-          <div key={i} style={{ background:'rgba(255,255,255,0.04)', borderRadius:8, padding:'9px 8px', border:i===2?'1px solid rgba(0,200,83,0.2)':'1px solid rgba(255,255,255,0.06)' }}>
-            <div style={{ fontSize:9, color:'rgba(255,255,255,0.3)', marginBottom:3 }}>{s.label}</div>
-            <div style={{ fontSize:13, fontWeight:700, color:s.color }}>{s.val}</div>
+      <div style={{ fontSize:10, color:dimText, marginBottom:7 }}>Order #4821 received and fulfilled</div>
+      <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr 1fr', gap:7, marginBottom:9 }}>
+        {[{ l:'You paid', v:'€119.99', c:'rgba(255,255,255,0.7)' },{ l:'Customer paid', v:'€200.00', c:'rgba(255,255,255,0.7)' },{ l:'Your profit', v:'+€80.01', c:'#69f0ae' }].map((s,i) => (
+          <div key={i} style={{ background:i===2?'rgba(0,184,108,0.08)':dimBg, borderRadius:8, padding:'9px 8px', border:i===2?'1px solid rgba(0,184,108,0.22)':1===2?'':'1px solid rgba(255,255,255,0.06)' }}>
+            <div style={{ fontSize:8, color:dimText, marginBottom:3 }}>{s.l}</div>
+            <div style={{ fontSize:12, fontWeight:700, color:s.c }}>{s.v}</div>
           </div>
         ))}
+      </div>
+      <div style={{ background:dimBg, borderRadius:8, padding:'8px 12px', border:`1px solid ${dimBd}`, fontSize:10, color:dimText }}>
+        Purchased automatically from nike.com · Shipping to customer
       </div>
     </div>
   );
@@ -178,54 +181,63 @@ function DemoVisual({ step }) {
   return null;
 }
 
+// ── Eye icon ──────────────────────────────────────────────────────────────────
+function EyeIcon({ open }) {
+  return open
+    ? <svg width="15" height="15" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path d="M17.94 17.94A10.07 10.07 0 0112 20c-7 0-11-8-11-8a18.45 18.45 0 015.06-5.94"/><path d="M9.9 4.24A9.12 9.12 0 0112 4c7 0 11 8 11 8a18.5 18.5 0 01-2.16 3.19"/><line x1="1" y1="1" x2="23" y2="23"/></svg>
+    : <svg width="15" height="15" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>;
+}
+
+// ── Main component ────────────────────────────────────────────────────────────
 export default function Register() {
   const router = useRouter();
-  const [tab, setTab]             = useState('signup'); // 'login' | 'signup'
-  const [form, setForm]           = useState({ full_name:'', email:'', password:'', confirmPassword:'', store_name:'', phone:'' });
-  const [countryCode, setCountryCode] = useState(COUNTRY_CODES[0]);
-  const [showPass, setShowPass]   = useState(false);
-  const [showConfirm, setShowConfirm] = useState(false);
-  const [agreedToTerms, setAgreedToTerms] = useState(false);
-  const [error, setError]         = useState('');
-  const [loading, setLoading]     = useState(false);
-  const [demoStep, setDemoStep]   = useState(0);
-  const [stepVisible, setStepVisible] = useState(true);
-  const [notifs, setNotifs]       = useState([]);
+  const [form, setForm]       = useState({ full_name:'', email:'', password:'', confirm:'', phone:'' });
+  const [dial, setDial]       = useState(DIAL_CODES[0]);
+  const [showPw, setShowPw]   = useState(false);
+  const [showCf, setShowCf]   = useState(false);
+  const [agreed, setAgreed]   = useState(false);
+  const [error, setError]     = useState('');
+  const [loading, setLoading] = useState(false);
+  const [step, setStep]       = useState(0);
+  const [vis, setVis]         = useState(true);
+  const [feed, setFeed]       = useState([]);
 
+  // Cycle demo steps
   useEffect(() => {
     const iv = setInterval(() => {
-      setStepVisible(false);
-      setTimeout(() => { setDemoStep(s => (s + 1) % DEMO_STEPS.length); setStepVisible(true); }, 400);
-    }, 4000);
+      setVis(false);
+      setTimeout(() => { setStep(s => (s + 1) % STEPS.length); setVis(true); }, 380);
+    }, 4200);
     return () => clearInterval(iv);
   }, []);
 
+  // Live activity feed
   useEffect(() => {
-    const queue = [...ACTIVITIES].sort(() => Math.random() - 0.5);
-    let idx = 0;
-    const show = () => {
-      const item = queue[idx % queue.length]; idx++;
-      setNotifs(prev => [{ ...item, id: Date.now() }, ...prev].slice(0, 3));
+    const q = [...ACTIVITIES].sort(() => Math.random() - 0.5);
+    let i = 0;
+    const push = () => {
+      setFeed(prev => [{ ...q[i % q.length], id: Date.now() }, ...prev].slice(0, 4));
+      i++;
     };
-    show();
-    const iv = setInterval(show, 3200);
+    push();
+    const iv = setInterval(push, 3000);
     return () => clearInterval(iv);
   }, []);
 
   const handleSubmit = async e => {
     e.preventDefault();
-    if (form.password !== form.confirmPassword) { setError('Passwords do not match.'); return; }
-    if (!agreedToTerms) { setError('Please agree to the Terms of Service and Privacy Policy.'); return; }
+    if (form.password !== form.confirm) { setError('Passwords do not match.'); return; }
+    if (!agreed) { setError('Please agree to the Terms of Service and Privacy Policy.'); return; }
     setLoading(true); setError('');
     try {
       const res = await fetch(`${API_BASE}/api/auth/register`, {
-        method:'POST', headers:{ 'Content-Type':'application/json' },
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           full_name:  form.full_name,
           email:      form.email,
           password:   form.password,
-          store_name: form.store_name || form.full_name + "'s Store",
-          phone:      countryCode.dial + form.phone,
+          store_name: form.full_name ? form.full_name + "'s Store" : 'My Store',
+          phone:      dial.dial + form.phone,
         }),
       });
       const data = await res.json();
@@ -236,189 +248,235 @@ export default function Register() {
     } catch { setError('Cannot connect to server.'); setLoading(false); }
   };
 
+  // ── Design tokens (matching main app) ──────────────────────────────────────
+  const ash   = '#f1f1f1';
+  const green = '#008060';
+  const text  = 'rgba(48,48,48,1)';
+  const sub   = 'rgba(97,97,97,1)';
+  const bd    = 'rgba(220,220,220,1)';
+
   return (
     <>
       <Head>
-        <title>Create account - Onshipy</title>
+        <title>Create account — Onshipy</title>
         <link rel="icon" href="/favicon.ico" />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
       </Head>
 
       <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=Sora:wght@400;500;600;700;800&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
         *, *::before, *::after { box-sizing:border-box; margin:0; padding:0; }
-        html, body { width:100%; min-height:100vh; background:#050509; font-family:'Sora',sans-serif; -webkit-font-smoothing:antialiased; }
+        html, body { width:100%; min-height:100vh; background:#1a1a1a; font-family:'Inter',-apple-system,BlinkMacSystemFont,sans-serif; -webkit-font-smoothing:antialiased; }
 
-        @keyframes gridMove { from{transform:translateY(0)} to{transform:translateY(40px)} }
-        @keyframes pulse    { 0%,100%{opacity:1} 50%{opacity:0.45} }
-        @keyframes slideUp  { from{opacity:0;transform:translateY(10px)} to{opacity:1;transform:translateY(0)} }
+        @keyframes spin    { to { transform:rotate(360deg); } }
+        @keyframes fadeUp  { from{opacity:0;transform:translateY(8px)} to{opacity:1;transform:translateY(0)} }
+        @keyframes gridPan { from{background-position:0 0} to{background-position:0 48px} }
+        @keyframes pulse   { 0%,100%{opacity:1} 50%{opacity:0.4} }
 
-        .page { display:flex; flex-direction:column; min-height:100vh; }
+        .shell { display:flex; min-height:100vh; }
 
-        /* ── Left panel ── */
+        /* ── Left (dark showcase) ── */
         .left {
-          display:flex; flex-direction:column; position:relative;
-          overflow:hidden; background:#050509; padding:24px 20px 20px;
+          background:#1a1a1a; flex:1; display:flex; flex-direction:column;
+          padding:36px 40px 32px; position:relative; overflow:hidden;
         }
-        .left-logo   { font-size:18px; font-weight:800; color:#fff; margin-bottom:18px; position:relative; z-index:1; letter-spacing:-0.5px; }
-        .step-badge  { display:inline-flex; align-items:center; gap:7px; padding:4px 11px; background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.09); border-radius:20px; font-size:10px; color:rgba(255,255,255,0.45); text-transform:uppercase; letter-spacing:.08em; margin-bottom:10px; }
-        .step-title  { font-size:20px; font-weight:800; color:#fff; line-height:1.2; margin-bottom:4px; letter-spacing:-0.5px; }
-        .step-sub    { font-size:12px; color:rgba(255,255,255,0.42); margin-bottom:14px; line-height:1.5; }
-        .demo-card   { background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.08); border-radius:14px; padding:16px; margin-bottom:14px; }
-        .step-dots   { display:flex; gap:5px; margin-bottom:18px; }
-        .step-dot    { width:7px; height:7px; border-radius:50%; background:rgba(255,255,255,0.18); transition:all .3s; cursor:pointer; }
-        .step-dot.active { background:#fff; width:20px; border-radius:4px; }
+        .left-grid {
+          position:absolute; inset:0; pointer-events:none; z-index:0;
+          background-image:
+            linear-gradient(rgba(255,255,255,0.025) 1px, transparent 1px),
+            linear-gradient(90deg, rgba(255,255,255,0.025) 1px, transparent 1px);
+          background-size:48px 48px;
+          animation:gridPan 10s linear infinite;
+        }
+        .left-glow-a {
+          position:absolute; top:5%; left:10%; width:320px; height:320px;
+          border-radius:50%; background:radial-gradient(circle, rgba(0,128,96,0.12) 0%, transparent 70%);
+          pointer-events:none; z-index:0;
+        }
+        .left-glow-b {
+          position:absolute; bottom:10%; right:5%; width:220px; height:220px;
+          border-radius:50%; background:radial-gradient(circle, rgba(255,255,255,0.04) 0%, transparent 70%);
+          pointer-events:none; z-index:0;
+        }
 
-        /* ── Realistic activity feed ── */
-        .live-label { font-size:10px; color:rgba(255,255,255,0.28); text-transform:uppercase; letter-spacing:.09em; display:flex; align-items:center; gap:6px; margin-bottom:8px; }
-        .pulse-dot  { width:6px; height:6px; border-radius:50%; background:#00c853; display:inline-block; animation:pulse 1.5s infinite; flex-shrink:0; }
-        .notif-list { display:flex; flex-direction:column; gap:5px; }
-        .notif-row  { display:flex; align-items:center; gap:10px; background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.07); border-radius:9px; padding:9px 12px; animation:slideUp .35s ease; }
+        .left-logo { font-size:20px; font-weight:800; color:#fff; letter-spacing:-0.5px; position:relative; z-index:1; margin-bottom:0; }
 
-        /* ── Right panel (form) ── */
+        .demo-area { flex:1; display:flex; flex-direction:column; justify-content:center; position:relative; z-index:1; margin:24px 0; }
+        .step-badge { display:inline-flex; align-items:center; gap:6px; padding:4px 10px; background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.09); border-radius:20px; font-size:10px; color:rgba(255,255,255,0.4); text-transform:uppercase; letter-spacing:.07em; margin-bottom:10px; }
+        .step-title { font-size:22px; font-weight:800; color:#fff; line-height:1.2; letter-spacing:-0.5px; margin-bottom:5px; }
+        .step-sub   { font-size:12px; color:rgba(255,255,255,0.4); margin-bottom:16px; line-height:1.6; }
+        .demo-card  { background:rgba(255,255,255,0.035); border:1px solid rgba(255,255,255,0.08); border-radius:14px; padding:16px; margin-bottom:16px; }
+        .step-dots  { display:flex; gap:5px; }
+        .dot        { width:6px; height:6px; border-radius:50%; background:rgba(255,255,255,0.18); transition:all .3s; cursor:pointer; }
+        .dot.on     { background:#fff; width:18px; border-radius:3px; }
+
+        /* ── Activity feed ── */
+        .feed-area  { position:relative; z-index:1; }
+        .feed-label { font-size:9px; font-weight:600; color:rgba(255,255,255,0.25); text-transform:uppercase; letter-spacing:.1em; display:flex; align-items:center; gap:6px; margin-bottom:8px; }
+        .pdot       { width:6px; height:6px; border-radius:50%; background:#00b86c; flex-shrink:0; animation:pulse 1.8s infinite; }
+        .feed-list  { display:flex; flex-direction:column; gap:5px; }
+        .feed-row   { display:flex; align-items:center; gap:9px; background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.07); border-radius:9px; padding:8px 11px; animation:fadeUp .3s ease; }
+        .feed-avatar { width:30px; height:30px; border-radius:50%; object-fit:cover; flex-shrink:0; border:1.5px solid rgba(255,255,255,0.1); }
+
+        /* ── Right (ash form panel) ── */
         .right {
+          width:480px; flex-shrink:0; background:${ash};
           display:flex; align-items:flex-start; justify-content:center;
-          padding:24px 20px 40px; background:#0a0a0f;
-          border-top:1px solid rgba(255,255,255,0.06);
+          padding:40px 40px 48px; overflow-y:auto;
         }
-        .form-box  { width:100%; max-width:400px; }
-        .form-logo { font-size:18px; font-weight:800; color:#fff; margin-bottom:22px; display:none; letter-spacing:-0.5px; }
+        .form-shell { width:100%; max-width:360px; }
+        .form-logo  { font-size:18px; font-weight:800; color:${text}; letter-spacing:-0.5px; margin-bottom:24px; display:none; }
 
         /* tabs */
-        .tab-bar { display:flex; border-bottom:1px solid rgba(255,255,255,0.08); margin-bottom:22px; }
-        .tab-btn { flex:1; padding:10px 0; background:none; border:none; border-bottom:2px solid transparent; cursor:pointer; font-family:'Sora',sans-serif; font-size:13px; font-weight:600; color:rgba(255,255,255,0.35); transition:color .15s,border-color .15s; margin-bottom:-1px; }
-        .tab-btn.active { color:#fff; border-bottom-color:#fff; }
+        .tabs    { display:flex; border-bottom:2px solid rgba(0,0,0,0.07); margin-bottom:24px; }
+        .tab-btn { flex:1; padding:9px 0; background:none; border:none; border-bottom:2px solid transparent; margin-bottom:-2px; cursor:pointer; font-family:inherit; font-size:13px; font-weight:600; color:${sub}; transition:color .15s, border-color .15s; }
+        .tab-btn.on { color:${text}; border-bottom-color:${green}; }
 
         /* section label */
-        .sec-label { font-size:9px; font-weight:700; color:rgba(255,255,255,0.3); text-transform:uppercase; letter-spacing:.1em; margin-bottom:10px; padding:0 1px; display:flex; align-items:center; gap:7px; }
-        .sec-label::after { content:''; flex:1; height:1px; background:rgba(255,255,255,0.07); }
+        .sec { font-size:9px; font-weight:700; color:rgba(97,97,97,0.7); text-transform:uppercase; letter-spacing:.1em; margin:16px 0 10px; display:flex; align-items:center; gap:8px; }
+        .sec::after { content:''; flex:1; height:1px; background:rgba(0,0,0,0.08); }
 
-        /* inputs */
-        .inp { width:100%; padding:10px 12px; background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.09); border-radius:8px; font-size:13px; outline:none; color:#fff; font-family:'Sora',sans-serif; transition:border-color .2s,background .2s; }
-        .inp::placeholder { color:rgba(255,255,255,0.2); }
-        .inp:focus { border-color:rgba(255,255,255,0.25); background:rgba(255,255,255,0.07); }
-        .lbl { font-size:10px; font-weight:600; color:rgba(255,255,255,0.4); display:flex; align-items:center; gap:5px; margin-bottom:5px; letter-spacing:.03em; }
+        /* form field */
         .field { margin-bottom:10px; }
+        .lbl   { font-size:11px; font-weight:500; color:${sub}; display:flex; align-items:center; gap:5px; margin-bottom:4px; }
+        .inp   { width:100%; padding:9px 11px; background:#fff; border:1px solid ${bd}; border-radius:8px; font-size:13px; color:${text}; font-family:inherit; outline:none; transition:border-color .2s, box-shadow .2s; }
+        .inp::placeholder { color:rgba(140,140,140,0.7); }
+        .inp:focus { border-color:${green}; box-shadow:0 0 0 3px rgba(0,128,96,0.1); }
+        .inp-note { font-size:10px; color:rgba(120,120,120,0.8); margin-top:3px; }
 
         /* phone row */
-        .phone-row { display:flex; gap:6px; }
-        .cc-select { padding:10px 8px; background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.09); border-radius:8px; font-size:12px; color:#fff; font-family:'Sora',sans-serif; outline:none; cursor:pointer; flex-shrink:0; width:88px; appearance:none; -webkit-appearance:none; }
-        .cc-select option { background:#1a1a2e; color:#fff; }
+        .phone-row  { display:flex; gap:6px; }
+        .cc-sel     { padding:9px 8px; background:#fff; border:1px solid ${bd}; border-radius:8px; font-size:12px; color:${text}; font-family:inherit; outline:none; cursor:pointer; flex-shrink:0; width:90px; appearance:none; -webkit-appearance:none; transition:border-color .2s; }
+        .cc-sel:focus { border-color:${green}; box-shadow:0 0 0 3px rgba(0,128,96,0.1); }
+        .cc-sel option { background:#fff; color:${text}; }
 
-        /* password wrapper */
-        .pass-wrap { position:relative; }
-        .pass-wrap .inp { padding-right:38px; }
-        .pass-eye { position:absolute; right:10px; top:50%; transform:translateY(-50%); background:none; border:none; cursor:pointer; color:rgba(255,255,255,0.3); display:flex; padding:4px; }
-        .pass-eye:hover { color:rgba(255,255,255,0.6); }
+        /* password */
+        .pw-wrap       { position:relative; }
+        .pw-wrap .inp  { padding-right:38px; }
+        .pw-eye        { position:absolute; right:10px; top:50%; transform:translateY(-50%); background:none; border:none; cursor:pointer; color:rgba(120,120,120,0.6); display:flex; padding:4px; transition:color .15s; }
+        .pw-eye:hover  { color:${sub}; }
 
-        /* terms */
-        .terms-row { display:flex; align-items:flex-start; gap:9px; margin:14px 0; }
-        .terms-check { width:16px; height:16px; border-radius:4px; border:1.5px solid rgba(255,255,255,0.2); background:rgba(255,255,255,0.04); cursor:pointer; flex-shrink:0; margin-top:1px; display:flex; align-items:center; justify-content:center; transition:border-color .15s,background .15s; }
-        .terms-check.checked { background:rgba(255,255,255,0.9); border-color:rgba(255,255,255,0.9); }
+        /* checkbox */
+        .check-row  { display:flex; align-items:flex-start; gap:9px; margin:14px 0; }
+        .check-box  { width:16px; height:16px; border-radius:4px; border:1.5px solid ${bd}; background:#fff; cursor:pointer; flex-shrink:0; margin-top:1px; display:flex; align-items:center; justify-content:center; transition:border-color .15s, background .15s; }
+        .check-box.on { background:${text}; border-color:${text}; }
+        .check-label { font-size:11px; color:${sub}; line-height:1.55; }
+        .check-label a { color:${green}; text-decoration:none; font-weight:500; }
+        .check-label a:hover { text-decoration:underline; }
 
-        .sub-btn { width:100%; padding:12px; background:#fff; color:#050509; border:none; border-radius:9px; font-size:14px; font-weight:700; cursor:pointer; font-family:'Sora',sans-serif; transition:opacity .15s,transform .15s; display:flex; align-items:center; justify-content:center; gap:8px; }
-        .sub-btn:hover:not(:disabled) { opacity:.92; transform:translateY(-1px); }
-        .sub-btn:disabled { opacity:.35; cursor:not-allowed; }
-        .g-btn { width:100%; padding:11px; background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.11); border-radius:9px; color:#fff; font-size:13px; font-weight:600; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:10px; font-family:'Sora',sans-serif; transition:background .15s; }
-        .g-btn:hover { background:rgba(255,255,255,0.09); }
+        /* button */
+        .cta-btn { width:100%; padding:11px; background:${text}; color:#fff; border:none; border-radius:9px; font-size:14px; font-weight:700; cursor:pointer; font-family:inherit; display:flex; align-items:center; justify-content:center; gap:7px; transition:opacity .15s, transform .15s; }
+        .cta-btn:hover:not(:disabled) { opacity:.88; transform:translateY(-1px); }
+        .cta-btn:disabled { opacity:.35; cursor:not-allowed; transform:none; }
 
-        /* Desktop */
-        @media (min-width:900px) {
-          .page       { flex-direction:row; }
-          .left       { flex:1; padding:48px; justify-content:space-between; }
-          .left-logo  { font-size:22px; }
-          .step-title { font-size:26px; margin-bottom:6px; }
-          .step-sub   { font-size:13px; margin-bottom:20px; }
-          .demo-card  { padding:20px; margin-bottom:24px; }
-          .right      { width:460px; flex-shrink:0; padding:48px 52px; border-top:none; border-left:1px solid rgba(255,255,255,0.06); align-items:center; }
-          .form-logo  { display:block; }
-        }
+        .g-btn { width:100%; padding:10px; background:#fff; border:1px solid ${bd}; border-radius:9px; color:${text}; font-size:13px; font-weight:600; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:10px; font-family:inherit; transition:border-color .15s, box-shadow .15s; }
+        .g-btn:hover { border-color:rgba(150,150,150,0.6); box-shadow:0 1px 4px rgba(0,0,0,0.07); }
 
-        @media (max-width:899px) {
-          .left { min-height:auto; }
+        .divider { display:flex; align-items:center; gap:10px; margin:14px 0; }
+        .divider-line { flex:1; height:1px; background:rgba(0,0,0,0.08); }
+        .divider-text { font-size:11px; color:rgba(130,130,130,0.7); }
+
+        .err-box { padding:9px 12px; background:rgba(220,38,38,0.06); border:1px solid rgba(220,38,38,0.2); border-radius:8px; margin-bottom:12px; font-size:12px; color:#c0392b; }
+
+        /* Mobile */
+        @media (max-width:900px) {
+          .shell { flex-direction:column; }
+          .left  { padding:28px 24px 24px; min-height:auto; }
+          .step-title { font-size:18px; }
+          .right { width:100%; padding:28px 20px 48px; }
+          .form-logo { display:block; }
         }
       `}</style>
 
-      <div className="page">
+      <div className="shell">
 
-        {/* ── LEFT PANEL ── */}
+        {/* ── LEFT PANEL ─────────────────────────────────────────────────── */}
         <div className="left">
-          {/* bg effects */}
-          <div style={{ position:'absolute', inset:0, zIndex:0, backgroundImage:`linear-gradient(rgba(255,255,255,0.025) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,0.025) 1px,transparent 1px)`, backgroundSize:'48px 48px', animation:'gridMove 8s linear infinite' }}/>
-          <div style={{ position:'absolute', top:'8%', left:'15%', width:280, height:280, borderRadius:'50%', background:'radial-gradient(circle,rgba(255,255,255,0.035) 0%,transparent 70%)', zIndex:0, pointerEvents:'none' }}/>
-          <div style={{ position:'absolute', bottom:'18%', right:'8%', width:180, height:180, borderRadius:'50%', background:'radial-gradient(circle,rgba(0,200,83,0.07) 0%,transparent 70%)', zIndex:0, pointerEvents:'none' }}/>
+          <div className="left-grid" />
+          <div className="left-glow-a" />
+          <div className="left-glow-b" />
 
           <div className="left-logo">Onshipy</div>
 
-          {/* Demo section */}
-          <div style={{ position:'relative', zIndex:1, flex:1, display:'flex', flexDirection:'column', justifyContent:'center' }}>
-            <div style={{ opacity:stepVisible?1:0, transform:stepVisible?'translateY(0)':'translateY(-8px)', transition:'all 0.4s ease' }}>
+          {/* Demo animation */}
+          <div className="demo-area">
+            <div style={{ opacity:vis?1:0, transform:vis?'translateY(0)':'translateY(-6px)', transition:'all 0.38s ease' }}>
               <div className="step-badge">
-                <span style={{ width:5, height:5, borderRadius:'50%', background:'#fff', animation:'pulse 2s infinite', flexShrink:0 }}/>
-                Step {demoStep + 1} of {DEMO_STEPS.length}
+                <span style={{ width:5, height:5, borderRadius:'50%', background:'#00b86c', animation:'pulse 2s infinite', flexShrink:0 }}/>
+                Step {step + 1} of {STEPS.length}
               </div>
-              <div className="step-title">{DEMO_STEPS[demoStep].label}</div>
-              <div className="step-sub">{DEMO_STEPS[demoStep].sublabel}</div>
+              <div className="step-title">{STEPS[step].label}</div>
+              <div className="step-sub">{STEPS[step].sub}</div>
             </div>
 
-            <div className="demo-card" style={{ opacity:stepVisible?1:0, transform:stepVisible?'translateY(0) scale(1)':'translateY(8px) scale(0.98)', transition:'all 0.4s ease' }}>
-              <DemoVisual step={demoStep} />
+            <div className="demo-card" style={{ opacity:vis?1:0, transform:vis?'translateY(0) scale(1)':'translateY(6px) scale(0.98)', transition:'all 0.38s ease' }}>
+              <DemoVisual step={step} />
             </div>
 
             <div className="step-dots">
-              {DEMO_STEPS.map((_,i) => (
-                <div key={i} className={`step-dot${demoStep===i?' active':''}`} onClick={() => setDemoStep(i)} />
-              ))}
+              {STEPS.map((_,i) => <div key={i} className={`dot${step===i?' on':''}`} onClick={() => setStep(i)} />)}
             </div>
           </div>
 
-          {/* Realistic live activity feed */}
-          <div style={{ position:'relative', zIndex:1 }}>
-            <div className="live-label">
-              <span className="pulse-dot"/> Live activity
+          {/* Realistic activity feed */}
+          <div className="feed-area">
+            <div className="feed-label">
+              <span className="pdot"/> Live activity
             </div>
-            <div className="notif-list">
-              {notifs.map(n => (
-                <div key={n.id} className="notif-row">
-                  {/* Avatar circle with initials */}
-                  <div style={{ width:30, height:30, borderRadius:'50%', background: n.action==='sale' ? 'rgba(0,200,83,0.12)' : 'rgba(255,255,255,0.07)', border: n.action==='sale' ? '1px solid rgba(0,200,83,0.25)' : '1px solid rgba(255,255,255,0.1)', display:'flex', alignItems:'center', justifyContent:'center', flexShrink:0, fontSize:10, fontWeight:700, color: n.action==='sale' ? '#69f0ae' : 'rgba(255,255,255,0.7)' }}>
-                    {n.user.split(' ').map(w=>w[0]).join('')}
-                  </div>
-                  {/* Content */}
-                  <div style={{ flex:1, minWidth:0 }}>
-                    <div style={{ display:'flex', alignItems:'center', gap:5, marginBottom:2 }}>
-                      <span style={{ fontSize:11, fontWeight:600, color:'#fff' }}>{n.user}</span>
-                      <span style={{ fontSize:11 }}>{COUNTRY_FLAGS[n.country] || ''}</span>
-                      <span style={{ marginLeft:'auto', fontSize:10, color:'rgba(255,255,255,0.25)', flexShrink:0 }}>{n.time}</span>
+            <div className="feed-list">
+              {feed.map(n => {
+                const isSale      = n.action === 'sale';
+                const isShopify   = n.action === 'shopify';
+                const isMilestone = n.action === 'milestone';
+                return (
+                  <div key={n.id} className="feed-row">
+                    <img
+                      className="feed-avatar"
+                      src={`https://i.pravatar.cc/40?img=${n.img}`}
+                      alt={n.name}
+                      onError={e => {
+                        e.target.style.display = 'none';
+                        const d = document.createElement('div');
+                        d.style.cssText = 'width:30px;height:30px;border-radius:50%;background:rgba(255,255,255,0.1);display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;color:rgba(255,255,255,0.7);flex-shrink:0';
+                        d.textContent = n.name.split(' ').map(w=>w[0]).join('');
+                        e.target.parentNode.insertBefore(d, e.target);
+                      }}
+                    />
+                    <div style={{ flex:1, minWidth:0 }}>
+                      <div style={{ display:'flex', alignItems:'center', gap:5, marginBottom:2 }}>
+                        <span style={{ fontSize:11, fontWeight:600, color:'#fff', flexShrink:0 }}>{n.name}</span>
+                        <span style={{ fontSize:11 }}>{FLAGS[n.country] || ''}</span>
+                        <span style={{ marginLeft:'auto', fontSize:9, color:'rgba(255,255,255,0.22)', flexShrink:0 }}>{n.time}</span>
+                      </div>
+                      <div style={{ fontSize:10, color:'rgba(255,255,255,0.38)', overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap' }}>
+                        {isSale      && <><span style={{ color:'#69f0ae', fontWeight:600 }}>{n.profit}</span> profit · sold {n.item}</>}
+                        {n.action === 'import' && <>Imported {n.item} · <span style={{ color:'rgba(255,255,255,0.55)' }}>{n.price}</span></>}
+                        {isShopify   && <span style={{ color:'#95BF47' }}>Connected Shopify store</span>}
+                        {isMilestone && <><span style={{ color:'#ffd54f', fontWeight:600 }}>{n.profit}</span> total earnings milestone</>}
+                      </div>
                     </div>
-                    <div style={{ fontSize:10, color:'rgba(255,255,255,0.4)', overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap' }}>
-                      {n.action === 'sale'
-                        ? <><span style={{ color:'#69f0ae', fontWeight:600 }}>{n.profit}</span> · sold {n.item}</>
-                        : <>Imported {n.item} · <span style={{ color:'rgba(255,255,255,0.55)' }}>{n.price}</span></>
-                      }
-                    </div>
                   </div>
-                </div>
-              ))}
+                );
+              })}
             </div>
           </div>
         </div>
 
-        {/* ── RIGHT PANEL — form ── */}
+        {/* ── RIGHT PANEL ────────────────────────────────────────────────── */}
         <div className="right">
-          <div className="form-box">
+          <div className="form-shell">
 
             <div className="form-logo">Onshipy</div>
 
-            {/* LOGIN / SIGN UP tabs */}
-            <div className="tab-bar">
-              <button className={`tab-btn${tab==='login'?' active':''}`} onClick={() => router.push('/login')}>Login</button>
-              <button className={`tab-btn${tab==='signup'?' active':''}`} onClick={() => setTab('signup')}>Sign Up</button>
+            {/* Tab bar */}
+            <div className="tabs">
+              <button className="tab-btn" onClick={() => router.push('/login')}>Login</button>
+              <button className="tab-btn on">Sign Up</button>
             </div>
 
-            {/* Google SSO */}
-            <button className="g-btn" onClick={() => window.location.href = `${API_BASE}/api/auth/google`} style={{ marginBottom:18 }}>
-              <svg width="17" height="17" viewBox="0 0 24 24">
+            {/* Google */}
+            <button className="g-btn" onClick={() => window.location.href = `${API_BASE}/api/auth/google`} style={{ marginBottom:14 }}>
+              <svg width="16" height="16" viewBox="0 0 24 24">
                 <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
                 <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
                 <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/>
@@ -427,128 +485,95 @@ export default function Register() {
               Continue with Google
             </button>
 
-            <div style={{ display:'flex', alignItems:'center', gap:10, margin:'14px 0 18px' }}>
-              <div style={{ flex:1, height:1, background:'rgba(255,255,255,0.07)' }}/>
-              <span style={{ fontSize:11, color:'rgba(255,255,255,0.22)' }}>or with email</span>
-              <div style={{ flex:1, height:1, background:'rgba(255,255,255,0.07)' }}/>
+            <div className="divider">
+              <div className="divider-line"/>
+              <span className="divider-text">or with email</span>
+              <div className="divider-line"/>
             </div>
 
             <form onSubmit={handleSubmit}>
 
-              {/* ── ACCOUNT section ── */}
-              <div className="sec-label">Account</div>
+              {/* ACCOUNT */}
+              <div className="sec">Account</div>
 
               <div className="field">
-                <label className="lbl">
-                  <svg width="11" height="11" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.58-7 8-7s8 3 8 7"/></svg>
-                  Full name
-                </label>
+                <label className="lbl">Full name</label>
                 <input className="inp" required placeholder="Your full name" value={form.full_name}
                   onChange={e => setForm({...form, full_name:e.target.value})} />
               </div>
 
               <div className="field">
-                <label className="lbl">
-                  <svg width="11" height="11" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m2 7 10 7 10-7"/></svg>
-                  Email address
-                </label>
+                <label className="lbl">Email address</label>
                 <input className="inp" type="email" required placeholder="you@example.com" value={form.email}
                   onChange={e => setForm({...form, email:e.target.value})} />
-                <div style={{ fontSize:10, color:'rgba(255,255,255,0.22)', marginTop:4 }}>OTP verification will be sent to this address</div>
+                <div className="inp-note">OTP verification will be sent to this address</div>
               </div>
 
-              {/* ── PHONE section ── */}
-              <div className="sec-label" style={{ marginTop:16 }}>Phone</div>
+              {/* PHONE */}
+              <div className="sec">Phone</div>
 
               <div className="field">
-                <label className="lbl">
-                  <svg width="11" height="11" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path d="M6.6 10.8a15.05 15.05 0 006.6 6.6l2.2-2.2c.27-.27.67-.36 1.02-.24 1.12.37 2.33.57 3.58.57.55 0 1 .45 1 1V20c0 .55-.45 1-1 1-9.39 0-17-7.61-17-17 0-.55.45-1 1-1h3.5c.55 0 1 .45 1 1 0 1.25.2 2.45.57 3.57.11.36.03.74-.26 1.03l-2.21 2.2z"/></svg>
-                  Phone number
-                </label>
+                <label className="lbl">Phone number</label>
                 <div className="phone-row">
-                  <select className="cc-select" value={countryCode.code}
-                    onChange={e => setCountryCode(COUNTRY_CODES.find(c=>c.code===e.target.value) || COUNTRY_CODES[0])}>
-                    {COUNTRY_CODES.map(c => <option key={c.code} value={c.code}>{c.label}</option>)}
+                  <select className="cc-sel" value={dial.code}
+                    onChange={e => setDial(DIAL_CODES.find(c => c.code === e.target.value) || DIAL_CODES[0])}>
+                    {DIAL_CODES.map(c => <option key={c.code} value={c.code}>{c.label}</option>)}
                   </select>
-                  <input className="inp" type="tel" placeholder="8012345678" value={form.phone}
-                    onChange={e => setForm({...form, phone:e.target.value.replace(/\D/g,'')})} style={{ flex:1 }} />
+                  <input className="inp" type="tel" placeholder="8012345678" value={form.phone} style={{ flex:1 }}
+                    onChange={e => setForm({...form, phone:e.target.value.replace(/\D/g,'')})} />
                 </div>
-                <div style={{ fontSize:10, color:'rgba(255,255,255,0.22)', marginTop:4 }}>
-                  {countryCode.dial === '+1' ? 'United States / Canada (+1)' : `${countryCode.code} (${countryCode.dial})`} — required for payments
-                </div>
+                <div className="inp-note">Required for payment verification</div>
               </div>
 
-              {/* ── SECURITY section ── */}
-              <div className="sec-label" style={{ marginTop:16 }}>Security</div>
+              {/* SECURITY */}
+              <div className="sec">Security</div>
 
               <div className="field">
-                <label className="lbl">
-                  <svg width="11" height="11" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>
-                  Password
-                </label>
-                <div className="pass-wrap">
-                  <input className="inp" type={showPass?'text':'password'} required minLength={8} placeholder="Min. 8 characters" value={form.password}
+                <label className="lbl">Password</label>
+                <div className="pw-wrap">
+                  <input className="inp" type={showPw?'text':'password'} required minLength={8} placeholder="Min. 8 characters" value={form.password}
                     onChange={e => setForm({...form, password:e.target.value})} />
-                  <button type="button" className="pass-eye" onClick={() => setShowPass(v=>!v)}>
-                    {showPass
-                      ? <svg width="15" height="15" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path d="M17.94 17.94A10.07 10.07 0 0112 20c-7 0-11-8-11-8a18.45 18.45 0 015.06-5.94"/><path d="M9.9 4.24A9.12 9.12 0 0112 4c7 0 11 8 11 8a18.5 18.5 0 01-2.16 3.19"/><line x1="1" y1="1" x2="23" y2="23"/></svg>
-                      : <svg width="15" height="15" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
-                    }
-                  </button>
+                  <button type="button" className="pw-eye" onClick={() => setShowPw(v=>!v)}><EyeIcon open={showPw}/></button>
                 </div>
               </div>
 
               <div className="field">
-                <label className="lbl">
-                  <svg width="11" height="11" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>
-                  Confirm password
-                </label>
-                <div className="pass-wrap">
-                  <input className="inp" type={showConfirm?'text':'password'} required placeholder="Repeat password" value={form.confirmPassword}
-                    onChange={e => setForm({...form, confirmPassword:e.target.value})} />
-                  <button type="button" className="pass-eye" onClick={() => setShowConfirm(v=>!v)}>
-                    {showConfirm
-                      ? <svg width="15" height="15" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path d="M17.94 17.94A10.07 10.07 0 0112 20c-7 0-11-8-11-8a18.45 18.45 0 015.06-5.94"/><path d="M9.9 4.24A9.12 9.12 0 0112 4c7 0 11 8 11 8a18.5 18.5 0 01-2.16 3.19"/><line x1="1" y1="1" x2="23" y2="23"/></svg>
-                      : <svg width="15" height="15" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
-                    }
-                  </button>
+                <label className="lbl">Confirm password</label>
+                <div className="pw-wrap">
+                  <input className="inp" type={showCf?'text':'password'} required placeholder="Repeat password" value={form.confirm}
+                    onChange={e => setForm({...form, confirm:e.target.value})} />
+                  <button type="button" className="pw-eye" onClick={() => setShowCf(v=>!v)}><EyeIcon open={showCf}/></button>
                 </div>
               </div>
 
-              {/* Terms checkbox */}
-              <div className="terms-row">
-                <div className={`terms-check${agreedToTerms?' checked':''}`} onClick={() => setAgreedToTerms(v=>!v)}>
-                  {agreedToTerms && <svg width="9" height="9" viewBox="0 0 12 12" fill="none"><polyline points="2 6 5 9 10 3" stroke="#050509" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"/></svg>}
+              {/* Terms */}
+              <div className="check-row">
+                <div className={`check-box${agreed?' on':''}`} onClick={() => setAgreed(v=>!v)}>
+                  {agreed && <svg width="9" height="9" viewBox="0 0 12 12" fill="none"><polyline points="2 6 5 9 10 3" stroke="#fff" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"/></svg>}
                 </div>
-                <span style={{ fontSize:11, color:'rgba(255,255,255,0.35)', lineHeight:1.5 }}>
-                  I agree to the{' '}
-                  <a href="#" style={{ color:'rgba(255,255,255,0.65)', textDecoration:'underline' }}>Terms of Service</a>
-                  {' '}and{' '}
-                  <a href="#" style={{ color:'rgba(255,255,255,0.65)', textDecoration:'underline' }}>Privacy Policy</a>
+                <span className="check-label">
+                  I agree to the <a href="#">Terms of Service</a> and <a href="#">Privacy Policy</a>
                 </span>
               </div>
 
-              {error && (
-                <div style={{ padding:'9px 13px', background:'rgba(220,38,38,0.08)', border:'1px solid rgba(220,38,38,0.25)', borderRadius:8, marginBottom:12, fontSize:12, color:'#f87171' }}>
-                  {error}
-                </div>
-              )}
+              {error && <div className="err-box">{error}</div>}
 
-              <button className="sub-btn" type="submit" disabled={loading}>
+              <button className="cta-btn" type="submit" disabled={loading}>
                 {loading
-                  ? <><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" style={{ animation:'gridMove 0.8s linear infinite' }}><path d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" opacity=".2"/><path d="M21 12a9 9 0 00-9-9"/></svg> Creating account…</>
-                  : <>→ Create account</>
+                  ? <><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" style={{ animation:'spin 0.8s linear infinite' }}><path d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" opacity=".2"/><path d="M21 12a9 9 0 00-9-9"/></svg> Creating account…</>
+                  : 'Create account'
                 }
               </button>
+
             </form>
 
-            <p style={{ textAlign:'center', marginTop:14, fontSize:12, color:'rgba(255,255,255,0.28)' }}>
+            <p style={{ textAlign:'center', marginTop:14, fontSize:11, color:'rgba(100,100,100,0.7)' }}>
               Free plan · No credit card required
             </p>
 
-            <p style={{ textAlign:'center', marginTop:10, fontSize:12, color:'rgba(255,255,255,0.28)' }}>
+            <p style={{ textAlign:'center', marginTop:10, fontSize:12, color:sub }}>
               Already have an account?{' '}
-              <Link href="/login" style={{ color:'rgba(255,255,255,0.7)', fontWeight:600, textDecoration:'none' }}>Sign in</Link>
+              <Link href="/login" style={{ color:green, fontWeight:600, textDecoration:'none' }}>Sign in</Link>
             </p>
 
           </div>
