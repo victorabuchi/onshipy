@@ -3,6 +3,7 @@ import { useRouter } from 'next/router';
 import Link from 'next/link';
 import Head from 'next/head';
 import AuthNav from '../components/AuthNav';
+import AuthFooter from '../components/AuthFooter';
 
 const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000';
 
@@ -287,6 +288,7 @@ export default function Login() {
 
         </div>
       </div>
+      <AuthFooter />
     </>
   );
 }
