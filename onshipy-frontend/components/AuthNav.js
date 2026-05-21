@@ -2,7 +2,7 @@ import Link from 'next/link';
 
 const NAV_LINKS = ['Why Onshipy', 'Products', 'Pricing', 'Enterprise'];
 
-export default function AuthNav({ startHref = '/register' }) {
+export default function AuthNav({ startHref = '/register', loginHref = '/login' }) {
   return (
     <nav style={{
       background: '#1a1a1a',
@@ -41,7 +41,7 @@ export default function AuthNav({ startHref = '/register' }) {
       {/* Action buttons */}
       <div style={{ display:'flex', alignItems:'center', gap:8, flexShrink:0 }}>
         <Link
-          href="/sign-in"
+          href={loginHref}
           style={{ padding:'7px 16px', fontSize:13, fontWeight:600, color:'rgba(255,255,255,0.75)', textDecoration:'none', borderRadius:8, transition:'color 0.15s', whiteSpace:'nowrap' }}
           onMouseEnter={e => e.currentTarget.style.color = '#fff'}
           onMouseLeave={e => e.currentTarget.style.color = 'rgba(255,255,255,0.75)'}
