@@ -2,7 +2,7 @@ import Link from 'next/link';
 
 const NAV_LINKS = ['Why Onshipy', 'Products', 'Pricing', 'Enterprise'];
 
-export default function AuthNav() {
+export default function AuthNav({ startHref = '/register' }) {
   return (
     <nav style={{
       background: '#1a1a1a',
@@ -53,7 +53,7 @@ export default function AuthNav() {
           Log in
         </Link>
         <Link
-          href="/sign-up"
+          href={startHref}
           style={{ padding:'8px 20px', fontSize:13, fontWeight:700, color:'#1a1a1a', background:'#fff', textDecoration:'none', borderRadius:24, whiteSpace:'nowrap', transition:'opacity 0.15s' }}
           onMouseEnter={e => e.currentTarget.style.opacity = '0.88'}
           onMouseLeave={e => e.currentTarget.style.opacity = '1'}
