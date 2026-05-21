@@ -56,6 +56,7 @@ const DIAL_CODES = [
 function DemoVisual({ step }) {
   const [typed, setTyped]     = useState('');
   const [showOk, setShowOk]   = useState(false);
+  const [shoeOk, setShoeOk]   = useState(true);
   const url = 'https://nike.com/t/air-force-1-07';
 
   useEffect(() => {
@@ -94,8 +95,10 @@ function DemoVisual({ step }) {
   if (step === 1) return (
     <div style={{ display:'flex', gap:12, alignItems:'flex-start' }}>
       <div style={{ width:60, height:60, borderRadius:10, flexShrink:0, background:'rgba(255,255,255,0.04)', border:`1px solid ${dimBd}`, display:'flex', alignItems:'center', justifyContent:'center', overflow:'hidden' }}>
-        <img src="/nike-shoe.svg" alt="Nike Air Force 1" style={{ width:50, height:50, objectFit:'contain' }}
-          onError={e => { e.target.style.display='none'; e.target.parentNode.innerHTML='<span style="font-size:26px">👟</span>'; }} />
+        {shoeOk
+          ? <img src="/nike-shoe.svg" alt="Nike Air Force 1" style={{ width:50, height:50, objectFit:'contain' }} onError={() => setShoeOk(false)} />
+          : <span style={{ fontSize:26 }}>👟</span>
+        }
       </div>
       <div style={{ flex:1 }}>
         <div style={{ fontWeight:700, fontSize:13, color:'#fff', marginBottom:2 }}>Nike Air Force 1 &apos;07 Men&apos;s Shoes</div>
@@ -430,18 +433,15 @@ export default function Register() {
                 const isMilestone = n.action === 'milestone';
                 return (
                   <div key={n.id} className="feed-row">
-                    <img
-                      className="feed-avatar"
-                      src={`https://i.pravatar.cc/40?img=${n.img}`}
-                      alt={n.name}
-                      onError={e => {
-                        e.target.style.display = 'none';
-                        const d = document.createElement('div');
-                        d.style.cssText = 'width:30px;height:30px;border-radius:50%;background:rgba(255,255,255,0.1);display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;color:rgba(255,255,255,0.7);flex-shrink:0';
-                        d.textContent = n.name.split(' ').map(w=>w[0]).join('');
-                        e.target.parentNode.insertBefore(d, e.target);
-                      }}
-                    />
+                    <div style={{ position:'relative', width:30, height:30, borderRadius:'50%', flexShrink:0, background:'rgba(255,255,255,0.1)', border:'1.5px solid rgba(255,255,255,0.1)', display:'flex', alignItems:'center', justifyContent:'center' }}>
+                      <span style={{ fontSize:10, fontWeight:700, color:'rgba(255,255,255,0.7)', lineHeight:1, userSelect:'none', zIndex:0 }}>{n.name.split(' ').map(w=>w[0]).join('')}</span>
+                      <img
+                        style={{ position:'absolute', inset:0, width:'100%', height:'100%', borderRadius:'50%', objectFit:'cover', zIndex:1 }}
+                        src={`https://i.pravatar.cc/40?img=${n.img}`}
+                        alt={n.name}
+                        onError={e => { e.currentTarget.style.opacity = '0'; }}
+                      />
+                    </div>
                     <div style={{ flex:1, minWidth:0 }}>
                       <div style={{ display:'flex', alignItems:'center', gap:5, marginBottom:2 }}>
                         <span style={{ fontSize:11, fontWeight:600, color:'#fff', flexShrink:0 }}>{n.name}</span>

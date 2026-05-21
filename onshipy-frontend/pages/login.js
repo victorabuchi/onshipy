@@ -1,120 +1,74 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/router';
 import Link from 'next/link';
 import Head from 'next/head';
 
 const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000';
 
-const SELLER_POOL = [
-  { name: 'Cole M.',       flag: '🇺🇸', city: 'New York'     },
-  { name: 'Jessie K.',     flag: '🇬🇧', city: 'London'       },
-  { name: 'Amara T.',      flag: '🇳🇬', city: 'Lagos'        },
-  { name: 'Riku S.',       flag: '🇫🇮', city: 'Helsinki'     },
-  { name: 'Sofia R.',      flag: '🇪🇸', city: 'Madrid'       },
-  { name: 'Liam O.',       flag: '🇨🇦', city: 'Toronto'      },
-  { name: 'Yuki N.',       flag: '🇯🇵', city: 'Tokyo'        },
-  { name: 'Diego M.',      flag: '🇧🇷', city: 'São Paulo'    },
-  { name: 'Priya L.',      flag: '🇮🇳', city: 'Mumbai'       },
-  { name: 'Noah B.',       flag: '🇿🇦', city: 'Cape Town'    },
-  { name: 'Lea V.',        flag: '🇩🇪', city: 'Berlin'       },
-  { name: 'Marcus J.',     flag: '🇺🇸', city: 'Atlanta'      },
-  { name: 'Chloe F.',      flag: '🇫🇷', city: 'Paris'        },
-  { name: 'Tariq A.',      flag: '🇦🇪', city: 'Dubai'        },
-  { name: 'Mei W.',        flag: '🇨🇳', city: 'Shanghai'     },
-  { name: 'Ivan P.',       flag: '🇵🇱', city: 'Warsaw'       },
-  { name: 'Fatima H.',     flag: '🇲🇦', city: 'Casablanca'   },
-  { name: 'Oscar L.',      flag: '🇸🇪', city: 'Stockholm'    },
-  { name: 'Nia G.',        flag: '🇬🇭', city: 'Accra'        },
-  { name: 'Ben C.',        flag: '🇦🇺', city: 'Sydney'       },
+// ── Shared with register page ─────────────────────────────────────────────────
+const ACTIVITIES = [
+  { name: 'Marcus J.',  country: 'US', action: 'sale',      item: "Nike Air Force 1 '07",       profit: '+€80',  price: null,    time: '4s ago',  img: 15 },
+  { name: 'Amara T.',   country: 'NG', action: 'import',    item: 'Gucci GG Marmont Belt',       profit: null,    price: '€380',  time: '21s ago', img: 44 },
+  { name: 'Yuki N.',    country: 'JP', action: 'sale',      item: 'Jordan 1 Retro High OG',      profit: '+€95',  price: null,    time: '38s ago', img: 22 },
+  { name: 'Sofia R.',   country: 'ES', action: 'shopify',   item: null,                          profit: null,    price: null,    time: '54s ago', img: 33 },
+  { name: 'Liam O.',    country: 'CA', action: 'sale',      item: 'Apple AirPods Pro 2',         profit: '+€55',  price: null,    time: '1m ago',  img: 11 },
+  { name: 'Diego M.',   country: 'BR', action: 'import',    item: 'Balenciaga Triple S',         profit: null,    price: '€720',  time: '1m ago',  img: 55 },
+  { name: 'Priya L.',   country: 'IN', action: 'sale',      item: 'Off-White Zip Hoodie',        profit: '+€148', price: null,    time: '2m ago',  img: 29 },
+  { name: 'Cole M.',    country: 'US', action: 'import',    item: 'New Balance 550 White',       profit: null,    price: '€89',   time: '2m ago',  img: 8  },
+  { name: 'Riku S.',    country: 'FI', action: 'sale',      item: 'Zara Linen Blazer',           profit: '+€51',  price: null,    time: '3m ago',  img: 61 },
+  { name: 'Lea V.',     country: 'DE', action: 'milestone', item: null,                          profit: '+€500', price: null,    time: '3m ago',  img: 37 },
+  { name: 'Noah B.',    country: 'ZA', action: 'import',    item: 'Puma Suede Classic Plus',     profit: null,    price: '€74',   time: '4m ago',  img: 48 },
+  { name: 'Jessie K.',  country: 'GB', action: 'sale',      item: 'Supreme Box Logo Hoodie',     profit: '+€211', price: null,    time: '4m ago',  img: 17 },
+  { name: 'Kwame A.',   country: 'GH', action: 'shopify',   item: null,                          profit: null,    price: null,    time: '5m ago',  img: 59 },
+  { name: 'Isabela C.', country: 'BR', action: 'import',    item: 'Dior Saddle Bag Mini',        profit: null,    price: '€1,250',time: '5m ago',  img: 26 },
+  { name: 'Tariq M.',   country: 'AE', action: 'sale',      item: 'Rolex Submariner Replica',    profit: '+€340', price: null,    time: '6m ago',  img: 68 },
 ];
 
-const PRODUCTS = [
-  'Nike Air Max 270', 'Adidas Ultraboost 22', 'Zara Linen Blazer',
-  'Apple AirPods Pro', 'ASOS Floral Dress', 'Gucci GG Belt',
-  'Jordan 1 Retro High', 'New Balance 550', 'H&M Denim Jacket',
-  "Levi's 501 Jeans", 'Puma Suede Classic', 'Converse Chuck Taylor',
-  'Balenciaga Triple S', 'Off-White Belt', 'Stone Island Jacket',
+const FLAGS = { US:'🇺🇸', GB:'🇬🇧', NG:'🇳🇬', JP:'🇯🇵', ES:'🇪🇸', CA:'🇨🇦', BR:'🇧🇷', IN:'🇮🇳', ZA:'🇿🇦', DE:'🇩🇪', FI:'🇫🇮', GH:'🇬🇭', AE:'🇦🇪' };
+
+const STATS = [
+  { label: 'Products imported', value: '412' },
+  { label: 'Profit generated',  value: '€9,241' },
+  { label: 'Active sellers',    value: '2,847' },
 ];
 
-const shuffle = arr => {
-  const a = [...arr];
-  for (let i = a.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1));
-    [a[i], a[j]] = [a[j], a[i]];
-  }
-  return a;
-};
+// ── Eye icon ──────────────────────────────────────────────────────────────────
+function EyeIcon({ open }) {
+  return open
+    ? <svg width="15" height="15" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path d="M17.94 17.94A10.07 10.07 0 0112 20c-7 0-11-8-11-8a18.45 18.45 0 015.06-5.94"/><path d="M9.9 4.24A9.12 9.12 0 0112 4c7 0 11 8 11 8a18.5 18.5 0 01-2.16 3.19"/><line x1="1" y1="1" x2="23" y2="23"/></svg>
+    : <svg width="15" height="15" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>;
+}
 
-const randProfit = () => {
-  const amounts = [34, 47, 58, 72, 89, 95, 112, 130, 145, 178, 203, 245, 280, 312, 350, 389];
-  return amounts[Math.floor(Math.random() * amounts.length)];
-};
-
-const getSellerCount = () => (2847 + Math.floor(Math.random() * 40) - 20).toLocaleString();
-
-const makeEvent = (product) => {
-  const r = Math.random();
-  if (r < 0.35) return { type: 'import', text: `imported ${product}`, color: '#f97316', icon: '🔗' };
-  if (r < 0.65) { const p = randProfit(); return { type: 'profit', text: `made +$${p} profit`, color: '#22c55e', icon: '💰', profit: p }; }
-  const p = randProfit(); return { type: 'sold', text: `sold ${product} · +$${p}`, color: '#3b82f6', icon: '🛍️', profit: p };
-};
-
+// ── Main component ────────────────────────────────────────────────────────────
 export default function Login() {
   const router = useRouter();
   const [form, setForm]       = useState({ email: '', password: '' });
+  const [showPw, setShowPw]   = useState(false);
   const [error, setError]     = useState('');
   const [loading, setLoading] = useState(false);
-  const [notifs, setNotifs]   = useState([]);
-  const [stats, setStats]     = useState([
-    { label: 'Imported today', value: '412' },
-    { label: 'Profit today',   value: '$9,241' },
-    { label: 'Active sellers', value: '2,847' },
-  ]);
+  const [feed, setFeed]       = useState([]);
+  const [stats, setStats]     = useState(STATS);
 
-  const sellerQueue = useRef(shuffle(SELLER_POOL));
-  const productQueue = useRef(shuffle(PRODUCTS));
-  const sellerIdx = useRef(0);
-  const productIdx = useRef(0);
-  const lastSeller = useRef(null);
-
-  const nextSeller = () => {
-    if (sellerIdx.current >= sellerQueue.current.length) {
-      let r = shuffle(SELLER_POOL);
-      if (r[0].name === lastSeller.current?.name) r = [...r.slice(1), r[0]];
-      sellerQueue.current = r; sellerIdx.current = 0;
-    }
-    const s = sellerQueue.current[sellerIdx.current++];
-    lastSeller.current = s; return s;
-  };
-
-  const nextProduct = () => {
-    if (productIdx.current >= productQueue.current.length) {
-      productQueue.current = shuffle(PRODUCTS); productIdx.current = 0;
-    }
-    return productQueue.current[productIdx.current++];
-  };
-
+  // Live activity feed
   useEffect(() => {
     if (router.query.error === 'google_failed') setError('Google sign in failed. Try again.');
-    const initial = Array.from({ length: 3 }, () => {
-      const seller = nextSeller(); const product = nextProduct();
-      return { id: Math.random(), seller, event: makeEvent(product) };
-    });
-    setNotifs(initial);
 
-    const iv = setInterval(() => {
-      const seller = nextSeller(); const product = nextProduct();
-      const event = makeEvent(product);
-      setNotifs(prev => [{ id: Math.random(), seller, event }, ...prev].slice(0, 4));
-    }, 3200);
+    const q = [...ACTIVITIES].sort(() => Math.random() - 0.5);
+    let i = 0;
+    const push = () => {
+      setFeed(prev => [{ ...q[i % q.length], id: Date.now() }, ...prev].slice(0, 4));
+      i++;
+    };
+    push();
+    const iv = setInterval(push, 3200);
 
     const statsIv = setInterval(() => {
       setStats([
-        { label: 'Imported today', value: (Math.floor(Math.random() * 80) + 340).toLocaleString() },
-        { label: 'Profit today',   value: `$${(Math.floor(Math.random() * 3000) + 7500).toLocaleString()}` },
-        { label: 'Active sellers', value: getSellerCount() },
+        { label: 'Products imported', value: (Math.floor(Math.random() * 80) + 380).toLocaleString() },
+        { label: 'Profit generated',  value: `€${(Math.floor(Math.random() * 3000) + 8000).toLocaleString()}` },
+        { label: 'Active sellers',    value: (2847 + Math.floor(Math.random() * 40) - 20).toLocaleString() },
       ]);
-    }, 8000);
+    }, 7000);
 
     return () => { clearInterval(iv); clearInterval(statsIv); };
   }, []);
@@ -128,109 +82,156 @@ export default function Login() {
       });
       const data = await res.json();
       if (!res.ok) { setError(data.error || 'Login failed'); setLoading(false); return; }
-      localStorage.setItem('onshipy_token', data.token);
+      localStorage.setItem('onshipy_token',  data.token);
       localStorage.setItem('onshipy_seller', JSON.stringify(data.seller));
       router.push('/dashboard');
     } catch { setError('Cannot connect to server.'); setLoading(false); }
   };
 
+  // ── Design tokens ─────────────────────────────────────────────────────────
+  const ash   = '#f1f1f1';
+  const green = '#008060';
+  const text  = 'rgba(48,48,48,1)';
+  const sub   = 'rgba(97,97,97,1)';
+  const bd    = 'rgba(220,220,220,1)';
+
   return (
     <>
       <Head>
-        <title>Sign in - Onshipy</title>
+        <title>Sign in — Onshipy</title>
         <link rel="icon" href="/favicon.ico" />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
-        <meta name="description" content="Sign in to Onshipy — sell anything from anywhere." />
       </Head>
 
       <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=Sora:wght@400;500;600;700;800&display=swap');
-        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-        html, body { width: 100%; min-height: 100vh; background: #050509; font-family: 'Sora', sans-serif; -webkit-font-smoothing: antialiased; }
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+        *, *::before, *::after { box-sizing:border-box; margin:0; padding:0; }
+        html, body { width:100%; min-height:100vh; background:#1a1a1a; font-family:'Inter',-apple-system,BlinkMacSystemFont,sans-serif; -webkit-font-smoothing:antialiased; }
 
-        @keyframes gridMove { from{transform:translateY(0)} to{transform:translateY(48px)} }
-        @keyframes slideIn  { from{opacity:0;transform:translateX(-16px)} to{opacity:1;transform:translateX(0)} }
-        @keyframes pulse    { 0%,100%{opacity:1} 50%{opacity:0.3} }
-        @keyframes countUp  { from{opacity:0;transform:translateY(4px)} to{opacity:1;transform:translateY(0)} }
-        @keyframes fadeUp   { from{opacity:0;transform:translateY(8px)} to{opacity:1;transform:translateY(0)} }
+        @keyframes spin    { to { transform:rotate(360deg); } }
+        @keyframes fadeUp  { from{opacity:0;transform:translateY(8px)} to{opacity:1;transform:translateY(0)} }
+        @keyframes gridPan { from{background-position:0 0} to{background-position:0 48px} }
+        @keyframes pulse   { 0%,100%{opacity:1} 50%{opacity:0.4} }
+        @keyframes countUp { from{opacity:0;transform:translateY(4px)} to{opacity:1;transform:translateY(0)} }
 
-        .page { display:flex; flex-direction:column; min-height:100vh; }
+        .shell { display:flex; min-height:100vh; }
 
-        /* ── Left panel (brand / social-proof) ── */
+        /* ── Left (dark showcase) ── */
         .left {
-          display:flex; flex-direction:column; position:relative; overflow:hidden;
-          background:#050509; padding:24px 20px 20px; gap:0;
+          background:#1a1a1a; flex:1; display:flex; flex-direction:column;
+          padding:36px 40px 32px; position:relative; overflow:hidden;
         }
-        .left-logo   { font-size:18px; font-weight:800; color:#fff; margin-bottom:18px; }
-        .left-copy   { font-size:22px; font-weight:800; color:#fff; line-height:1.15; letter-spacing:-0.8px; margin-bottom:6px; }
-        .left-sub    { font-size:13px; color:rgba(255,255,255,0.38); line-height:1.7; margin-bottom:18px; }
-        .stats-row   { display:flex; gap:0; border-radius:10px; overflow:hidden; border:1px solid rgba(255,255,255,0.07); margin-bottom:18px; }
-        .stat-cell   { flex:1; padding:10px 12px; background:rgba(255,255,255,0.03); border-right:1px solid rgba(255,255,255,0.07); }
+        .left-grid {
+          position:absolute; inset:0; pointer-events:none; z-index:0;
+          background-image:
+            linear-gradient(rgba(255,255,255,0.025) 1px, transparent 1px),
+            linear-gradient(90deg, rgba(255,255,255,0.025) 1px, transparent 1px);
+          background-size:48px 48px;
+          animation:gridPan 10s linear infinite;
+        }
+        .left-glow-a {
+          position:absolute; top:5%; left:10%; width:320px; height:320px;
+          border-radius:50%; background:radial-gradient(circle, rgba(0,128,96,0.12) 0%, transparent 70%);
+          pointer-events:none; z-index:0;
+        }
+        .left-glow-b {
+          position:absolute; bottom:10%; right:5%; width:220px; height:220px;
+          border-radius:50%; background:radial-gradient(circle, rgba(255,255,255,0.04) 0%, transparent 70%);
+          pointer-events:none; z-index:0;
+        }
+
+        .left-logo { font-size:20px; font-weight:800; color:#fff; letter-spacing:-0.5px; position:relative; z-index:1; margin-bottom:0; }
+
+        .hero-area  { flex:1; display:flex; flex-direction:column; justify-content:center; position:relative; z-index:1; margin:24px 0; }
+        .hero-title { font-size:28px; font-weight:800; color:#fff; line-height:1.18; letter-spacing:-0.8px; margin-bottom:8px; }
+        .hero-sub   { font-size:13px; color:rgba(255,255,255,0.38); line-height:1.7; margin-bottom:24px; }
+
+        /* Stats */
+        .stats-row  { display:flex; gap:0; border-radius:10px; overflow:hidden; border:1px solid rgba(255,255,255,0.08); margin-bottom:20px; }
+        .stat-cell  { flex:1; padding:11px 14px; background:rgba(255,255,255,0.03); border-right:1px solid rgba(255,255,255,0.07); }
         .stat-cell:last-child { border-right:none; }
-        .stat-val    { font-size:16px; font-weight:800; color:#fff; animation:countUp .4s ease; }
-        .stat-lbl    { font-size:9px; color:rgba(255,255,255,0.3); margin-top:2px; line-height:1.3; }
-        .notif-feed  { display:flex; flex-direction:column; gap:6px; }
-        .notif       { display:flex; align-items:center; gap:9px; background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.08); border-radius:9px; padding:9px 11px; animation:slideIn .4s cubic-bezier(.34,1.56,.64,1); }
-        .notif-icon  { width:28px; height:28px; border-radius:50%; flex-shrink:0; display:flex; align-items:center; justify-content:center; font-size:13px; }
-        .live-badge  { font-size:10px; color:rgba(255,255,255,0.25); text-transform:uppercase; letter-spacing:.09em; margin-bottom:8px; display:flex; align-items:center; gap:6px; }
-        .pulse-dot   { width:6px; height:6px; border-radius:50%; background:#22c55e; display:inline-block; animation:pulse 1.8s infinite; }
+        .stat-val   { font-size:16px; font-weight:800; color:#fff; animation:countUp .4s ease; }
+        .stat-lbl   { font-size:9px; color:rgba(255,255,255,0.3); margin-top:2px; }
 
-        /* ── Right panel (form) ── */
+        /* ── Activity feed ── */
+        .feed-area  { position:relative; z-index:1; }
+        .feed-label { font-size:9px; font-weight:600; color:rgba(255,255,255,0.25); text-transform:uppercase; letter-spacing:.1em; display:flex; align-items:center; gap:6px; margin-bottom:8px; }
+        .pdot       { width:6px; height:6px; border-radius:50%; background:#00b86c; flex-shrink:0; animation:pulse 1.8s infinite; }
+        .feed-list  { display:flex; flex-direction:column; gap:5px; }
+        .feed-row   { display:flex; align-items:center; gap:9px; background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.07); border-radius:9px; padding:8px 11px; animation:fadeUp .3s ease; }
+
+        /* ── Right (ash form panel) ── */
         .right {
+          width:480px; flex-shrink:0; background:${ash};
           display:flex; align-items:center; justify-content:center;
-          padding:28px 20px 40px; background:#0a0a0f;
-          border-top:1px solid rgba(255,255,255,0.06);
+          padding:40px 40px 48px; overflow-y:auto;
         }
-        .form-wrap { width:100%; max-width:380px; }
-        .form-logo  { font-size:18px; font-weight:800; color:#fff; margin-bottom:24px; display:none; }
+        .form-shell { width:100%; max-width:360px; }
+        .form-logo  { font-size:18px; font-weight:800; color:${text}; letter-spacing:-0.5px; margin-bottom:24px; display:none; }
 
-        .inp { width:100%; padding:11px 14px; background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.1); border-radius:9px; font-size:14px; outline:none; color:#fff; font-family:'Sora',sans-serif; transition:border-color .2s,background .2s; }
-        .inp::placeholder { color:rgba(255,255,255,0.2); }
-        .inp:focus { border-color:rgba(255,255,255,0.28); background:rgba(255,255,255,0.08); }
-        .sub-btn { width:100%; padding:12px; background:#fff; color:#050509; border:none; border-radius:9px; font-size:14px; font-weight:700; cursor:pointer; font-family:'Sora',sans-serif; transition:opacity .15s,transform .15s; }
-        .sub-btn:hover:not(:disabled) { opacity:.9; transform:translateY(-1px); }
-        .sub-btn:disabled { opacity:.35; cursor:not-allowed; }
-        .g-btn { width:100%; padding:11px; background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.1); border-radius:9px; color:#fff; font-size:14px; font-weight:600; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:10px; font-family:'Sora',sans-serif; transition:background .15s; }
-        .g-btn:hover { background:rgba(255,255,255,0.09); }
+        /* tabs */
+        .tabs    { display:flex; border-bottom:2px solid rgba(0,0,0,0.07); margin-bottom:24px; }
+        .tab-btn { flex:1; padding:9px 0; background:none; border:none; border-bottom:2px solid transparent; margin-bottom:-2px; cursor:pointer; font-family:inherit; font-size:13px; font-weight:600; color:${sub}; transition:color .15s, border-color .15s; }
+        .tab-btn.on { color:${text}; border-bottom-color:${green}; }
 
-        /* Desktop: side-by-side */
-        @media (min-width:860px) {
-          .page       { flex-direction:row; }
-          .left       { flex:1; padding:44px 48px; justify-content:space-between; gap:0; }
-          .left-logo  { font-size:20px; }
-          .left-copy  { font-size:40px; letter-spacing:-1.5px; margin-bottom:12px; }
-          .left-sub   { font-size:15px; margin-bottom:36px; }
-          .stats-row  { margin-bottom:40px; }
-          .stat-val   { font-size:22px; }
-          .stat-lbl   { font-size:11px; }
-          .stat-cell  { padding:14px 16px; }
-          .right      { width:420px; flex-shrink:0; padding:44px 48px; border-top:none; border-left:1px solid rgba(255,255,255,0.06); }
-          .form-logo  { display:block; }
+        /* form field */
+        .field { margin-bottom:12px; }
+        .lbl   { font-size:11px; font-weight:500; color:${sub}; display:flex; align-items:center; justify-content:space-between; margin-bottom:4px; }
+        .lbl a { color:${green}; font-weight:500; text-decoration:none; font-size:11px; }
+        .lbl a:hover { text-decoration:underline; }
+        .inp   { width:100%; padding:9px 11px; background:#fff; border:1px solid ${bd}; border-radius:8px; font-size:13px; color:${text}; font-family:inherit; outline:none; transition:border-color .2s, box-shadow .2s; }
+        .inp::placeholder { color:rgba(140,140,140,0.7); }
+        .inp:focus { border-color:${green}; box-shadow:0 0 0 3px rgba(0,128,96,0.1); }
+
+        /* password */
+        .pw-wrap       { position:relative; }
+        .pw-wrap .inp  { padding-right:38px; }
+        .pw-eye        { position:absolute; right:10px; top:50%; transform:translateY(-50%); background:none; border:none; cursor:pointer; color:rgba(120,120,120,0.6); display:flex; padding:4px; transition:color .15s; }
+        .pw-eye:hover  { color:${sub}; }
+
+        /* buttons */
+        .cta-btn { width:100%; padding:11px; background:${text}; color:#fff; border:none; border-radius:9px; font-size:14px; font-weight:700; cursor:pointer; font-family:inherit; display:flex; align-items:center; justify-content:center; gap:7px; transition:opacity .15s, transform .15s; }
+        .cta-btn:hover:not(:disabled) { opacity:.88; transform:translateY(-1px); }
+        .cta-btn:disabled { opacity:.35; cursor:not-allowed; transform:none; }
+        .g-btn { width:100%; padding:10px; background:#fff; border:1px solid ${bd}; border-radius:9px; color:${text}; font-size:13px; font-weight:600; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:10px; font-family:inherit; transition:border-color .15s, box-shadow .15s; }
+        .g-btn:hover { border-color:rgba(150,150,150,0.6); box-shadow:0 1px 4px rgba(0,0,0,0.07); }
+
+        .divider { display:flex; align-items:center; gap:10px; margin:14px 0; }
+        .divider-line { flex:1; height:1px; background:rgba(0,0,0,0.08); }
+        .divider-text { font-size:11px; color:rgba(130,130,130,0.7); }
+
+        .err-box { padding:9px 12px; background:rgba(220,38,38,0.06); border:1px solid rgba(220,38,38,0.2); border-radius:8px; margin-bottom:12px; font-size:12px; color:#c0392b; }
+
+        /* Mobile */
+        @media (max-width:900px) {
+          .shell { flex-direction:column; }
+          .left  { padding:28px 24px 24px; min-height:auto; }
+          .hero-title { font-size:22px; }
+          .right { width:100%; padding:28px 20px 48px; align-items:flex-start; }
+          .form-logo { display:block; }
         }
       `}</style>
 
-      <div className="page">
+      <div className="shell">
 
-        {/* ── LEFT PANEL ── */}
+        {/* ── LEFT PANEL ─────────────────────────────────────────────────── */}
         <div className="left">
-          {/* Moving grid */}
-          <div style={{ position:'absolute', inset:0, zIndex:0, backgroundImage:`linear-gradient(rgba(255,255,255,0.025) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,0.025) 1px,transparent 1px)`, backgroundSize:'48px 48px', animation:'gridMove 12s linear infinite' }}/>
-          <div style={{ position:'absolute', top:'30%', left:'40%', width:400, height:400, borderRadius:'50%', background:'radial-gradient(circle,rgba(0,200,83,0.05) 0%,transparent 70%)', zIndex:0 }}/>
+          <div className="left-grid" />
+          <div className="left-glow-a" />
+          <div className="left-glow-b" />
 
-          {/* Logo */}
-          <div className="left-logo" style={{ position:'relative', zIndex:1 }}>Onshipy</div>
+          <div className="left-logo">Onshipy</div>
 
-          {/* Copy */}
-          <div style={{ position:'relative', zIndex:1 }}>
-            <div className="left-copy">
-              Sell anything.<br/>
+          {/* Hero copy + stats */}
+          <div className="hero-area">
+            <div className="hero-title">
+              Sell anything.<br />
               <span style={{ color:'rgba(255,255,255,0.28)' }}>From anywhere.</span>
             </div>
-            <p className="left-sub">
+            <p className="hero-sub">
               Import from Nike, ASOS, Amazon and 1,000+ stores. Set your price. We purchase and ship automatically.
             </p>
 
-            {/* Stats */}
             <div className="stats-row">
               {stats.map((s, i) => (
                 <div key={i} className="stat-cell">
@@ -239,47 +240,64 @@ export default function Login() {
                 </div>
               ))}
             </div>
-
-            {/* Live feed */}
-            <div className="live-badge">
-              <span className="pulse-dot"/>
-              Live activity
-            </div>
-            <div className="notif-feed">
-              {notifs.slice(0, 3).map(n => (
-                <div key={n.id} className="notif">
-                  <div className="notif-icon" style={{ background:`linear-gradient(135deg,${n.event.color}33,${n.event.color}11)`, border:`1px solid ${n.event.color}44` }}>
-                    {n.event.icon}
-                  </div>
-                  <div style={{ flex:1, minWidth:0 }}>
-                    <div style={{ fontSize:12, fontWeight:600, color:'#fff', display:'flex', alignItems:'center', gap:5 }}>
-                      <span>{n.seller.flag}</span>
-                      <span style={{ overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap' }}>{n.seller.name}</span>
-                      {n.event.type === 'profit' && <span style={{ color:'#22c55e', fontWeight:700 }}>+${n.event.profit}</span>}
-                    </div>
-                    <div style={{ fontSize:10, color:'rgba(255,255,255,0.35)', marginTop:1, overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap' }}>
-                      {n.event.text} · {n.seller.city}
-                    </div>
-                  </div>
-                </div>
-              ))}
-            </div>
           </div>
 
-          <div style={{ position:'relative', zIndex:1 }}/>
+          {/* Live activity feed */}
+          <div className="feed-area">
+            <div className="feed-label">
+              <span className="pdot"/> Live activity
+            </div>
+            <div className="feed-list">
+              {feed.map(n => {
+                const isSale      = n.action === 'sale';
+                const isShopify   = n.action === 'shopify';
+                const isMilestone = n.action === 'milestone';
+                return (
+                  <div key={n.id} className="feed-row">
+                    <div style={{ position:'relative', width:30, height:30, borderRadius:'50%', flexShrink:0, background:'rgba(255,255,255,0.1)', border:'1.5px solid rgba(255,255,255,0.1)', display:'flex', alignItems:'center', justifyContent:'center' }}>
+                      <span style={{ fontSize:10, fontWeight:700, color:'rgba(255,255,255,0.7)', lineHeight:1, userSelect:'none', zIndex:0 }}>{n.name.split(' ').map(w=>w[0]).join('')}</span>
+                      <img
+                        style={{ position:'absolute', inset:0, width:'100%', height:'100%', borderRadius:'50%', objectFit:'cover', zIndex:1 }}
+                        src={`https://i.pravatar.cc/40?img=${n.img}`}
+                        alt={n.name}
+                        onError={e => { e.currentTarget.style.opacity = '0'; }}
+                      />
+                    </div>
+                    <div style={{ flex:1, minWidth:0 }}>
+                      <div style={{ display:'flex', alignItems:'center', gap:5, marginBottom:2 }}>
+                        <span style={{ fontSize:11, fontWeight:600, color:'#fff', flexShrink:0 }}>{n.name}</span>
+                        <span style={{ fontSize:11 }}>{FLAGS[n.country] || ''}</span>
+                        <span style={{ marginLeft:'auto', fontSize:9, color:'rgba(255,255,255,0.22)', flexShrink:0 }}>{n.time}</span>
+                      </div>
+                      <div style={{ fontSize:10, color:'rgba(255,255,255,0.38)', overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap' }}>
+                        {isSale      && <><span style={{ color:'#69f0ae', fontWeight:600 }}>{n.profit}</span> profit · sold {n.item}</>}
+                        {n.action === 'import' && <>Imported {n.item} · <span style={{ color:'rgba(255,255,255,0.55)' }}>{n.price}</span></>}
+                        {isShopify   && <span style={{ color:'#95BF47' }}>Connected Shopify store</span>}
+                        {isMilestone && <><span style={{ color:'#ffd54f', fontWeight:600 }}>{n.profit}</span> total earnings milestone</>}
+                      </div>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
         </div>
 
-        {/* ── RIGHT PANEL — form ── */}
+        {/* ── RIGHT PANEL ────────────────────────────────────────────────── */}
         <div className="right">
-          <div className="form-wrap">
+          <div className="form-shell">
 
             <div className="form-logo">Onshipy</div>
 
-            <h1 style={{ fontSize:22, fontWeight:800, color:'#fff', marginBottom:4, letterSpacing:'-0.5px' }}>Welcome back</h1>
-            <p style={{ fontSize:13, color:'rgba(255,255,255,0.35)', marginBottom:24 }}>Sign in to your account</p>
+            {/* Tab bar */}
+            <div className="tabs">
+              <button className="tab-btn on">Login</button>
+              <button className="tab-btn" onClick={() => router.push('/register')}>Sign Up</button>
+            </div>
 
-            <button className="g-btn" onClick={() => window.location.href = `${API_BASE}/api/auth/google`} style={{ marginBottom:16 }}>
-              <svg width="17" height="17" viewBox="0 0 24 24">
+            {/* Google */}
+            <button className="g-btn" onClick={() => window.location.href = `${API_BASE}/api/auth/google`} style={{ marginBottom:14 }}>
+              <svg width="16" height="16" viewBox="0 0 24 24">
                 <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
                 <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
                 <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/>
@@ -288,43 +306,48 @@ export default function Login() {
               Continue with Google
             </button>
 
-            <div style={{ display:'flex', alignItems:'center', gap:10, marginBottom:16 }}>
-              <div style={{ flex:1, height:1, background:'rgba(255,255,255,0.07)' }}/>
-              <span style={{ fontSize:11, color:'rgba(255,255,255,0.2)' }}>or email</span>
-              <div style={{ flex:1, height:1, background:'rgba(255,255,255,0.07)' }}/>
+            <div className="divider">
+              <div className="divider-line"/>
+              <span className="divider-text">or with email</span>
+              <div className="divider-line"/>
             </div>
 
             <form onSubmit={handleSubmit}>
-              <div style={{ marginBottom:12 }}>
-                <label style={{ fontSize:10, fontWeight:600, color:'rgba(255,255,255,0.4)', display:'block', marginBottom:6, textTransform:'uppercase', letterSpacing:'0.06em' }}>Email</label>
+
+              <div className="field">
+                <label className="lbl">Email address</label>
                 <input className="inp" type="email" required placeholder="you@example.com"
-                  value={form.email} onChange={e => setForm({ ...form, email: e.target.value })}/>
+                  value={form.email} onChange={e => setForm({ ...form, email: e.target.value })} />
               </div>
 
-              <div style={{ marginBottom:6 }}>
-                <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center', marginBottom:6 }}>
-                  <label style={{ fontSize:10, fontWeight:600, color:'rgba(255,255,255,0.4)', textTransform:'uppercase', letterSpacing:'0.06em' }}>Password</label>
-                  <a href="#" style={{ fontSize:11, color:'rgba(255,255,255,0.3)', textDecoration:'none' }}>Forgot?</a>
+              <div className="field">
+                <label className="lbl">
+                  <span>Password</span>
+                  <a href="#">Forgot password?</a>
+                </label>
+                <div className="pw-wrap">
+                  <input className="inp" type={showPw ? 'text' : 'password'} required placeholder="Enter your password"
+                    value={form.password} onChange={e => setForm({ ...form, password: e.target.value })} />
+                  <button type="button" className="pw-eye" onClick={() => setShowPw(v => !v)}><EyeIcon open={showPw}/></button>
                 </div>
-                <input className="inp" type="password" required placeholder="••••••••"
-                  value={form.password} onChange={e => setForm({ ...form, password: e.target.value })}/>
               </div>
 
-              {error && (
-                <div style={{ padding:'9px 13px', background:'rgba(239,68,68,0.1)', border:'1px solid rgba(239,68,68,0.25)', borderRadius:8, marginBottom:12, fontSize:13, color:'#f87171' }}>
-                  {error}
-                </div>
-              )}
+              {error && <div className="err-box">{error}</div>}
 
-              <button className="sub-btn" type="submit" disabled={loading} style={{ marginTop:14 }}>
-                {loading ? 'Signing in...' : 'Sign in'}
+              <button className="cta-btn" type="submit" disabled={loading}>
+                {loading
+                  ? <><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" style={{ animation:'spin 0.8s linear infinite' }}><path d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" opacity=".2"/><path d="M21 12a9 9 0 00-9-9"/></svg> Signing in…</>
+                  : 'Sign in'
+                }
               </button>
+
             </form>
 
-            <p style={{ textAlign:'center', marginTop:16, fontSize:13, color:'rgba(255,255,255,0.28)' }}>
-              No account?{' '}
-              <Link href="/register" style={{ color:'#fff', fontWeight:700, textDecoration:'none' }}>Create one free</Link>
+            <p style={{ textAlign:'center', marginTop:16, fontSize:12, color:sub }}>
+              No account yet?{' '}
+              <Link href="/register" style={{ color:green, fontWeight:600, textDecoration:'none' }}>Create one free</Link>
             </p>
+
           </div>
         </div>
 
