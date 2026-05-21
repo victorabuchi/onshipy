@@ -1302,6 +1302,7 @@ export default function Browse() {
           {notifs.map(n => <ActivityPill key={n.id} item={n} visible={notifVisible} />)}
         </div>
 
+        <div style={{ background: P.bg, minHeight: '100vh' }}>
         <div style={{ maxWidth: 700, margin: '0 auto', padding: '24px 20px 60px' }}>
           <button onClick={closeEmbed} style={{ display: 'flex', alignItems: 'center', gap: 5, background: 'none', border: 'none', cursor: 'pointer', color: P.textSubdued, fontSize: P.fontSize, fontFamily: P.font, padding: 0, marginBottom: 20, fontWeight: 500 }}>
             <svg width="14" height="14" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg>
@@ -1390,6 +1391,7 @@ export default function Browse() {
             </div>
           )}
         </div>
+        </div>
       </Layout>
     );
   }
@@ -1417,6 +1419,7 @@ export default function Browse() {
           {notifs.map(n => <ActivityPill key={n.id} item={n} visible={notifVisible} />)}
         </div>
 
+        <div style={{ background: P.bg, minHeight: '100vh' }}>
         <div className="browse-wrap" style={{ padding: '24px 24px 60px', maxWidth: 1160, margin: '0 auto' }}>
 
           {/* Header */}
@@ -1491,6 +1494,7 @@ export default function Browse() {
             </div>
           )}
         </div>
+        </div>
       </Layout>
     );
   }
@@ -1521,6 +1525,7 @@ export default function Browse() {
         {notifs.map(n => <ActivityPill key={n.id} item={n} visible={notifVisible} />)}
       </div>
 
+      <div style={{ background: P.bg, minHeight: '100vh' }}>
       <div className="brand-wrap" style={{ padding: '20px 24px 60px', maxWidth: 1160, margin: '0 auto' }}>
 
         {/* Breadcrumb */}
@@ -1649,6 +1654,7 @@ export default function Browse() {
             </div>
           )}
         </div>
+      </div>
       </div>
     </Layout>
   );

@@ -20,6 +20,7 @@ export default function OnlineStore() {
   const [shopInput, setShopInput] = useState('');
   const [error, setError] = useState('');
   const [successMsg, setSuccessMsg] = useState('');
+  const [showDisconnectModal, setShowDisconnectModal] = useState(false);
 
   // Fix bfcache: when browser restores page from cache (Back button), reset connecting
   useEffect(() => {
@@ -92,7 +93,7 @@ export default function OnlineStore() {
   };
 
   const handleDisconnect = async () => {
-    if (!confirm('Disconnect your Shopify store?')) return;
+    setShowDisconnectModal(false);
     setDisconnecting(true);
     try {
       await fetch(`${API_BASE}/api/stores/shopify`, {
@@ -116,6 +117,19 @@ export default function OnlineStore() {
 
   return (
     <Layout title="Online Store">
+      {showDisconnectModal && (
+        <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.45)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 9999 }}>
+          <div style={{ background: '#fff', borderRadius: 12, padding: '24px 28px', width: 340, boxShadow: '0 8px 32px rgba(0,0,0,0.18)', fontFamily: P.font }}>
+            <div style={{ fontWeight: 650, fontSize: '0.9375rem', color: P.text, marginBottom: 8 }}>Disconnect Shopify store?</div>
+            <div style={{ fontSize: P.fontSize, color: 'rgba(97,97,97,1)', marginBottom: 20, lineHeight: 1.55 }}>Products pushed to Shopify will remain, but you won't be able to push new products until you reconnect.</div>
+            <div style={{ display: 'flex', gap: 8, justifyContent: 'flex-end' }}>
+              <button onClick={() => setShowDisconnectModal(false)} style={{ padding: '7px 16px', background: '#fff', border: '1px solid rgba(227,227,227,1)', borderRadius: 8, fontSize: P.fontSize, cursor: 'pointer', fontFamily: P.font, color: P.text }}>Cancel</button>
+              <button onClick={handleDisconnect} style={{ padding: '7px 16px', background: '#d82c0d', color: '#fff', border: 'none', borderRadius: 8, fontSize: P.fontSize, fontWeight: 500, cursor: 'pointer', fontFamily: P.font }}>Disconnect</button>
+            </div>
+          </div>
+        </div>
+      )}
+      <div style={{ background: P.bg, minHeight: '100vh' }}>
       <div style={{ fontFamily: P.font, fontSize: P.fontSize, color: P.text, maxWidth: 760, margin: '0 auto', padding: '24px 20px 80px' }}>
 
         <div style={{ marginBottom: 24 }}>
@@ -168,7 +182,7 @@ export default function OnlineStore() {
                 <span style={{ fontSize: 7 }}>●</span> Connected
               </span>
               <button
-                onClick={handleDisconnect}
+                onClick={() => setShowDisconnectModal(true)}
                 disabled={disconnecting}
                 style={{ padding: '5px 14px', background: P.surface, color: '#d82c0d', border: '1px solid rgba(216,44,13,0.3)', borderRadius: 8, cursor: disconnecting ? 'not-allowed' : 'pointer', fontSize: '0.75rem', fontWeight: 500, fontFamily: P.font, whiteSpace: 'nowrap' }}
               >
@@ -238,6 +252,7 @@ export default function OnlineStore() {
         ))}
 
         <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
+      </div>
       </div>
     </Layout>
   );

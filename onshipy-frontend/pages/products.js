@@ -246,7 +246,7 @@ export default function Products() {
         </div>
       )}
 
-      <div style={{ fontFamily: P.font, fontSize: P.fontSize, letterSpacing: P.letterSpacing, color: P.text, display: 'flex', minHeight: 'calc(100vh - 56px)' }}>
+      <div style={{ fontFamily: P.font, fontSize: P.fontSize, letterSpacing: P.letterSpacing, color: P.text, display: 'flex', minHeight: 'calc(100vh - 56px)', background: P.bg }}>
 
         {/* ── Main content ── */}
         <div style={{ flex: 1, overflowY: 'auto', background: P.bg, minWidth: 0 }}>

@@ -104,6 +104,7 @@ export default function Finance() {
         }
       `}</style>
 
+      <div style={{ background: P.bg, minHeight: '100vh' }}>
       <div className="fin-wrap" style={{ padding: '20px 24px', maxWidth: 1200 }}>
 
         {/* Page header */}
@@ -248,6 +249,7 @@ export default function Finance() {
             </div>
           </div>
         )}
+      </div>
       </div>
     </Layout>
   );
