@@ -149,7 +149,7 @@ export default function Orders() {
         }
       `}</style>
 
-      <div style={{ fontFamily: P.font, fontSize: P.fontSize, letterSpacing: P.letterSpacing, color: P.text, background: P.bg, minHeight: 'calc(100vh - 56px)', display: 'flex', gap: 0 }}
+      <div style={{ fontFamily: P.font, fontSize: P.fontSize, letterSpacing: P.letterSpacing, color: P.text, background: P.bg, minHeight: '100vh', display: 'flex', gap: 0 }}
         onClick={() => showActionsMenu && setShowActionsMenu(false)}>
 
         {/* ── Main column ── */}
