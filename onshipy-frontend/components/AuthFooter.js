@@ -80,7 +80,7 @@ export default function AuthFooter() {
 
   return (
     <footer style={{
-      background: '#0a0a0a',
+      background: '#1a1a1a',
       fontFamily: "'Inter',-apple-system,BlinkMacSystemFont,sans-serif",
       padding: '64px 48px 32px',
     }}>
