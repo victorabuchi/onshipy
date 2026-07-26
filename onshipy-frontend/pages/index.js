@@ -1,8 +1,18 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import Head from 'next/head';
+import { CloudArrowDownIcon, TagIcon, TruckIcon, ChartBarIcon, ShoppingBagIcon, ShieldCheckIcon } from '@heroicons/react/24/outline';
 import AuthNav from '../components/AuthNav';
 import AuthFooter from '../components/AuthFooter';
+
+const FEATURES = [
+  { Icon: CloudArrowDownIcon, title: 'Import',        desc: 'Pull any product from Nike, ASOS, Amazon and 1,000+ other stores in one click.' },
+  { Icon: TagIcon,            title: 'Price & sell',  desc: 'Set your own margin and publish straight to your storefront.' },
+  { Icon: TruckIcon,          title: 'Fulfillment',   desc: 'A customer buys — we purchase from the source and ship it to them automatically.' },
+  { Icon: ChartBarIcon,       title: 'Analytics',     desc: 'See profit per sale and per store, updated in real time as orders come in.' },
+  { Icon: ShoppingBagIcon,    title: 'Shopify sync',  desc: 'Connect your Shopify store and keep listings, prices and stock in sync.' },
+  { Icon: ShieldCheckIcon,    title: 'Reliable',      desc: 'Orders are verified and tracked end-to-end, so nothing falls through the cracks.' },
+];
 
 const ACTIVITIES = [
   { name: 'Marcus J.',  country: 'US', action: 'sale',      item: "Nike Air Force 1 '07",       profit: '+€80',  price: null,    time: '2s ago',  img: 15 },
@@ -132,6 +142,39 @@ export default function Home() {
           .stat-cell { padding:11px 10px; }
           .stat-val { font-size:15px; }
         }
+
+        /* FEATURES */
+        .features { background:#1a1a1a; padding:80px 48px; border-top:1px solid rgba(255,255,255,0.06); }
+        .features-inner { max-width:1200px; margin:0 auto; }
+        .section-eyebrow { font-size:11px; font-weight:700; color:#00b86c; text-transform:uppercase; letter-spacing:.1em; margin-bottom:10px; }
+        .section-title { font-size:32px; font-weight:800; color:#fff; letter-spacing:-1px; margin-bottom:10px; }
+        .section-sub { font-size:15px; color:rgba(255,255,255,0.45); max-width:560px; line-height:1.6; margin-bottom:48px; }
+
+        .feature-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:16px; }
+        .feature-card { background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.07); border-radius:14px; padding:24px; transition:border-color .15s, background .15s; }
+        .feature-card:hover { border-color:rgba(255,255,255,0.15); background:rgba(255,255,255,0.045); }
+        .feature-icon { width:38px; height:38px; border-radius:10px; background:rgba(0,184,124,0.12); color:#00b86c; display:flex; align-items:center; justify-content:center; margin-bottom:16px; }
+        .feature-card h3 { font-size:16px; font-weight:700; color:#fff; margin-bottom:8px; letter-spacing:-0.2px; }
+        .feature-card p { font-size:13px; color:rgba(255,255,255,0.45); line-height:1.6; }
+
+        .bento-row { display:grid; grid-template-columns:1fr; gap:16px; margin-top:16px; }
+        .bento-card { background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.07); border-radius:14px; padding:28px; display:flex; flex-direction:column; gap:18px; }
+        .bento-card h3 { font-size:19px; font-weight:800; color:#fff; letter-spacing:-0.3px; }
+        .bento-card p { font-size:13px; color:rgba(255,255,255,0.45); line-height:1.6; max-width:380px; }
+        .bento-visual { display:flex; flex-direction:column; gap:8px; }
+        .bento-check-list { display:flex; flex-direction:column; gap:9px; }
+        .bento-check { display:flex; align-items:center; gap:10px; font-size:13px; color:rgba(255,255,255,0.6); }
+        .bento-check-dot { width:16px; height:16px; border-radius:50%; background:rgba(0,184,124,0.15); color:#00b86c; display:flex; align-items:center; justify-content:center; font-size:10px; flex-shrink:0; }
+
+        @media (max-width:900px) {
+          .features { padding:56px 24px; }
+          .feature-grid { grid-template-columns:repeat(2,1fr); }
+        }
+
+        @media (max-width:560px) {
+          .feature-grid { grid-template-columns:1fr; }
+          .section-title { font-size:26px; }
+        }
       `}</style>
 
       <div className="home-shell">
@@ -193,6 +236,42 @@ export default function Home() {
                     <div className="feed-time">{n.time}</div>
                   </div>
                 ))}
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* FEATURES */}
+        <section className="features">
+          <div className="features-inner">
+            <div className="section-eyebrow">Why Onshipy</div>
+            <h2 className="section-title">Everything you need to run a store</h2>
+            <p className="section-sub">Import products, set your price, and let Onshipy handle purchasing, shipping and tracking — automatically.</p>
+
+            <div className="feature-grid">
+              {FEATURES.map(f => (
+                <div key={f.title} className="feature-card">
+                  <div className="feature-icon"><f.Icon width={20} height={20} /></div>
+                  <h3>{f.title}</h3>
+                  <p>{f.desc}</p>
+                </div>
+              ))}
+            </div>
+
+            <div className="bento-row">
+              <div className="bento-card">
+                <h3>Built to work with Shopify</h3>
+                <p>Connect your store once and everything stays in sync from then on.</p>
+                <div className="bento-visual">
+                  <div className="bento-check-list">
+                    {['Listings synced automatically', 'Stock updated in real time', 'One-click Shopify connect'].map(t => (
+                      <div key={t} className="bento-check">
+                        <span className="bento-check-dot">✓</span>
+                        {t}
+                      </div>
+                    ))}
+                  </div>
+                </div>
               </div>
             </div>
           </div>
