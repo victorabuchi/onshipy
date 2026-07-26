@@ -4,56 +4,62 @@ const NAV_LINKS = ['Why Onshipy', 'Products', 'Pricing', 'Enterprise'];
 
 export default function AuthNav({ startHref = '/register', loginHref = '/login' }) {
   return (
-    <nav style={{
-      background: '#1a1a1a',
-      height: 60,
-      display: 'flex',
-      alignItems: 'center',
-      padding: '0 32px',
-      borderBottom: '1px solid rgba(255,255,255,0.07)',
-      position: 'relative',
-      zIndex: 100,
-      flexShrink: 0,
-      fontFamily: "'Inter',-apple-system,BlinkMacSystemFont,sans-serif",
-    }}>
+    <nav className="auth-nav">
+      <style>{`
+        .auth-nav {
+          background:#1a1a1a; height:60px; display:flex; align-items:center;
+          padding:0 32px; border-bottom:1px solid rgba(255,255,255,0.07);
+          position:relative; z-index:100; flex-shrink:0; gap:12px;
+          font-family:'Inter',-apple-system,BlinkMacSystemFont,sans-serif;
+        }
+        .auth-nav-logo { display:flex; align-items:center; gap:9px; text-decoration:none; flex-shrink:0; }
+        .auth-nav-links { display:flex; align-items:center; gap:2px; flex:1; min-width:0; }
+        .auth-nav-link {
+          padding:6px 11px; font-size:13px; font-weight:500; color:rgba(255,255,255,0.6);
+          text-decoration:none; border-radius:7px; white-space:nowrap; transition:color 0.15s;
+        }
+        .auth-nav-link:hover { color:#fff; }
+        .auth-nav-actions { display:flex; align-items:center; gap:8px; flex-shrink:0; }
+        .auth-nav-login {
+          padding:7px 16px; font-size:13px; font-weight:600; color:rgba(255,255,255,0.75);
+          text-decoration:none; border-radius:8px; white-space:nowrap; transition:color 0.15s;
+        }
+        .auth-nav-login:hover { color:#fff; }
+        .auth-nav-cta {
+          padding:8px 20px; font-size:13px; font-weight:700; color:#1a1a1a; background:#fff;
+          text-decoration:none; border-radius:24px; white-space:nowrap; transition:opacity 0.15s;
+        }
+        .auth-nav-cta:hover { opacity:0.88; }
+
+        @media (max-width:640px) {
+          .auth-nav { padding:0 16px; gap:8px; }
+          .auth-nav-links { display:none; }
+          .auth-nav-login { padding:7px 12px; font-size:12px; }
+          .auth-nav-cta { padding:7px 14px; font-size:12px; }
+        }
+      `}</style>
 
       {/* Logo */}
-      <Link href="/" style={{ display:'flex', alignItems:'center', gap:9, textDecoration:'none', marginRight:32, flexShrink:0 }}>
+      <Link href="/" className="auth-nav-logo">
         <img src="/favicon-32x32.png" alt="Onshipy" width={22} height={22} style={{ filter:'brightness(0) invert(1)', flexShrink:0 }} />
         <span style={{ fontSize:17, fontWeight:800, color:'#fff', letterSpacing:'-0.4px' }}>Onshipy</span>
       </Link>
 
       {/* Nav links */}
-      <div style={{ display:'flex', alignItems:'center', gap:2, flex:1 }}>
+      <div className="auth-nav-links">
         {NAV_LINKS.map(label => (
-          <a
-            key={label}
-            href="#"
-            style={{ padding:'6px 11px', fontSize:13, fontWeight:500, color:'rgba(255,255,255,0.6)', textDecoration:'none', borderRadius:7, transition:'color 0.15s', whiteSpace:'nowrap' }}
-            onMouseEnter={e => e.currentTarget.style.color = '#fff'}
-            onMouseLeave={e => e.currentTarget.style.color = 'rgba(255,255,255,0.6)'}
-          >
+          <a key={label} href="#" className="auth-nav-link">
             {label}
           </a>
         ))}
       </div>
 
       {/* Action buttons */}
-      <div style={{ display:'flex', alignItems:'center', gap:8, flexShrink:0 }}>
-        <Link
-          href={loginHref}
-          style={{ padding:'7px 16px', fontSize:13, fontWeight:600, color:'rgba(255,255,255,0.75)', textDecoration:'none', borderRadius:8, transition:'color 0.15s', whiteSpace:'nowrap' }}
-          onMouseEnter={e => e.currentTarget.style.color = '#fff'}
-          onMouseLeave={e => e.currentTarget.style.color = 'rgba(255,255,255,0.75)'}
-        >
+      <div className="auth-nav-actions">
+        <Link href={loginHref} className="auth-nav-login">
           Log in
         </Link>
-        <Link
-          href={startHref}
-          style={{ padding:'8px 20px', fontSize:13, fontWeight:700, color:'#1a1a1a', background:'#fff', textDecoration:'none', borderRadius:24, whiteSpace:'nowrap', transition:'opacity 0.15s' }}
-          onMouseEnter={e => e.currentTarget.style.opacity = '0.88'}
-          onMouseLeave={e => e.currentTarget.style.opacity = '1'}
-        >
+        <Link href={startHref} className="auth-nav-cta">
           Start for free
         </Link>
       </div>

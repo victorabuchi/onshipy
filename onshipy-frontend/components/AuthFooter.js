@@ -79,17 +79,30 @@ export default function AuthFooter() {
   };
 
   return (
-    <footer style={{
-      background: '#1a1a1a',
-      fontFamily: "'Inter',-apple-system,BlinkMacSystemFont,sans-serif",
-      padding: '64px 48px 32px',
-    }}>
-      <div style={{ maxWidth: 1200, margin: '0 auto' }}>
+    <footer className="auth-footer">
+      <style>{`
+        .auth-footer { background:#1a1a1a; font-family:'Inter',-apple-system,BlinkMacSystemFont,sans-serif; padding:64px 48px 32px; }
+        .auth-footer-inner { max-width:1200px; margin:0 auto; }
+        .auth-footer-top { display:flex; gap:48px; margin-bottom:64px; }
+        .auth-footer-logo { flex-shrink:0; width:160px; }
+        .auth-footer-cols { display:flex; flex:1; flex-wrap:wrap; gap:32px; justify-content:space-between; }
+        .auth-footer-bottom { display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:16px; }
+
+        @media (max-width:700px) {
+          .auth-footer { padding:48px 24px 24px; }
+          .auth-footer-top { flex-direction:column; gap:32px; margin-bottom:40px; }
+          .auth-footer-logo { width:100%; }
+          .auth-footer-cols { gap:28px 20px; }
+          .auth-footer-cols > div { width:calc(50% - 10px); }
+          .auth-footer-bottom { justify-content:center; text-align:center; }
+        }
+      `}</style>
+      <div className="auth-footer-inner">
 
         {/* Top row: logo + columns */}
-        <div style={{ display: 'flex', gap: 48, marginBottom: 64 }}>
+        <div className="auth-footer-top">
           {/* Logo */}
-          <div style={{ flexShrink: 0, width: 160 }}>
+          <div className="auth-footer-logo">
             <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 6 }}>
               <img src="/favicon-32x32.png" alt="Onshipy" width={22} height={22} style={{ filter: 'brightness(0) invert(1)' }} />
               <span style={{ fontSize: 16, fontWeight: 800, color: '#fff', letterSpacing: '-0.4px' }}>Onshipy</span>
@@ -100,7 +113,7 @@ export default function AuthFooter() {
           </div>
 
           {/* Link columns */}
-          <div style={{ display: 'flex', flex: 1, gap: 0, justifyContent: 'space-between' }}>
+          <div className="auth-footer-cols">
             {COLS.map(col => (
               <div key={col.heading}>
                 <p style={heading}>{col.heading}</p>
@@ -124,7 +137,7 @@ export default function AuthFooter() {
         <div style={{ height: 1, background: 'rgba(255,255,255,0.08)', marginBottom: 28 }} />
 
         {/* Bottom bar */}
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 16 }}>
+        <div className="auth-footer-bottom">
           {/* Legal links */}
           <div style={{ display: 'flex', alignItems: 'center', gap: 4, flexWrap: 'wrap' }}>
             <span style={{ fontSize: 12, color: 'rgba(255,255,255,0.3)', marginRight: 12 }}>

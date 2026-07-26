@@ -72,7 +72,7 @@ export default function Home() {
       <style>{`
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap');
         *, *::before, *::after { box-sizing:border-box; margin:0; padding:0; }
-        html, body { width:100%; min-height:100vh; background:#1a1a1a; font-family:'Inter',-apple-system,BlinkMacSystemFont,sans-serif; -webkit-font-smoothing:antialiased; }
+        html, body { width:100%; min-height:100vh; overflow-x:hidden; background:#1a1a1a; font-family:'Inter',-apple-system,BlinkMacSystemFont,sans-serif; -webkit-font-smoothing:antialiased; }
 
         @keyframes fadeUp  { from{opacity:0;transform:translateY(10px)} to{opacity:1;transform:translateY(0)} }
         @keyframes gridPan { from{background-position:0 0} to{background-position:0 48px} }
@@ -122,6 +122,15 @@ export default function Home() {
           .hero-inner { flex-direction:column; padding:48px 24px 40px; gap:40px; }
           .hero-title { font-size:38px; }
           .hero-right { width:100%; }
+        }
+
+        @media (max-width:420px) {
+          .hero-inner { padding:36px 16px 32px; gap:32px; }
+          .hero-title { font-size:30px; letter-spacing:-1px; }
+          .hero-sub { font-size:14px; margin-bottom:24px; }
+          .stats-row { max-width:100%; }
+          .stat-cell { padding:11px 10px; }
+          .stat-val { font-size:15px; }
         }
       `}</style>
 
