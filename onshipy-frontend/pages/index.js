@@ -8,7 +8,7 @@ import AuthFooter from '../components/AuthFooter';
 const FEATURES = [
   { Icon: CloudArrowDownIcon, title: 'Import',        desc: 'Pull any product from Nike, ASOS, Amazon and 1,000+ other stores in one click.' },
   { Icon: TagIcon,            title: 'Price & sell',  desc: 'Set your own margin and publish straight to your storefront.' },
-  { Icon: TruckIcon,          title: 'Fulfillment',   desc: 'A customer buys — we purchase from the source and ship it to them automatically.' },
+  { Icon: TruckIcon,          title: 'Fulfillment',   desc: 'A customer buys, and we purchase from the source and ship it to them automatically.' },
   { Icon: ChartBarIcon,       title: 'Analytics',     desc: 'See profit per sale and per store, updated in real time as orders come in.' },
   { Icon: ShoppingBagIcon,    title: 'Shopify sync',  desc: 'Connect your Shopify store and keep listings, prices and stock in sync.' },
   { Icon: ShieldCheckIcon,    title: 'Reliable',      desc: 'Orders are verified and tracked end-to-end, so nothing falls through the cracks.' },
@@ -73,7 +73,7 @@ export default function Home() {
   return (
     <>
       <Head>
-        <title>Onshipy — Sell anything. From anywhere.</title>
+        <title>Onshipy: Sell anything. From anywhere.</title>
         <link rel="icon" href="/favicon.ico" />
         <meta name="description" content="Import from Nike, ASOS, Amazon and 1,000+ stores. Set your price. We handle the purchase and shipping automatically." />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -247,7 +247,7 @@ export default function Home() {
           <div className="features-inner">
             <div className="section-eyebrow">Why Onshipy</div>
             <h2 className="section-title">Everything you need to run a store</h2>
-            <p className="section-sub">Import products, set your price, and let Onshipy handle purchasing, shipping and tracking — automatically.</p>
+            <p className="section-sub">Import products, set your price, and let Onshipy handle purchasing, shipping and tracking automatically.</p>
 
             <div className="feature-grid">
               {FEATURES.map(f => (
