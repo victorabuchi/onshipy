@@ -62,7 +62,7 @@ export default function AuthNav({ startHref = '/register', loginHref = '/login' 
         .auth-nav {
           background:#1a1a1a; height:60px; display:flex; align-items:center;
           padding:0 32px; border-bottom:1px solid rgba(255,255,255,0.07);
-          position:relative; z-index:100; flex-shrink:0; gap:12px;
+          position:sticky; top:0; z-index:100; flex-shrink:0; gap:12px;
           font-family:'Inter',-apple-system,BlinkMacSystemFont,sans-serif;
         }
         .auth-nav-logo { display:flex; align-items:center; gap:9px; text-decoration:none; flex-shrink:0; }
